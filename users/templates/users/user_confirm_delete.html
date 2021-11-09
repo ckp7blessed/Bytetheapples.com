@@ -1,0 +1,22 @@
+{% extends 'blog/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+	<div class="content-section">
+    {% if user.is_authenticated %}
+	    <form method="POST">
+	        {% csrf_token %}
+	        <fieldset class="form-group">
+	        <h2>Are you sure you want to delete your account?</h2>
+	        <h4 class="text-danger">Warning, this is irreversible</h4>
+	    	</fieldset>
+	    	<div class="form-group">
+	        <button class="btn btn-outline-danger" type="submit">Delete</button>
+	    	<a class="btn btn-outline-secondary ml-5" href="{% url 'profile_settings' %}">Cancel</a>
+	    	</div>
+    {% else %}
+        <p><a href="{% url 'login' %}">Login</a></p>
+    {% endif %}
+	    </form>
+	</div>
+{% endblock content %}

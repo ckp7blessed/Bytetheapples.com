@@ -1,0 +1,15 @@
+{% extends 'blog/base.html' %}
+<body>
+{% block content %}
+	<h1>Search Results</h1>
+	{% for user in object_list %}
+	<article class="media content-section">
+		<img class="rounded-circle article-img" src={{ user.profile.image.url }}>
+		<div class="media-body">
+		<div class="article-metadata">
+		<a class="mr-2" href="{% url 'user-posts' user.username %}">{{ user.username }}</a>
+	</article>
+	{% endfor %}
+
+{% endblock content %}
+</body>
