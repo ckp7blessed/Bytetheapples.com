@@ -1,5 +1,8 @@
 {% extends 'blog/base.html' %}
+{% load account socialaccount %}
+{% load socialaccount %}
 {% load crispy_forms_tags %}
+
 {% block content %}
 	<div class="content-section">
 		<form method="POST">
@@ -15,6 +18,25 @@
 				</small>
 			</div>
 		</form>
+				<div class="container">
+				<div class="socialaccount_ballot">
+				{% get_providers as socialaccount_providers %}
+				{% for provider in socialaccount_providers %}
+				{% if provider.id == "openid" %}
+				{% for brand in provider.get_brands %}
+				<div class="socialaccount_ballot">
+				  <a title="{{brand.name}}" 
+				     class="socialaccount_provider {{provider.id}} {{brand.id}}" 
+				     href="{% provider_login_url provider.id openid=brand.openid_url process=process %}"
+				     >{{brand.name}}</a>
+				{% endfor %}
+				{% endif %}
+				  <a title="{{provider.name}}" class="socialaccount_provider {{provider.id}}" 
+				     href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}">{{provider.name}}</a>
+				{% endfor %}
+				</div>
+				</div>
+				</div>
 		<div class="border-top pt-3">
 			<small class="text-muted">
 				Need An Account?<a href="{% url 'register' %}"> Sign Up Now</a>

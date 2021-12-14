@@ -19,6 +19,7 @@ from django.urls import path, include
 from users import views as user_views
 from django.conf import settings
 from django.conf.urls.static import static
+from users.forms import CustomAuthForm
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,7 +29,7 @@ urlpatterns = [
     path('profile/', user_views.UserProfileListView.as_view(), name='profile'),
     #path('search/', user_views.UserResultsView.as_view(), name='user_results'),
     path('profile/settings', user_views.profile_settings, name='profile_settings'),
-    path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='login'),
+    path('login/', auth_views.LoginView.as_view(template_name='users/login.html', authentication_form=CustomAuthForm), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
     path('<int:pk>/account_delete/', user_views.UserDeleteView.as_view(), name='user_confirm_delete'),
     path('password-reset/', 

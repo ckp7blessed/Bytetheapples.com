@@ -4,10 +4,14 @@
 	<h1>Search Results</h1>
 	{% for user in object_list %}
 	<article class="media content-section">
-		<img class="rounded-circle article-img" src={{ user.profile.image.url }}>
+		<img class="rounded-circle article-img" src="{{ user.profile.image.url }}">
 		<div class="media-body">
 		<div class="article-metadata">
 		<a class="mr-2" href="{% url 'user-posts' user.username %}">{{ user.username }}</a>
+		<p>Last login {{ user.last_login | date:"F d, Y" }}<br>
+		Account created {{ user.date_joined | date:"F d, Y"  }}</p>
+		</div>
+		</div>
 	</article>
 	{% endfor %}
 

@@ -10,7 +10,7 @@
 		    <div class="media-body">
 		        <p class="text-secondary">Username: {{ user.username }}</p>
 		        <p class="text-secondary">Email: {{ user.email }}</p>
-		        <p class="text-dark">Bio: {{ user.profile.bio }}</p>
+		        <p class="text-dark">Bio: {{ user.profile.bio|urlize }}</p>
 		        <p class="text-dark">Location: {{ user.profile.location }}</p>
 		    </div>
 		</div>
