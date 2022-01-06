@@ -1,4 +1,6 @@
 {% extends 'blog/base.html' %}
+{% load static %}
+
 {% block content %}
 	{% for post in posts %}
 	<article class="media content-section">
@@ -11,9 +13,43 @@
 		<h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
 		<p class="article-content">{{ post.content|urlize }}</p>
 
-		{% if post.image_url %}
+		<!--Carousel Wrapper-->
+		<div id="carousel-1z-{{ post.id }}" class="carousel slide carousel-fade carousel-dark" data-interval="false">
+		  <!--Indicators-->
+		  <ol class="carousel-indicators">
+		  	{% for postimage in post.postimage_set.all %}
+		    <li data-target="#carousel-1z" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.counter0 == 0 %} active {% endif %}"></li>
+		    {% endfor %}
+		  </ol>
+		  <!--/.Indicators-->
+		  <!--Slides-->
+		  <div class="carousel-inner" role="listbox">
+		    <!--First slide-->
+		    {% for postimage in post.postimage_set.all %}
+		    <div class="carousel-item {% if forloop.counter0 == 0 %} active {% endif %}">
+		      <img class="d-block w-100 img-fluid " src="{{ postimage.image.url }}"
+		        alt="First slide">
+		    </div>
+		    {% endfor %}
+		    <!--/First slide-->
+		  </div>
+		  <!--/.Slides-->
+		  <!--Controls-->
+		  <a class="carousel-control-prev" href="#carousel-1z-{{ post.id }}" role="button" data-slide="prev">
+		    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+		    <span class="sr-only">Previous</span>
+		  </a>
+		  <a class="carousel-control-next" href="#carousel-1z-{{ post.id }}" role="button" data-slide="next">
+		    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+		    <span class="sr-only">Next</span>
+		  </a>
+		  <!--/.Controls-->
+		</div>
+		<!--/.Carousel Wrapper-->
+
+<!-- 		{% if post.image_url %}
 		<img class="center-block img-fluid" src={{ post.image_url }}>
-		{% endif %}
+		{% endif %} -->
 
 		{% if post.get_youtube_urls %}
 			{% for url in post.get_youtube_urls %}

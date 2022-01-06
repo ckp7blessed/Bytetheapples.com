@@ -10,9 +10,12 @@ from django.views.generic import (
 	UpdateView, 
 	DeleteView
 ) 
-from . models import Post
+from . models import Post, PostImage
 from django.db.models import Q
 from itertools import chain
+from . forms import ImageForm, ImageFormSet
+from django.db import transaction
+
 
 # Create your views here.
 
@@ -49,15 +52,31 @@ class PostDetailView(DetailView):
 
 class PostCreateView(LoginRequiredMixin, CreateView):
 	model = Post 
-	fields = ['title', 'content', 'image']
+	fields = ['title', 'content']
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['image_formset'] = ImageFormSet()
+		return context
 
 	def form_valid(self, form):
-		form.instance.author = self.request.user 
+		form.instance.author = self.request.user
+		image_formset = ImageFormSet(self.request.POST, self.request.FILES) 
+		with transaction.atomic():
+			self.object = form.save()
+
+			if image_formset.is_valid():
+				image_formset.instance = self.object 
+				postform = ImageFormSet(self.request.POST)
+				imageform = ImageFormSet(self.request.FILES)
+				for img in self.request.FILES.getlist('postimage_set-0-image'):
+					photo = PostImage.objects.create(post=self.object, image=img)
+					photo.save()
 		return super().form_valid(form)
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 	model = Post 
-	fields = ['title', 'content', 'image']
+	fields = ['title', 'content']
 
 	def form_valid(self, form):
 		form.instance.author = self.request.user 
