@@ -1,7 +1,7 @@
 {% extends 'blog/base.html' %}
 {% load static %}
-
 {% block content %}
+
 	{% for post in posts %}
 	<article class="media content-section">
 		<img class="rounded-circle article-img" src={{ post.author.profile.image.url }}>
@@ -9,9 +9,18 @@
 		<div class="article-metadata">
 		<a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
 		<small class="text-muted">{{ post.date_posted | date:"F d, Y" }}</small>
+
+		{% if post.category == None %}
+		<small style="float:right;">Uncategorized</small>
+		{% else %}
+		<small style="float:right;"><a href="{% url 'cat-results' post.category %}">category: {{ post.category }}</a></small>
+		{% endif %}
 		</div>
-		<h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+		
+		<h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a>
+		</h2>
 		<p class="article-content">{{ post.content|urlize }}</p>
+
 
 		<!--Carousel Wrapper-->
 		<div id="carousel-1z-{{ post.id }}" class="carousel slide carousel-fade carousel-dark" data-interval="false">

@@ -29,6 +29,20 @@
 	        <div class="navbar-nav mr-auto">
 	          <a class="nav-item nav-link" href="{% url 'blog-home' %}">Home</a>
 	          <a class="nav-item nav-link" href="{% url 'blog-about' %}">About</a>
+
+	          {% if cats_menu %}
+	          <li class="nav-item dropdown">
+	          	<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	          		Categories
+	          	</a>
+	          	<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+	          		{% for item in cats_menu %}
+	          		<a class="dropdown-item" href="{% url 'cat-results' item %}">{{ item }}</a>
+	          		{% endfor %}
+	          	</div>
+	          </li>
+	          {% endif %}
+
 	        </div>
 	        <!-- Navbar Right Side -->
 	        <div class="navbar-nav">

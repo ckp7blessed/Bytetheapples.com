@@ -6,9 +6,19 @@ import re
 
 # Create your models here.
 
+class Category(models.Model):
+	category_name = models.CharField(max_length=50, default='general coding', verbose_name="Categories")
+
+	def __str__(self):
+		return self.category_name
+
+	def get_absolute_url(self):
+		return reverse('blog-home')
+
 class Post(models.Model):
 	title = models.CharField(max_length=100)
 	content = models.TextField()
+	category = models.ForeignKey(Category, blank=True, null=True, on_delete=models.SET_NULL)
 	date_posted = models.DateTimeField(default=timezone.now)
 	author = models.ForeignKey(User, on_delete=models.CASCADE)
 

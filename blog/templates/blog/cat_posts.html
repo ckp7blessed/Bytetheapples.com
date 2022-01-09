@@ -1,26 +1,23 @@
 {% extends 'blog/base.html' %}
-<body>
-{% block content %}
-	<article class="media content-section">
-		<img class="rounded-circle article-img" src={{ object.author.profile.image.url }}>
-	  	<div class="media-body">
-	  	<div class="article-metadata">
-	  	{% if post.author == request.user %}
-	  	<a class="mr-2" href="{% url 'profile' %}">{{ object.author }}</a>
-	  	{% else %}
-	  	<a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ object.author }}</a>
-	  	{% endif %}
-	    <small class="text-muted">{{ object.date_posted | date:"F d, Y" }}</small>
+{% load static %}
 
+{% block content %}
+	{% for post in posts %}
+	<article class="media content-section">
+		<img class="rounded-circle article-img" src={{ post.author.profile.image.url }}>
+		<div class="media-body">
+		<div class="article-metadata">
+		<a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+		<small class="text-muted">{{ post.date_posted | date:"F d, Y" }}</small>
 		{% if post.category == None %}
-		<small style="float:right;">Uncategorized</small>
+		<small>Uncategorized</small>
 		{% else %}
-		<small style="float:right;"><a href="{% url 'cat-results' post.category %}">category: {{ post.category }}</a></small>
+		<small><a href="{% url 'cat-results' post.category %}">category: {{ post.category }}</a></small>
 		{% endif %}
 		</div>
-	    
-	    <h2 class="article-title">{{ object.title }}</h2>
-	    <p class="article-content">{{ object.content|urlize }}</p>
+		<h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a>
+		</h2>
+		<p class="article-content">{{ post.content|urlize }}</p>
 
 		<!--Carousel Wrapper-->
 		<div id="carousel-1z-{{ post.id }}" class="carousel slide carousel-fade carousel-dark" data-interval="false">
@@ -56,24 +53,38 @@
 		</div>
 		<!--/.Carousel Wrapper-->
 
+<!-- 		{% if post.image_url %}
+		<img class="center-block img-fluid" src={{ post.image_url }}>
+		{% endif %} -->
+
 		{% if post.get_youtube_urls %}
 			{% for url in post.get_youtube_urls %}
 				<iframe width="560" height="315" src="https://www.youtube.com/embed/{{ url }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-			{% endfor %}
+			{% endfor %} 
 		{% endif %}
-		{% if post.author == request.user %}
-		<div class="mx-auto" style="width: 200px;">
-		<a class="btn btn-outline-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' post.id %}">Update</a>
-		<a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' post.id %}">Delete</a>
 		</div>
-		{% endif %} 
-	  	</div>
 	</article>
-{% endblock content %}
-</body>
+	{% endfor %}
 
-<!-- 	# POSTDELETEVIEW TO PREVIOUS PAGE
-	# def get_success_url(self):
-	# 	return self.request.GET.get('next', reverse('/'))
-	    <a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' object.id %}?next={{ request.path }}">Delete</a>
- -->
+	{% if is_paginated %}
+
+		{% if page_obj.has_previous %}
+		<a class="btn btn-outline-info mb-4" href="/?page=1">First</a>
+		<a class="btn btn-outline-info mb-4" href="/?page={{ page_obj.previous_page_number }}">Previous</a>
+		{% endif %}
+
+		{% for num in page_obj.paginator.page_range %}
+			{% if page_obj.number == num %}
+			<a class="btn btn-info mb-4" href="/?page={{ num }}">{{ num }}</a>
+			{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+			<a class="btn btn-outline-info mb-4" href="/?page={{ num }}">{{ num }}</a>
+			{% endif %}
+		{% endfor %}
+
+		{% if page_obj.has_next %}
+		<a class="btn btn-outline-info mb-4" href="/?page={{ page_obj.next_page_number }}">Next</a>
+		<a class="btn btn-outline-info mb-4" href="/?page={{ page_obj.paginator.num_pages }}">Last</a>
+		{% endif %}
+
+	{% endif %}
+{% endblock content %}

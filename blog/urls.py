@@ -7,7 +7,8 @@ from . views import (
 	PostDeleteView,
 	UserPostListView,
 	SearchResultsView,
-	UserResultsView
+	UserResultsView,
+	CategoryResultsView
 )
 from . import views
 
@@ -20,6 +21,7 @@ urlpatterns = [
 	path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
 	path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
 	path('post/search/', SearchResultsView.as_view(), name='search-results'),
+	path('category/<str:category>/', CategoryResultsView.as_view(), name='cat-results'),
 	#path('profile/<int:pk>/', ProfileListView.as_view(template_name='blog/profile_list.html'), name='profile-view'),
 	path('about/', views.about, name='blog-about')
 ]

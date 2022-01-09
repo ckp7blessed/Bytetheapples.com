@@ -10,7 +10,7 @@ from django.views.generic import (
 	UpdateView, 
 	DeleteView
 ) 
-from . models import Post, PostImage
+from . models import Post, PostImage, Category
 from django.db.models import Q
 from itertools import chain
 from . forms import ImageForm, ImageFormSet
@@ -32,6 +32,12 @@ class PostListView(ListView):
 	ordering = ['-date_posted']
 	paginate_by = 5
 
+	def get_context_data(self, *args, **kwargs):
+		cats_menu = Category.objects.all()
+		context = super(PostListView, self).get_context_data(*args, **kwargs)
+		context['cats_menu'] = cats_menu
+		return context
+
 class UserPostListView(ListView):
 	model = Post
 	template_name = 'blog/user_posts.html'
@@ -42,17 +48,23 @@ class UserPostListView(ListView):
 		user = get_object_or_404(User, username=self.kwargs.get('username'))
 		return Post.objects.filter(author=user).order_by('-date_posted')
 
-	def get_context_data(self, **kwargs):
-		context = super(UserPostListView, self).get_context_data(**kwargs)
+	def get_context_data(self, *args, **kwargs):
+		context = super(UserPostListView, self).get_context_data(*args, **kwargs)
+		context['cats_menu'] = Category.objects.all()
 		context['user_pro'] = User.objects.filter(username=get_object_or_404(User, username=self.kwargs.get('username'))).first()
 		return context
+
+	# def get_context_data(self, **kwargs):
+	# 	context = super(UserPostListView, self).get_context_data(**kwargs)
+	# 	context['user_pro'] = User.objects.filter(username=get_object_or_404(User, username=self.kwargs.get('username'))).first()
+	# 	return context
 
 class PostDetailView(DetailView):
 	model = Post 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
 	model = Post 
-	fields = ['title', 'content']
+	fields = ['title', 'content', 'category']
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -76,7 +88,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 	model = Post 
-	fields = ['title', 'content']
+	fields = ['title', 'content', 'category']
 
 	def form_valid(self, form):
 		form.instance.author = self.request.user 
@@ -126,6 +138,21 @@ class UserResultsView(ListView):
 		query = self.request.GET.get("q1")
 		object_list = User.objects.filter(username__icontains=query)
 		return object_list
+
+class CategoryResultsView(ListView):
+	model = Post
+	template_name = 'blog/cat_posts.html'
+	context_object_name = 'posts'
+	paginate_by = 5
+
+	def get_queryset(self):
+		cats = get_object_or_404(Category, category_name=self.kwargs.get('category'))
+		return Post.objects.filter(category=cats).order_by('-date_posted')
+
+	def get_context_data(self, *args, **kwargs):
+		context = super(CategoryResultsView, self).get_context_data(*args, **kwargs)
+		context['cats_menu'] = Category.objects.all()
+		return context
 
 def about(request):
 	return render(request, 'blog/about.html', {'title':'About'})

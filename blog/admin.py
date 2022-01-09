@@ -1,5 +1,5 @@
 from django.contrib import admin
-from . models import Post, PostImage
+from . models import Post, PostImage, Category
 
 # Register your models here.
 
@@ -15,6 +15,7 @@ class PostAdmin(admin.ModelAdmin):
 				'fields':[
 					'title',
 					'content',
+					'category',
 					'date_posted',
 					'author'
 				]
@@ -22,8 +23,9 @@ class PostAdmin(admin.ModelAdmin):
 		)
 	]
 	inlines = [ImageInline]
-	list_display = ('title', 'content', 'date_posted', 'author')
+	list_display = ('title', 'content', 'category', 'date_posted', 'author')
 	search_fields = ('author__username', 'date_posted', 'title')
+	list_per_page = 50
 
 admin.site.register(Post, PostAdmin)
-
+admin.site.register(Category)
