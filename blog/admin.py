@@ -1,5 +1,5 @@
 from django.contrib import admin
-from . models import Post, PostImage, Category
+from . models import Post, PostImage, Category, Like
 
 # Register your models here.
 
@@ -17,15 +17,20 @@ class PostAdmin(admin.ModelAdmin):
 					'content',
 					'category',
 					'date_posted',
-					'author'
+					'author',
+					('liked',
+					'num_likes')
 				]
 			}
 		)
 	]
+	readonly_fields = ['num_likes']
+
 	inlines = [ImageInline]
-	list_display = ('title', 'content', 'category', 'date_posted', 'author')
+	list_display = ('title', 'content', 'category', 'date_posted', 'author', 'num_likes')
 	search_fields = ('author__username', 'date_posted', 'title')
 	list_per_page = 50
 
 admin.site.register(Post, PostAdmin)
 admin.site.register(Category)
+admin.site.register(Like)
