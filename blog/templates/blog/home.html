@@ -19,38 +19,38 @@
 		
 		<h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a>
 		</h2>
-		<p class="article-content">{{ post.content|urlize }}</p>
+		<p class="article-content">{{ post.content|urlizetrunc:26 }}</p>
 
 
 		<!--Carousel Wrapper-->
 		<div id="carousel-1z-{{ post.id }}" class="carousel slide carousel-fade carousel-dark" data-interval="false">
 		  <!--Indicators-->
 		  <ol class="carousel-indicators">
-		  	{% for postimage in post.postimage_set.all %}
-		    <li data-target="#carousel-1z" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.counter0 == 0 %} active {% endif %}"></li>
-		    {% endfor %}
+			{% for postimage in post.postimage_set.all %}
+			<li data-target="#carousel-1z" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.counter0 == 0 %} active {% endif %}"></li>
+			{% endfor %}
 		  </ol>
 		  <!--/.Indicators-->
 		  <!--Slides-->
 		  <div class="carousel-inner" role="listbox">
-		    <!--First slide-->
-		    {% for postimage in post.postimage_set.all %}
-		    <div class="carousel-item {% if forloop.counter0 == 0 %} active {% endif %}">
-		      <img class="d-block w-100 img-fluid " src="{{ postimage.image.url }}"
-		        alt="First slide">
-		    </div>
-		    {% endfor %}
-		    <!--/First slide-->
+			<!--First slide-->
+			{% for postimage in post.postimage_set.all %}
+			<div class="carousel-item {% if forloop.counter0 == 0 %} active {% endif %}">
+			  <img class="d-block w-100 img-fluid " src="{{ postimage.image.url }}"
+				alt="First slide">
+			</div>
+			{% endfor %}
+			<!--/First slide-->
 		  </div>
 		  <!--/.Slides-->
 		  <!--Controls-->
 		  <a class="carousel-control-prev" href="#carousel-1z-{{ post.id }}" role="button" data-slide="prev">
-		    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-		    <span class="sr-only">Previous</span>
+			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+			<span class="sr-only">Previous</span>
 		  </a>
 		  <a class="carousel-control-next" href="#carousel-1z-{{ post.id }}" role="button" data-slide="next">
-		    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-		    <span class="sr-only">Next</span>
+			<span class="carousel-control-next-icon" aria-hidden="true"></span>
+			<span class="sr-only">Next</span>
 		  </a>
 		  <!--/.Controls-->
 		</div>
@@ -67,25 +67,48 @@
 		{% endif %}
 
 <br><br><hr>
-        <form action="{% url 'like-post-view' %}" method="POST" class='like-form' id='{{ post.id }}'>
-            {% csrf_token %}
-            <input type="hidden" name="post_id" value="{{ post.id }}"> 
-                <button type="submit" class="ui button like-btn{{ post.id }}">
-                    {% if request.user.profile in post.liked.all %}
-                        Unlike
-                    {% else %}
-                        Like
-                    {% endif %}
-                </button>
-                <div class="ui grid">
-                    <div class="column">
-                        <div class="like-count{{ post.id }}"> {{post.num_likes}} </div>
-                    </div>
-                    <div class="column">
-                        likes
-                    </div>
-                </div>
-        </form>
+		<form action="{% url 'like-post-view' %}" method="POST" class='like-form' id='{{ post.id }}'>
+			{% csrf_token %}
+			<input type="hidden" name="post_id" value="{{ post.id }}"> 
+			{% if request.user.profile in post.liked.all %}
+				<button type="submit" class="btn btn-primary btn-sm like-btn{{ post.id }}">Unlike</button>
+			{% else %}
+				<button type="submit" class="btn btn-outline-info btn-sm like-btn{{ post.id }}">Like</button>
+			{% endif %}
+
+			<!-- Button trigger modal -->
+			<button type="button" class="btn btn-outline-dark btn-sm like-count{{ post.id }}" data-toggle="modal" data-target="#postlikesModalLong-{{ post.id }}">
+			  <small>{{ post.num_likes }} Likes</small>
+			</button>
+
+			<!-- Modal -->
+			<div class="modal fade" id="postlikesModalLong-{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="postlikesModalLongTitle" aria-hidden="true">
+			  <div class="modal-dialog" role="document">
+				<div class="modal-content">
+				  <div class="modal-header">
+					<h5 class="modal-title" id="postlikesModalLongTitle">Liked by</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					  <span aria-hidden="true">&times;</span>
+					</button>
+				  </div>
+				  <div class="modal-body">
+					{% for user in post.liked.all %}
+					<div class="media-body">
+					<ul class="list-unstyled">
+					<li>
+						<a href="{% url 'user-posts' user %}">
+						<img class="rounded-circle article-img" src={{ user.image.url }}></a>
+						<a class="mr-2 badge badge-light" href="{% url 'user-posts' user %}">{{ user }}</a>
+					</li>
+					</ul>
+					</div>
+					{% endfor %}
+				  </div>
+				</div>
+			  </div>
+			</div>
+
+		</form>
 
 		</div>
 	</article>
@@ -115,54 +138,59 @@
 {% endblock content %}
 
 {% block scripts %} 
-    <script>
-        $( document ).ready(function() {
-            let display = false
-            $(".cmt_btn").click(function () {
-                if (display===false) {
-                    $(this).next(".comment-box").show("slow");
-                    display=true
-                } else {
-                    $(this).next(".comment-box").hide("slow");
-                    display=false
-                }  
-            });
+	<script>
+		$( document ).ready(function() {
+			let display = false
+			$(".cmt_btn").click(function () {
+				if (display===false) {
+					$(this).next(".comment-box").show("slow");
+					display=true
+				} else {
+					$(this).next(".comment-box").hide("slow");
+					display=false
+				}  
+			});
 
-            $('.like-form').submit(function(e){
-                e.preventDefault()
-                const post_id = $(this).attr('id')
-                const likeText = $(`.like-btn${post_id}`).text()
-                const trim = $.trim(likeText)
-                
-                const url = $(this).attr('action')
+			$('.like-form').submit(function(e){
+				e.preventDefault()
+				const post_id = $(this).attr('id')
+				const likeText = $(`.like-btn${post_id}`).text()
+				const trim = $.trim(likeText)
+				
+				const url = $(this).attr('action')
 
-                let res;
-                const likes = $(`.like-count${post_id}`).text()
-                const trimCount = parseInt(likes)
-                
-                $.ajax({
-                	type: 'POST',
-                	url: url,
-                	data: {
-                		'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
-                		'post_id':post_id,
-                	},
-                	success: function(response) {
-                		if(trim == "Unlike") {
-                			$(`.like-btn${post_id}`).text('Like')
-                			res = trimCount - 1
-                		} else {
-                			$(`.like-btn${post_id}`).text('Unlike')
-                			res = trimCount + 1
-                		}
+				let res;
+				const likes = $(`.like-count${post_id}`).text()
+				const trimCount = parseInt(likes)
+				
+				$.ajax({
+					type: 'POST',
+					url: url,
+					data: {
+						'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+						'post_id':post_id,
+					},
+					success: function(response) {
+						if(trim == "Unlike") {
+							$(`.like-btn${post_id}`).text('Like')
+							res = trimCount - 1
+							
+							$(`.like-btn${post_id}`).removeClass('btn-primary').addClass('btn-outline-info');
 
-                		$(`.like-count${post_id}`).text(res)
-                	},
-                	error: function(response) {
-                		console.log('error', response)
-                	}
-                })
-            })
-        });
-    </script>
+						} else {
+							$(`.like-btn${post_id}`).text('Unlike')
+							res = trimCount + 1
+							$(`.like-btn${post_id}`).removeClass('btn-outline-info').addClass('btn-primary');
+
+						}
+
+						$(`.like-count${post_id}`).text(res + ' ' + 'Likes')
+					},
+					error: function(response) {
+						console.log('error', response)
+					}
+				})
+			})
+		});
+	</script>
 {% endblock scripts %}

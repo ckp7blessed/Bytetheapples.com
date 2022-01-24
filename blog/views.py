@@ -65,6 +65,12 @@ class UserPostListView(ListView):
 class PostDetailView(DetailView):
 	model = Post 
 
+	def get_context_data(self, *args, **kwargs):
+		cats_menu = Category.objects.all()
+		context = super(PostDetailView, self).get_context_data(*args, **kwargs)
+		context['cats_menu'] = cats_menu
+		return context
+
 class PostCreateView(LoginRequiredMixin, CreateView):
 	model = Post 
 	fields = ['title', 'content', 'category']
@@ -188,12 +194,6 @@ def like_unlike_post(request):
 			'likes': post_obj.liked.all().count()
 		}
 		return JsonResponse(data, safe=False)
-
-	# context = {
-	# 	#'profile': profile,
-	# 	'user': user1
-	# }
-
 	return redirect('blog-home')
 
 def about(request):

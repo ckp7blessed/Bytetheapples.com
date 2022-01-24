@@ -11,7 +11,7 @@ class Profile(models.Model):
 	location = models.CharField(max_length=50, default="n/a", help_text="City, State, Country")
 
 	def __str__(self):
-		return f'{self.user.username}s Profile'
+		return f'{self.user.username}'
 
 #--- profile picture resizing. update to AWS Lambda for production ---#
 	# def save(self, *args, **kwargs):
