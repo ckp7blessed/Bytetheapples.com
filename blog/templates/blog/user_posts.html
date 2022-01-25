@@ -74,14 +74,18 @@
 		{% endif %}
 
 <br><br><hr>
-        <form action="{% url 'like-post-view' %}" method="POST" class='like-form' id='{{ post.id }}'>
-            {% csrf_token %}
-            <input type="hidden" name="post_id" value="{{ post.id }}"> 
-            {% if request.user.profile in post.liked.all %}
-                <button type="submit" class="btn btn-primary btn-sm like-btn{{ post.id }}">Unlike</button>
-            {% else %}
-                <button type="submit" class="btn btn-outline-info btn-sm like-btn{{ post.id }}">Like</button>
-            {% endif %}
+		<form action="{% url 'like-post-view' %}" method="POST" class='like-form' id='{{ post.id }}'>
+			{% csrf_token %}
+			<input type="hidden" name="post_id" value="{{ post.id }}"> 
+			{% if request.user.is_authenticated %}
+			{% if request.user.profile in post.liked.all %}
+				<button type="submit" class="btn btn-primary btn-sm like-btn{{ post.id }}">Unlike</button>
+			{% else %}
+				<button type="submit" class="btn btn-outline-info btn-sm like-btn{{ post.id }}">Like</button>
+			{% endif %}
+			{% else %}
+				<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm">Like</a>
+			{% endif %}
 
 			<!-- Button trigger modal -->
 			<button type="button" class="btn btn-outline-dark btn-sm like-count{{ post.id }}" data-toggle="modal" data-target="#postlikesModalLong-{{ post.id }}">
