@@ -15,7 +15,7 @@ from . models import Post, PostImage, Like, Category
 from users.models import Profile
 from django.db.models import Q
 from itertools import chain
-from . forms import ImageForm, ImageFormSet
+from . forms import ImageForm, ImageFormSet, CommentModelForm
 from django.db import transaction
 from django.http import JsonResponse
 
@@ -37,9 +37,49 @@ class PostListView(ListView):
 
 	def get_context_data(self, *args, **kwargs):
 		cats_menu = Category.objects.all()
+		c_form = CommentModelForm(self.request.POST or None)
 		context = super(PostListView, self).get_context_data(*args, **kwargs)
 		context['cats_menu'] = cats_menu
+		context['c_form'] = c_form
 		return context
+
+
+
+def comment_post(request):
+	profile = Profile.objects.get(user=request.user)
+	c_form = CommentModelForm()
+	# c_form = CommentModelForm(request.POST or None)
+
+	if 'submit_c_form' in request.POST:
+		c_form = CommentModelForm(request.POST)
+		if c_form.is_valid():
+			instance = c_form.save(commit=False)
+			instance.user = profile
+			instance.post = Post.objects.get(id=request.POST.get('post_id'))
+			instance.save()
+			c_form = CommentModelForm()
+		return redirect('blog-home')
+
+
+# def comment_post(request):
+# 	profile = Profile.objects.get(user=request.user)
+# 	c_form = CommentModelForm()
+# 	# c_form = CommentModelForm(request.POST or None)
+
+# 	if 'submit_c_form' in request.POST:
+# 		c_form = CommentModelForm(request.POST)
+# 		if c_form.is_valid():
+# 			instance = c_form.save(commit=False)
+# 			instance.user = profile
+# 			instance.post = Post.objects.get(id=request.POST.get('post_id'))
+# 			instance.save()
+# 			c_form = CommentModelForm()
+# 			#context = {'c_form': c_form}
+# 			#return render(request, context)
+# 			#return render(request, 'blog/home.html')
+# 		#return redirect('post-detail', instance.post.pk)
+
+
 
 class UserPostListView(ListView):
 	model = Post
@@ -93,6 +133,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 				for img in self.request.FILES.getlist('postimage_set-0-image'):
 					photo = PostImage.objects.create(post=self.object, image=img)
 					photo.save()
+				messages.success(self.request, 'Your post has been created!')
 		return super().form_valid(form)
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):

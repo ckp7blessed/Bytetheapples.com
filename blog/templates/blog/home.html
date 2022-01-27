@@ -1,5 +1,6 @@
 {% extends 'blog/base.html' %}
 {% load static %}
+{% load crispy_forms_tags %}
 {% block content %}
 
 	{% for post in posts %}
@@ -8,7 +9,7 @@
 		<div class="media-body">
 		<div class="article-metadata">
 		<a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
-		<small class="text-muted">{{ post.date_posted | date:"F d, Y" }}</small>
+		<small class="text-muted">{{ post.date_posted|date:"F d, Y" }} {{ post.date_posted|timesince}} ago</small>
 
 		{% if post.category == None %}
 		<small style="float:right;">Uncategorized</small>
@@ -113,6 +114,36 @@
 			</div>
 
 		</form>
+
+<br>
+		<form action="{% url 'comment-post-view' %}" method="POST" class="ui form">
+			{% csrf_token %}
+			<input type="hidden" name="post_id" value="{{ post.id }}">
+			{{ c_form|crispy }}
+			<button type="submit" class="ui primary button" name="submit_c_form">
+				comment
+			</button>
+		</form>
+		<small>{{ post.num_comments }} Comments</small>
+		{% for comment in post.comment_set.all %}
+		<small>{{ comment.user }}</small>
+		<small>{{ comment.body }}</small>
+		{% endfor %}
+
+ 				<button class="cmt_btn ui button mb-5">show / hide comments</button>
+                <div class="comment-box">
+                {% if post.comment_set.all %}
+                    {% for c in post.comment_set.all %}
+                    
+                        <div class="ui segment mb-5">
+                            <!-- <img class="ui avatar image" src={{c.user.avatar.url}}> -->
+                            <span>{{ c.user }}</span>
+                            <div class='mt-5'>{{ c.body }}</div>
+                        </div>
+                    
+                    {% endfor %}
+                {% endif %}
+                </div>
 
 		</div>
 	</article>

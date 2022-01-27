@@ -25,5 +25,6 @@ urlpatterns = [
 	path('category/<str:category>/', CategoryResultsView.as_view(), name='cat-results'),
 	#path('profile/<int:pk>/', ProfileListView.as_view(template_name='blog/profile_list.html'), name='profile-view'),
 	path('post/liked/', views.like_unlike_post, name='like-post-view'),
+	path('post/comment/', views.comment_post, name='comment-post-view'),
 	path('about/', views.about, name='blog-about')
 ]
