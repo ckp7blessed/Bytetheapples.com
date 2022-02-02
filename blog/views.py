@@ -18,6 +18,7 @@ from itertools import chain
 from . forms import ImageForm, ImageFormSet, CommentModelForm
 from django.db import transaction
 from django.http import JsonResponse
+from django.forms.models import model_to_dict
 
 
 # Create your views here.
@@ -42,44 +43,6 @@ class PostListView(ListView):
 		context['cats_menu'] = cats_menu
 		context['c_form'] = c_form
 		return context
-
-
-
-def comment_post(request):
-	profile = Profile.objects.get(user=request.user)
-	c_form = CommentModelForm()
-	# c_form = CommentModelForm(request.POST or None)
-
-	if 'submit_c_form' in request.POST:
-		c_form = CommentModelForm(request.POST)
-		if c_form.is_valid():
-			instance = c_form.save(commit=False)
-			instance.user = profile
-			instance.post = Post.objects.get(id=request.POST.get('post_id'))
-			instance.save()
-			c_form = CommentModelForm()
-		return redirect('blog-home')
-
-
-# def comment_post(request):
-# 	profile = Profile.objects.get(user=request.user)
-# 	c_form = CommentModelForm()
-# 	# c_form = CommentModelForm(request.POST or None)
-
-# 	if 'submit_c_form' in request.POST:
-# 		c_form = CommentModelForm(request.POST)
-# 		if c_form.is_valid():
-# 			instance = c_form.save(commit=False)
-# 			instance.user = profile
-# 			instance.post = Post.objects.get(id=request.POST.get('post_id'))
-# 			instance.save()
-# 			c_form = CommentModelForm()
-# 			#context = {'c_form': c_form}
-# 			#return render(request, context)
-# 			#return render(request, 'blog/home.html')
-# 		#return redirect('post-detail', instance.post.pk)
-
-
 
 class UserPostListView(ListView):
 	model = Post
@@ -128,7 +91,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 			if image_formset.is_valid():
 				image_formset.instance = self.object 
-				postform = ImageFormSet(self.request.POST)
+				postform = ImageFormSet(self.request.POST) #can delete?
 				imageform = ImageFormSet(self.request.FILES)
 				for img in self.request.FILES.getlist('postimage_set-0-image'):
 					photo = PostImage.objects.create(post=self.object, image=img)
@@ -206,7 +169,7 @@ class CategoryResultsView(ListView):
 
 @login_required
 def like_unlike_post(request):
-	user = request.user
+	user = request.user #can delete?
 	if request.method == 'POST':
 		post_id = request.POST.get('post_id')
 		post_obj = Post.objects.get(id=post_id)
@@ -236,6 +199,88 @@ def like_unlike_post(request):
 		}
 		return JsonResponse(data, safe=False)
 	return redirect('blog-home')
+
+
+def comment_post(request):
+	profile = Profile.objects.get(user=request.user)
+	c_form = CommentModelForm()
+
+	if request.method == "POST":
+		c_form = CommentModelForm(request.POST)
+		if c_form.is_valid():
+			instance = c_form.save(commit=False)
+			instance.user = profile
+			instance.username = profile.user.username
+			instance.post = Post.objects.get(id=request.POST.get('post_id'))
+			instance.save()
+			print(instance, instance.user, instance.body, instance.username)
+			# data = {
+			# 	'comment': instance
+			# }
+			#c_form = CommentModelForm()
+			context = {
+				'comment': model_to_dict(instance),
+				'username': profile.user.username,
+				'image': profile.image.url
+			}
+			return JsonResponse(context, status=200)
+			# return JsonResponse({'comment': model_to_dict(instance)}, instance.username, status=200)
+		return redirect('blog-home')
+
+
+# WITH AJAX - TEST
+# def comment_post(request):
+# 	profile = Profile.objects.get(user=request.user)
+# 	c_form = CommentModelForm()
+
+# 	if request.method == "POST":
+# 		c_form = CommentModelForm(request.POST)
+# 		if c_form.is_valid():
+# 			instance = c_form.save(commit=False)
+# 			instance.user = profile
+# 			instance.post = Post.objects.get(id=request.POST.get('post_id'))
+# 			instance.save()
+# 			c_form = CommentModelForm()
+# 			return JsonResponse({'comment': model_to_dict(instance)}, status=200, safe=False)
+# 	return redirect('blog-home')
+
+
+
+#ORIGINAL WITHOUT AJAX - CLEANED UP
+# def comment_post(request):
+# 	profile = Profile.objects.get(user=request.user)
+# 	c_form = CommentModelForm()
+
+# 	if 'submit_c_form' in request.POST:
+# 		c_form = CommentModelForm(request.POST)
+# 		if c_form.is_valid():
+# 			instance = c_form.save(commit=False)
+# 			instance.user = profile
+# 			instance.post = Post.objects.get(id=request.POST.get('post_id'))
+# 			instance.save()
+# 			c_form = CommentModelForm()
+# 		return redirect('blog-home')
+
+
+
+#ORIGINAL WITHOUT AJAX
+# def comment_post(request):
+# 	profile = Profile.objects.get(user=request.user)
+# 	c_form = CommentModelForm()
+# 	# c_form = CommentModelForm(request.POST or None)
+
+# 	if 'submit_c_form' in request.POST:
+# 		c_form = CommentModelForm(request.POST)
+# 		if c_form.is_valid():
+# 			instance = c_form.save(commit=False)
+# 			instance.user = profile
+# 			instance.post = Post.objects.get(id=request.POST.get('post_id'))
+# 			instance.save()
+# 			c_form = CommentModelForm()
+# 			#context = {'c_form': c_form}
+# 			#return render(request, context)
+# 			#return render(request, 'blog/home.html')
+# 		#return redirect('post-detail', instance.post.pk)
 
 def about(request):
 	return render(request, 'blog/about.html', {'title':'About'})

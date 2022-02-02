@@ -116,19 +116,19 @@
 		</form>
 
 <br>
-		<form action="{% url 'comment-post-view' %}" method="POST" class="ui form">
+		<form action="{% url 'comment-post-view' %}" method="POST" class="com-form" id="{{ post.id }}">
 			{% csrf_token %}
 			<input type="hidden" name="post_id" value="{{ post.id }}">
 			{{ c_form|crispy }}
-			<button type="submit" class="ui primary button" name="submit_c_form">
+			<button type="submit" class="com-btn" id="{{ post.pk }}" name="submit_c_form">
 				comment
 			</button>
 		</form>
-		<small>{{ post.num_comments }} Comments</small>
-		{% for comment in post.comment_set.all %}
-		<small>{{ comment.user }}</small>
-		<small>{{ comment.body }}</small>
-		{% endfor %}
+
+
+		<div class="com-list{{ post.id }}" id="{{ post.pk }}">
+			{% include 'blog/comments.html' %}
+		</div>
 
  				<button class="cmt_btn ui button mb-5">show / hide comments</button>
                 <div class="comment-box">
@@ -174,8 +174,10 @@
 
 {% block scripts %} 
 	<script>
+
+
 		$( document ).ready(function() {
-			let display = false
+			let display = false;
 			$(".cmt_btn").click(function () {
 				if (display===false) {
 					$(this).next(".comment-box").show("slow");
@@ -186,12 +188,45 @@
 				}  
 			});
 
+	        $('.com-form').on("submit", function(e) {
+	        	e.preventDefault()
+	            const post_id = $(this).attr('id')
+	            console.log(post_id)
+	            const url = $(this).attr('action')
+	            console.log(url)
+	            const serializedData = $(this).serialize()
+	            console.log(serializedData)
+
+	            $.ajax({
+	            	type: 'POST',
+	                url: url,
+					data: serializedData,
+					dataType: 'json',
+	                success: function(response) {
+	                    console.log('success')
+	                    console.log(response)
+	                    console.log(response.comment.body)
+	                    console.log(response.username)
+	                    console.log(response.comment)
+	                    console.log(response.image)
+	                    console.log(response.comment.post)
+	                    // $(`.com-list${post_id}`).append('<img class="rounded-circle article-img" src="{{ ' + response.image + '}}">')
+	                    $(`.com-list${post_id}`).append('<img class="rounded-circle article-img" src="'+response.image+'">')
+	                	$(`.com-list${post_id}`).append('<p>' + response.username + '</p>');
+	                    $(`.com-list${post_id}`).append('<p>' + response.comment.body + '</p>');
+	                    $('.com-form')[0].reset();
+	                },
+	                error: function(error) {
+	                    console.log(error);
+	                }
+	            });
+	        });
+
 			$('.like-form').submit(function(e){
 				e.preventDefault()
 				const post_id = $(this).attr('id')
 				const likeText = $(`.like-btn${post_id}`).text()
 				const trim = $.trim(likeText)
-				
 				const url = $(this).attr('action')
 
 				let res;

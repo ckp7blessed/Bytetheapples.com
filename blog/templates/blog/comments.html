@@ -1,0 +1,8 @@
+<small>{{ post.num_comments }} Comments</small>
+{% for comment in post.comment_set.all %}
+<div>
+<img class="rounded-circle article-img" src="{{ comment.user.image.url }}">
+<p>{{ comment.user }}</p>
+<p>{{ comment.body }}</p>
+</div>
+{% endfor %}
