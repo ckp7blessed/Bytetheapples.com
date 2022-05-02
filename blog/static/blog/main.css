@@ -28,14 +28,6 @@ ul {
   font-weight: 500;
 }
 
-.content-section {
-  background: #ffffff;
-  padding: 10px 20px;
-  border: 1px solid #dddddd;
-  border-radius: 3px;
-  margin-bottom: 20px;
-}
-
 .article-title {
   color: #444444;
 }
@@ -85,4 +77,30 @@ a.article-title:hover {
 
 .comment-box {
   display: none;
+}
+
+.content-section {
+  background: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  margin-bottom: 20px;
+}
+
+.comment-content {
+  white-space: pre-line;
+}
+
+.comment-img {
+  height: 50px;
+  width: 50px;
+  margin-right: 16px;
+}
+
+.comment-section {
+  background: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  margin-bottom: 1px;
 }

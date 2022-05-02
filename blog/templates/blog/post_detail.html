@@ -1,16 +1,16 @@
 {% extends 'blog/base.html' %}
 <body>
 {% block content %}
-	<article class="media content-section">
+	<article class="media content-section" id='{{ post.id }}'>
 		<img class="rounded-circle article-img" src={{ object.author.profile.image.url }}>
-	  	<div class="media-body">
-	  	<div class="article-metadata">
-	  	{% if post.author == request.user %}
-	  	<a class="mr-2" href="{% url 'profile' %}">{{ object.author }}</a>
-	  	{% else %}
-	  	<a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ object.author }}</a>
-	  	{% endif %}
-	    <small class="text-muted">{{ object.date_posted | date:"F d, Y" }}</small>
+		<div class="media-body">
+		<div class="article-metadata">
+		{% if post.author == request.user %}
+		<a class="mr-2" href="{% url 'profile' %}">{{ object.author }}</a>
+		{% else %}
+		<a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ object.author }}</a>
+		{% endif %}
+		<small class="text-muted">{{ object.date_posted | date:"F d, Y" }}</small>
 
 		{% if post.category == None %}
 		<small style="float:right;">Uncategorized</small>
@@ -18,39 +18,39 @@
 		<small style="float:right;"><a href="{% url 'cat-results' post.category %}">category: {{ post.category }}</a></small>
 		{% endif %}
 		</div>
-	    
-	    <h2 class="article-title">{{ object.title }}</h2>
-	    <p class="article-content">{{ object.content|urlizetrunc:26 }}</p>
+		
+		<h2 class="article-title">{{ object.title }}</h2>
+		<p class="article-content">{{ object.content|urlizetrunc:26 }}</p>
 
 		<!--Carousel Wrapper-->
 		<div id="carousel-1z-{{ post.id }}" class="carousel slide carousel-fade carousel-dark" data-interval="false">
 		  <!--Indicators-->
 		  <ol class="carousel-indicators">
-		  	{% for postimage in post.postimage_set.all %}
-		    <li data-target="#carousel-1z" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.counter0 == 0 %} active {% endif %}"></li>
-		    {% endfor %}
+			{% for postimage in post.postimage_set.all %}
+			<li data-target="#carousel-1z" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.counter0 == 0 %} active {% endif %}"></li>
+			{% endfor %}
 		  </ol>
 		  <!--/.Indicators-->
 		  <!--Slides-->
 		  <div class="carousel-inner" role="listbox">
-		    <!--First slide-->
-		    {% for postimage in post.postimage_set.all %}
-		    <div class="carousel-item {% if forloop.counter0 == 0 %} active {% endif %}">
-		      <img class="d-block w-100 img-fluid " src="{{ postimage.image.url }}"
-		        alt="First slide">
-		    </div>
-		    {% endfor %}
-		    <!--/First slide-->
+			<!--First slide-->
+			{% for postimage in post.postimage_set.all %}
+			<div class="carousel-item {% if forloop.counter0 == 0 %} active {% endif %}">
+			  <img class="d-block w-100 img-fluid " src="{{ postimage.image.url }}"
+				alt="First slide">
+			</div>
+			{% endfor %}
+			<!--/First slide-->
 		  </div>
 		  <!--/.Slides-->
 		  <!--Controls-->
 		  <a class="carousel-control-prev" href="#carousel-1z-{{ post.id }}" role="button" data-slide="prev">
-		    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-		    <span class="sr-only">Previous</span>
+			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+			<span class="sr-only">Previous</span>
 		  </a>
 		  <a class="carousel-control-next" href="#carousel-1z-{{ post.id }}" role="button" data-slide="next">
-		    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-		    <span class="sr-only">Next</span>
+			<span class="carousel-control-next-icon" aria-hidden="true"></span>
+			<span class="sr-only">Next</span>
 		  </a>
 		  <!--/.Controls-->
 		</div>
@@ -108,6 +108,8 @@
 			  </div>
 			</div>
 
+			<a class="mr-2 btn btn-outline-dark btn-sm comment-count{{ post.id }}" href="{% url 'post-detail' post.id %}"><small class="comment-count-small{{ post.id }}">{{ post.num_comments }} Comments</small></a>
+
 		</form>
 
 		{% if post.author == request.user %}
@@ -116,15 +118,27 @@
 		<a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' post.id %}">Delete</a>
 		</div>
 		{% endif %} 
-	  	</div>
+		</div>
 	</article>
+
+		<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">
+			{% if post.comment_list|length != 0 %}
+			<a href="{% url 'latest-comment-post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0" style="font-size: 0.8em;">Sort By Latest Comments</a>
+			{% endif %}
+			
+			{% include 'blog/comments.html' %}
+			
+		</div>
+
+		{% include 'blog/comment_template.html' %}
+
 {% endblock content %}
 </body>
 
 <!-- 	# POSTDELETEVIEW TO PREVIOUS PAGE
 	# def get_success_url(self):
 	# 	return self.request.GET.get('next', reverse('/'))
-	    <a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' object.id %}?next={{ request.path }}">Delete</a>
+		<a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' object.id %}?next={{ request.path }}">Delete</a>
  -->
 
  {% block scripts %} 
@@ -180,7 +194,215 @@
 						console.log('error', response)
 					}
 				})
-			})
+			});
+
+			$('.comlike-form').submit(function(e){
+				e.preventDefault()
+				const comment_id = $(this).attr('id')
+				console.log(comment_id)
+				const likeText = $(`#like-btn${comment_id}`).text();
+				console.log(likeText)
+				const trim = $.trim(likeText)
+				const url = $(this).attr('action')
+				console.log(trim)
+				console.log(url)
+
+				let res;
+				const likes = $(`.like-count${comment_id}`).text()
+				const trimCount = parseInt(likes)
+				console.log(likes)
+				console.log(trimCount)
+				
+				$.ajax({
+					type: 'POST',
+					url: url,
+					data: {
+						'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+						'comment_id':comment_id,
+					},
+					success: function(response) {
+						var userlikeHTML =  
+										'<div id="cl' +response.user_id + '">' +
+										'<ul class="list-unstyled">' +
+										'<li>' + 
+										'<img class="rounded-circle article-img" src="' + response.image + '">' +
+										'<small>' + response.username + '</small>' +
+										'</li>' +
+										'</ul>' +
+										'</div>';
+						console.log(response)
+						if(trim == "Unlike") {
+							$(`#like-btn${comment_id}`).text('Like');
+							res = trimCount - 1;
+							
+							$(`#like-btn${comment_id}`).removeClass('btn-primary').addClass('btn-outline-info');
+
+							$(`.liked-list${comment_id}`).find('#cl'+response.user_id).remove();
+
+						} else {
+							$(`#like-btn${comment_id}`).text('Unlike');
+							res = trimCount + 1;
+							$(`#like-btn${comment_id}`).removeClass('btn-outline-info').addClass('btn-primary');
+							$(`.liked-list${comment_id}`).append(userlikeHTML);
+
+						}
+
+						$(`.like-count${comment_id}`).text(res + ' ' + 'Likes');
+					},
+					error: function(response) {
+						console.log('error', response)
+					}
+				})
+			});
+
+
+	        $('.comdelete-form-temp').on("submit", function(e) {
+	        	e.preventDefault()
+	            const comment_id = $(this).attr('id');
+	            console.log('delete success function - comment id '+comment_id)
+
+	            const url = $(this).attr('action');
+	            console.log(url)
+	            const serializedData = $(this).serialize();	
+	            console.log(serializedData)
+
+	            $.ajax({
+	            	type: 'POST',
+	                url: url,
+					data: {
+						'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+						'comment_id':comment_id,
+					},
+					// dataType: 'text',
+	                success: function(response) {
+	                    $("#commentdeleteModal-"+response.comment_id).find('.close').click();
+
+	                    $(`.com-list${response.post_id}`).find('#cl'+response.comment_id).remove();
+
+	                    $(`.comment-count-small${response.post_id}`).text(response.num_comments + ' ' + 'Comments');
+	                },
+					error: function(response) {
+						console.log('error', response)
+					}
+	            });
+	        });
+
+			var working = false;
+			$(window).scroll(function() {
+				console.log($(this).scrollTop());
+				// const comcount = $('.com-id').length;
+				const comcount = $('.clist').length; 
+				console.log('count='+comcount);
+				const post_id = $('.content-section').attr('id');
+
+				if($(this).scrollTop() +1 >= $(document).height() - $(window).height()) {
+					if (working == false) {
+						working = true;
+					
+					$.ajax({
+					type: 'POST',
+					url: "{% url 'load-more-comments-detail' %}",
+					data: {
+						'csrfmiddlewaretoken': "{{csrf_token}}",
+						'post_id':post_id,
+						'offset': comcount
+					},
+					dataType: 'json',
+					success: function(response) {
+
+					   // ajax call get data from server and append to the div
+					   console.log('end of page')
+					   console.log('response data='+response)
+					   console.log('success function count='+comcount);
+					   console.log('post id ='+post_id)
+					   console.log('response.comment='+response.comment);
+					   console.log('------------------')
+
+
+	                    setTimeout(function() {
+	                    	working = false;
+	                    }, 300);
+	                    var user_url = '/user/';
+	                    var comment_like_url = '/post/comment/like/';
+	                    var delete_url_start = '/post/commenttemp/';
+	                    var delete_url_end = '/delete/';
+	                    
+						var json_data = $.parseJSON(response.comment);
+
+						$.each(json_data,function(index,data) {
+
+						const comClone = $("#clist00").clone(true, true).val(null);
+	                    comClone.appendTo($(`.com-list${post_id}`));
+	                    comClone.attr("id", "clist");
+	                    comClone.removeAttr("style");
+
+	                    comClone.attr("class", "clist");
+
+	                    comClone.find(".com-id-temp").attr("class", "com-id");
+
+	                    comClone.find(".com-id").attr("id", "cl"+data.pk);
+	                    console.log('comment id='+data.pk)
+	                    comClone.find(".comment-img").attr("src", response.image);
+	                    comClone.find(".comment-user").text(response.username);
+
+	                    comClone.find(".comment-user").attr("href", user_url + response.username);
+
+	                    comClone.find(".comment-created").text(response.created);
+	                    comClone.find(".comment-content").text(data.fields.body);
+
+	                    comClone.find(".comlike-form").attr("action", comment_like_url);
+	                    comClone.find(".comlike-form").attr("id", data.pk);
+	                    comClone.find(".cl-input").attr("value", data.pk);
+	                    comClone.find(".com-like").attr("class", "btn btn-outline-info btn-sm py-0 com-like");
+	                    comClone.find(".com-like").attr("id", "like-btn" + data.pk);
+
+	                    comClone.find(".com-like").text(response.likevalue);
+
+
+	                    comClone.find(".com-modal").text(data.fields.liked.length+ " Likes");
+
+	                    comClone.find(".com-modal").attr("id", "clc" + data.pk);
+	                    comClone.find(".com-modal").attr("class", "btn btn-outline-dark btn-sm py-0 com-modal like-count" + data.pk);
+	                    comClone.find(".com-modal").attr("data-target", "#commentlikesModalLong-" + data.pk);
+
+	                    comClone.find(".cmodal").attr("id", "commentlikesModalLong-" + data.pk);
+	                    comClone.find(".modal-body").attr("class", "modal-body liked-list" + data.pk);
+	                    comClone.find(".list-unstyled").remove();
+
+	                    comClone.find(".delete-btn").attr("id", data.pk);
+	                    comClone.find(".delete-btn").attr("data-target", "#commentdeleteModal-"+data.pk);
+	                    comClone.find(".comdelete").attr("id", "commentdeleteModal-"+data.pk);
+
+	                    comClone.find(".comdelete-form-temp").attr("action", delete_url_start+data.pk+delete_url_end);
+	                    comClone.find(".comdelete-form-temp").attr("id", data.pk);
+	                    console.log('LIKED LIST ======= '+response.liked_list)
+
+						function checkValue(value,arr) {
+						  var status = 'Not exist';
+						 
+						  for(var i=0; i<arr.length; i++) {
+						    var name = arr[i];
+						    if(name == value) {
+						      status = 'Exist';
+								comClone.find(".com-like").text("Unlike");
+								$(`#like-btn${data.pk}`).removeClass('btn-outline-info').addClass('btn-primary');
+						      break;
+						    }
+						    else {
+								comClone.find(".com-like").text("Like");
+								$(`#like-btn${data.pk}`).removeClass('btn-primary').addClass('btn-outline-info');
+						    }
+						  }
+						  return status;
+						}
+						console.log('status : ' + checkValue(response.user, data.fields.liked) );
+						});
+				}
+			});
+				}
+				}
+			});
+
 		});
 	</script>
 {% endblock scripts %}

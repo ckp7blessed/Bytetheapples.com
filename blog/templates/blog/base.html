@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 
  <!-- Required meta tags -->
@@ -43,11 +43,12 @@
 	          </li>
 	          {% endif %}
 
-	        </div>
-	        <!-- Navbar Right Side -->
-	        <div class="navbar-nav">
+	      	</div>
 
-					<div class="btn-group">
+	        <!-- Navbar Right Side -->
+	        <div class="navbar-nav mr-auto">
+
+					<div class="nav-item btn-group mr-auto">
 					  <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false"><i class='fas fa-search'></i> Search</button>
 					  <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left p-3 mb-2 bg-dark text-white">
 						<div class="form-group">
@@ -59,6 +60,8 @@
 					</form>
 					  </div>
 					</div>
+					</div>
+
 
 	        	{% if user.is_authenticated %}
 	        	<a class="nav-item nav-link" href="{% url 'post-create'%}">New Post</a>
@@ -68,7 +71,7 @@
 	        	<a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
 	        	<a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
 	        	{% endif %}	
-	        </div>
+	        
 	      </div>
 	    </div>
 	  </nav>
@@ -87,17 +90,16 @@
 	    {% endblock %}
 	    </div>
 
-	    <div class="col-md-4">
+	    <div class="col-md-4 d-none d-md-block">
 	      <div class="content-section">
 	        <h3>Our Sidebar</h3>
-	        <p class='text-muted'>Your Updates
+	        <p class='text-muted'>Your Updates</p>
 	          <ul class="list-group">
 	            <li class="list-group-item list-group-item-light">Notifications</li>
 	            <li class="list-group-item list-group-item-light">Announcements</li>
 	            <li class="list-group-item list-group-item-light">Messages</li>
 	            <li class="list-group-item list-group-item-light">Friends</li>
 	          </ul>
-	        </p>
 	      </div>
 	    </div>
 
