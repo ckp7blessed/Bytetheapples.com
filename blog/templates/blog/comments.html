@@ -1,8 +1,82 @@
-<small>{{ post.num_comments }} Comments</small>
-{% for comment in post.comment_set.all %}
-<div>
-<img class="rounded-circle article-img" src="{{ comment.user.image.url }}">
-<p>{{ comment.user }}</p>
-<p>{{ comment.body }}</p>
+{% load static %}
+{% load custom_tags %}
+
+{% for comment in post.comment_list|slice:"0:7" %}
+<div class="clist" id="clist" >
+<div class="com-id" id="cl{{ comment.id }}">
+	<article class="media comment-section">	
+	<img class="rounded-circle comment-img" src="{{ comment.user.image.url }}">
+		<div class="media-body mt-1">
+			<div class="article-metadata">
+				<a class="mr-2 comment-user" href="{% url 'user-posts' comment.user %}">{{ comment.user }}</a>
+				<small class="text-muted comment-created" style="float:right;">
+					{% if comment.created|timesince|upto == "show_date" %}
+					{{ comment.created|date:"F d, Y" }}
+					{% elif comment.created|timesince|upto == "Just Now" %}
+					{{ comment.created|timesince|upto }}
+					{% else %}
+					{{ comment.created|timesince|upto }} ago
+					{% endif %}
+				</small>
+				<p class="comment-content">{{ comment.body }}</p>
+			</div>
+			<div class="btn-group">
+			<form action="{% url 'like-comment-view' %}" method="POST" class="comlike-form" id='{{ comment.id }}'>
+				{% csrf_token %}
+				<input type="hidden" name="comment_id" value="{{ comment.id }}" class="cl-input"> 
+				{% if request.user.is_authenticated %}
+				{% if request.user.profile in comment.liked.all %}
+					<button type="submit" class="btn btn-liked1 btn-sm py-0 com-like" id="like-btn{{ comment.id }}" style="font-size: 0.8em;">Liked <span class="like-icon"><i class="fa fa-heart"></i></span></button>
+				{% else %}
+					<button type="submit" class="btn btn-like0 btn-sm py-0 com-like" id="like-btn{{ comment.id }}" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></button>
+				{% endif %}
+				{% else %}
+					<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm py-0" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></a>
+				{% endif %}
+
+				<!-- Button trigger modal - Shows likes list of users -->
+				<button type="button" class="btn btn-outline-dark btn-sm py-0 com-modal like-count{{ comment.id }}" data-toggle="modal" style="font-size: 0.8em;" data-target="#commentlikesModalLong-{{ comment.id }}">
+				  <small class="clc-text" id="clc{{ comment.id }}">{{ comment.num_likes }} Likes</small>
+				</button>
+
+				<!-- Modal -->
+				<div class="modal fade cmodal" id="commentlikesModalLong-{{ comment.id }}" tabindex="-1" role="dialog" aria-labelledby="commentlikesModalLongTitle" aria-hidden="true">
+				  <div class="modal-dialog" role="document">
+					<div class="modal-content">
+					  <div class="modal-header">
+						<h5 class="modal-title" id="commentlikesModalLongTitle">Liked by</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					  </div>
+					  <div class="modal-body liked-list{{ comment.id }}">
+						{% for user in comment.liked.all %}
+						<div id="cl{{ user.user.username }}">
+							<ul class="list-unstyled">
+								<li>
+									<a href="{% url 'user-posts' user %}">
+									<img class="rounded-circle article-img" src="{{ user.image.url }}"></a>
+									<a class="mr-2 badge badge-light" href="{% url 'user-posts' user %}">{{ user }}</a>
+								</li>
+							</ul>
+						</div>
+						{% endfor %}
+					  </div>
+					</div>
+				  </div>
+				</div>
+			</form>
+			</div>
+			{% if request.user == comment.user.user %}
+			<div class="btn-group" style="float:right;">
+				<!-- Button trigger modal - Delete Button -->
+				<button class="btn btn-outline-danger btn-sm py-0 delete-btn{{ comment.id }}" style="font-size: 0.8em" data-toggle="modal" data-target="#commentdeleteModal-{{ comment.id }}">Delete</button>
+			</div>
+			{% include 'blog/comment_confirm_delete.html' %}
+			{% endif %}
+		</div>
+	</article>
+</div>
 </div>
 {% endfor %}
+

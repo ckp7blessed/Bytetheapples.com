@@ -1,30 +1,16 @@
 {% extends 'blog/base.html' %}
-{% load crispy_forms_tags %}
 <body>
-	{% block content %}
-
-	<h1>{{ user.username }}'s Profile</h1>
-	<div class="content-section">
-		<div class="media">
-		    <img class="rounded-circle account-img" src={{ user.profile.image.url }}>
-		    <div class="media-body">
-		        <p class="text-secondary">Username: {{ user.username }}</p>
-		        <p class="text-secondary">Email: {{ user.email|urlize }}</p>
-		        <p class="text-dark">Bio: {{ user.profile.bio|urlizetrunc:26 }}</p>
-		        <p class="text-dark">Location: {{ user.profile.location }}</p>
-		    </div>
-		</div>
-		<a href="{% url 'profile_settings' %}" class="btn btn-outline-info" role="button">Settings</a>
-	</div>
- 	<h3 class="mb-3">Your Posts</h3>
-	<h4 class="mb-3">Total of {{ page_obj.paginator.count }} Posts</h4>
-	{% for post in posts %}
+{% block content %}
 	<article class="media content-section">
-<!-- 		<img class="rounded-circle article-img" src={{ post.author.profile.image.url }}> -->
+		<img class="rounded-circle article-img" src={{ object.author.profile.image.url }}>
 	  	<div class="media-body">
 	  	<div class="article-metadata">
-	  	<a class="mr-2" href='#'>{{ post.author }}</a>
-	    <small class="text-muted">{{ post.date_posted | date:"F d, Y" }}</small>
+	  	{% if post.author == request.user %}
+	  	<a class="mr-2" href="{% url 'profile' %}">{{ object.author }}</a>
+	  	{% else %}
+	  	<a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ object.author }}</a>
+	  	{% endif %}
+	    <small class="text-muted">{{ object.date_posted | date:"F d, Y" }}</small>
 
 		{% if post.category == None %}
 		<small style="float:right;">Uncategorized</small>
@@ -33,8 +19,8 @@
 		{% endif %}
 		</div>
 	    
-	    <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
-	    <p class="article-content">{{ post.content|urlizetrunc:26 }}</p>
+	    <h2 class="article-title">{{ object.title }}</h2>
+	    <p class="article-content">{{ object.content|urlizetrunc:26 }}</p>
 
 		<!--Carousel Wrapper-->
 		<div id="carousel-1z-{{ post.id }}" class="carousel slide carousel-fade carousel-dark" data-interval="false">
@@ -80,10 +66,14 @@
 		<form action="{% url 'like-post-view' %}" method="POST" class='like-form' id='{{ post.id }}'>
 			{% csrf_token %}
 			<input type="hidden" name="post_id" value="{{ post.id }}"> 
+			{% if request.user.is_authenticated %}
 			{% if request.user.profile in post.liked.all %}
 				<button type="submit" class="btn btn-primary btn-sm like-btn{{ post.id }}">Unlike</button>
 			{% else %}
 				<button type="submit" class="btn btn-outline-info btn-sm like-btn{{ post.id }}">Like</button>
+			{% endif %}
+			{% else %}
+				<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm">Like</a>
 			{% endif %}
 
 			<!-- Button trigger modal -->
@@ -118,61 +108,47 @@
 			  </div>
 			</div>
 
-		</form>
-		
-		<a class="mr-2 btn btn-outline-dark btn-sm" href="{% url 'post-detail' post.id %}"><small>{{ post.num_comments }} Replies</small></a>
-		<br>
-		<form action="{% url 'comment-post-view' %}" method="POST" class="com-form" id="{{ post.id }}">
-			{% csrf_token %}
-			<input type="hidden" name="post_id" value="{{ post.id }}">
-			{{ c_form|crispy }}
-			<button type="submit" class="com-btn" id="{{ post.pk }}" name="submit_c_form">
-				comment
-			</button>
-		</form>
+			<a class="mr-2 btn btn-outline-dark btn-sm comment-count{{ post.id }}" href="{% url 'post-detail' post.id %}"><small class="comment-count-small{{ post.id }}">{{ post.num_comments }} Comments</small></a>
 
-		<div class="com-list{{ post.id }}" id="{{ post.pk }}">
-			{% include 'blog/comments.html' %}
-		</div>
+		</form>
 
 		{% if post.author == request.user %}
 		<div class="mx-auto" style="width: 200px;">
 		<a class="btn btn-outline-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' post.id %}">Update</a>
 		<a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' post.id %}">Delete</a>
 		</div>
-		{% endif %}  
-<!-- 	    <a class="btn btn-outline-secondary btn-sm mt-2 mb-1" href="{% url 'post-detail' post.id %}">Update</a>
-	    <a class="btn btn-outline-danger btn-sm mt-2 mb-1" href="{% url 'post-detail' post.id %}">Delete</a> -->
+		{% endif %} 
 	  	</div>
 	</article>
-	{% endfor %}
 
-	{% if is_paginated %}
+	<a href="{% url 'post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0" style="font-size: 0.8em;">Sort By Top Comments</a>
+	{% for comment in post.comment_list %}
+<br>
+<article class="media comment-section">	
+<img class="rounded-circle article-img" src="{{ comment.user.image.url }}">
+<div class="media-body mt-1">
+<div class="article-metadata">
+		<a class="mr-2" href="{% url 'user-posts' comment.user %}">{{ comment.user }}</a>
+		<small class="text-muted" style="float:right;">{{ comment.created|date:"F d, Y" }} {{ comment.created|timesince }} ago</small>
+		<small class="clc-text" id="clc{{ comment.id }}">{{ comment.num_likes }} Likes</small>
+<p class="article-content">{{ comment.body }}</p>
 
-		{% if page_obj.has_previous %}
-		<a class="btn btn-outline-info mb-4" href="?page=1">First</a>
-		<a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-		{% endif %}
+</div>
+</div>
+</article>
+{% endfor %}
 
-		{% for num in page_obj.paginator.page_range %}
-			{% if page_obj.number == num %}
-			<a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
-			{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-			<a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
-			{% endif %}
-		{% endfor %}
 
-		{% if page_obj.has_next %}
-		<a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
-		<a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-		{% endif %}
-
-	{% endif %}
-
-	{% endblock content %}
+{% endblock content %}
 </body>
 
-{% block scripts %} 
+<!-- 	# POSTDELETEVIEW TO PREVIOUS PAGE
+	# def get_success_url(self):
+	# 	return self.request.GET.get('next', reverse('/'))
+	    <a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' object.id %}?next={{ request.path }}">Delete</a>
+ -->
+
+ {% block scripts %} 
 	<script>
 		$( document ).ready(function() {
 			let display = false
