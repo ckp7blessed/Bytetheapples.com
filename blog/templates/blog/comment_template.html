@@ -1,0 +1,69 @@
+{% load static %}
+
+<div class="clist-temp" id="clist00" style="display: none;">
+<div class="com-id-temp" id="cl00">
+	<article class="media comment-section">	
+	<img class="rounded-circle comment-img" src="">
+		<div class="media-body mt-1">
+			<div class="article-metadata">
+				<a class="mr-2 comment-user" href="">{{ comment.user }}</a>
+				<small class="text-muted comment-created" style="float:right;">Just Now</small>
+				<p class="comment-content">{{ comment.body }}</p>
+			</div>	
+			<div class="btn-group">
+			<form action="{% url 'like-comment-view' %}" method="POST" class="comlike-form" id='00'>
+				{% csrf_token %}
+				<input type="hidden" name="comment_id" value="00" class="cl-input"> 
+				{% if request.user.is_authenticated %}
+				{% if request.user.profile in comment.liked.all %}
+					<button type="submit" class="btn btn-liked1 btn-sm py-0 com-like" id="like-btn00" style="font-size: 0.8em;">Liked </button>
+				{% else %}
+					<button type="submit" class="btn btn-like0 btn-sm py-0 com-like" id="like-btn00" style="font-size: 0.8em;">Like </button>
+				{% endif %}
+				{% else %}
+					<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm py-0" style="font-size: 0.8em;">Like </a>
+				{% endif %}
+
+				<!-- Button trigger modal - Shows likes list of users -->
+				<button type="button" class="btn btn-outline-dark btn-sm py-0 com-modal like-count00" id="clc00" data-toggle="modal" style="font-size: 0.8em;" data-target="#commentlikesModalLong-00"><small>0 Likes</small></button>
+
+				<!-- Modal -->
+				<div class="modal fade cmodal" id="commentlikesModalLong-00" tabindex="-1" role="dialog" aria-labelledby="commentlikesModalLongTitle" aria-hidden="true">
+				  <div class="modal-dialog" role="document">
+					<div class="modal-content">
+					  <div class="modal-header">
+						<h5 class="modal-title" id="commentlikesModalLongTitle">Liked by</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					  </div>
+
+					  <div class="modal-body liked-list00">
+						{% for user in comment.liked.all %}
+							<div id="cl00">
+								<ul class="list-unstyled">
+									<li>
+										<a class="comLiked_user_url" href="">
+										<img class="rounded-circle article-img comLiked_user_image" src=""></a>
+										<a class="mr-2 badge badge-light comLiked_user_url" href="">{{ user }}</a>
+									</li>
+								</ul>
+							</div>
+						{% endfor %}
+					  </div>
+
+					</div>
+				  </div>
+				</div>
+			</form>
+			</div>
+			<div class="btn-group" style="float:right;">
+				<!-- Button trigger modal - Delete Button -->
+				<button class="btn btn-outline-danger btn-sm py-0 delete-btn" style="font-size: 0.8em" data-toggle="modal" data-target="#commentdeleteModal-00" id="00">Delete</button>
+				
+			{% include 'blog/comment_confirm_delete_template.html' %}
+			</div>
+		</div>
+	</article>
+</div>
+</div>

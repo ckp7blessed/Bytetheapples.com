@@ -49,6 +49,9 @@ class Post(models.Model):
 	#num_likes.allow_tags = False 
 	num_likes.short_description = 'Total Likes'
 
+	def num_comments(self):
+		return self.comment_set.all().count()
+
 class PostImage(models.Model):
 	post = models.ForeignKey(Post, on_delete=models.CASCADE)
 	image = models.ImageField(upload_to='post_pics', blank=True, null=True)
@@ -86,3 +89,31 @@ class Like(models.Model):
 
 	def __str__(self):
 		return f"{self.user}-{self.post}-{self.value}"
+
+class Comment(models.Model):
+	user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+	post = models.ForeignKey(Post, on_delete=models.CASCADE)
+	body = models.TextField(max_length=300)
+	updated = models.DateTimeField(auto_now=True)
+	created = models.DateTimeField(auto_now_add=True)
+	liked = models.ManyToManyField(Profile, blank=True, related_name='com_likes')
+
+	def __str__(self):
+		return f"Comment:{self.user}-{self.post}-{self.id}"
+
+	def post_id(self):
+		return self.post.id
+
+	def num_likes(self):
+		return self.liked.all().count()
+
+class CommentLike(models.Model):
+	user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+	post = models.ForeignKey(Post, on_delete=models.CASCADE)
+	comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+	value = models.CharField(choices=LIKE_CHOICES, max_length=8)
+	updated = models.DateTimeField(auto_now=True)
+	created = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return f" | CommentLike({self.user}-{self.comment}-{self.value})"

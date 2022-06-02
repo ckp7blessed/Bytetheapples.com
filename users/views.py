@@ -6,7 +6,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.views.generic import ListView
 from django.views.generic.edit import DeleteView
-from blog.models import Post
+from blog.models import Post, Comment, CommentLike
+from django.db.models import Q, Count, OuterRef, Prefetch
 from django.urls import reverse_lazy
 
 # Create your views here.
@@ -30,8 +31,28 @@ class UserProfileListView(LoginRequiredMixin, ListView):
 	paginate_by = 5
 
 	def get_queryset(self):
-		#ser = get_object_or_404(User, username=self.kwargs.get('username'))
-		return Post.objects.filter(author=self.request.user).order_by('-date_posted')
+		return (
+			super()
+			.get_queryset()
+			# Filter by author/user
+			.filter(author__username=self.request.user).order_by('-date_posted')
+			# Prefetch comment using a Prefetch object gives you more control
+			.prefetch_related(
+				Prefetch(
+					"comment_set",
+					# Specify the queryset to annotate and order by Count("liked")
+					queryset=Comment.objects.annotate(
+						like_count=Count("liked")
+					).order_by("-like_count"),
+					# Prefetch into post.comment_list
+					to_attr="comment_list",
+				)
+			)
+		)
+
+	#original
+	# def get_queryset(self):
+	# 	return Post.objects.filter(author=self.request.user).order_by('-date_posted')
 
 @login_required
 def profile_settings(request):
