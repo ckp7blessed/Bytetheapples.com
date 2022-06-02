@@ -19,7 +19,8 @@
 </head>
 <body>
 	<header class="site-header">
-	  <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+	  <nav class="navbar navbar-expand-md navbar-light bg-white shadow fixed-top mb-3">
+	  	<!-- <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top"> -->
 	    <div class="container">
 	      <a class="navbar-brand mr-4" href="{% url 'blog-home' %}">Django Blog</a>
 	      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,7 +36,7 @@
 	          	<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 	          		Categories
 	          	</a>
-	          	<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+	          	<div class="dropdown-menu shadow" aria-labelledby="navbarDropdown">
 	          		{% for item in cats_menu %}
 	          		<a class="dropdown-item" href="{% url 'cat-results' item %}">{{ item }}</a>
 	          		{% endfor %}
@@ -46,16 +47,16 @@
 	      	</div>
 
 	        <!-- Navbar Right Side -->
-	        <div class="navbar-nav mr-auto">
+	        <div class="navbar-nav mr-auto" style="float:right;">
 
-					<div class="nav-item btn-group mr-auto">
-					  <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false"><i class='fas fa-search'></i> Search</button>
-					  <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left p-3 mb-2 bg-dark text-white">
+					<div class="nav-item btn-group mr-auto" style="float:right;">
+					  <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false"><i class='fas fa-search'></i> Search</button>
+					  <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left p-3 mb-2 bg-light text-white shadow">
 						<div class="form-group">
 						<form action="{% url 'search-results' %}" method="get">
 						  <input name="q" type="text" placeholder="Search by keyword...">
 						</form>
-					   <form action="{% url 'user_results' %}" method="get">
+					   <form class= "mt-1" action="{% url 'user_results' %}" method="get">
 					  <input name="q1" type="text" placeholder="Search by username...">
 					</form>
 					  </div>
@@ -64,15 +65,16 @@
 
 
 	        	{% if user.is_authenticated %}
-	        	<a class="nav-item nav-link" href="{% url 'post-create'%}">New Post</a>
-	        	<a class="nav-item nav-link" href="{% url 'profile' %}">{{ user.username }}'s Profile</a>
-	        	<a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+	        	<a class="nav-item nav-link login-button" href="{% url 'post-create'%}">New Post</a>
+	        	<a class="nav-item nav-link mt-2" href="{% url 'profile' %}">{{ user.username }}'s Profile</a>
+	        	<a class="nav-item nav-link mt-2" href="{% url 'logout' %}">Logout</a>
 	        	{% else %}
-	        	<a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
-	        	<a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
+	        	<a class="nav-item nav-link login-button" href="{% url 'login' %}">Login</a>
+	        	<a class="nav-item nav-link login-button" href="{% url 'register' %}">Register</a>
 	        	{% endif %}	
 	        
 	      </div>
+	    </div>
 	    </div>
 	  </nav>
 	</header>
@@ -91,7 +93,7 @@
 	    </div>
 
 	    <div class="col-md-4 d-none d-md-block">
-	      <div class="content-section">
+	      <div class="content-section shadow">
 	        <h3>Our Sidebar</h3>
 	        <p class='text-muted'>Your Updates</p>
 	          <ul class="list-group">

@@ -5,7 +5,7 @@
 {% block content %}
 
 	{% for post in posts %}
-	<article class="media content-section">
+	<article class="media content-section shadow">
 		<img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
 		<div class="media-body">
 		<div class="article-metadata">
@@ -81,13 +81,13 @@
 			<input type="hidden" name="post_id" value="{{ post.id }}"> 
 			{% if request.user.is_authenticated %}
 			{% if request.user.profile in post.liked.all %}
-				<button type="submit" class="btn btn-primary btn-sm like-btn{{ post.id }}" style="font-size: 0.8em;">Unlike</button>
+				<button type="submit" class="btn btn-liked1 btn-sm like-btn{{ post.id }}" style="font-size: 0.8em;">Liked <span class="like-icon"><i class="fa fa-heart"></i></span></button>
 			{% else %}
 			<!-- btn-sm py-0" style="font-size: 0.8em;" -->
-				<button type="submit" class="btn btn-outline-info btn-sm like-btn{{ post.id }}" style="font-size: 0.8em;">Like</button>
+				<button type="submit" class="btn btn-like0 btn-sm like-btn{{ post.id }}" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></button>
 			{% endif %}
 			{% else %}
-				<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm" style="font-size: 0.8em;">Like</a>
+				<a href="{% url 'login' %}" class="btn btn-like0 btn-sm" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></a>
 			{% endif %}
 
 			<!-- Button trigger modal -->
@@ -126,43 +126,45 @@
 		<a class="mr-2 btn btn-outline-dark btn-sm comment-count{{ post.id }}" href="{% url 'post-detail' post.id %}"><small class="comment-count-small{{ post.id }}">{{ post.num_comments }} Comments</small></a>
 
 		</form>
+		
 		<br>
 		{% if request.user.is_authenticated %}
 		<form action="{% url 'comment-post-view' %}" method="POST" class="com-form" id="{{ post.id }}">
 			{% csrf_token %}
 			<input type="hidden" name="post_id" value="{{ post.id }}">
 			{{ c_form|crispy }}
-			<button type="submit" class="btn-outline-secondary btn-sm py-0 com-btn" id="{{ post.pk }}" name="submit_c_form">
-				comment
+			<button type="submit" class="button btn-sm mt-n2 com-btn" id="{{ post.pk }}" name="submit_c_form" style="float:right;">
+				Comment 
 			</button>
+
+<!-- button btn-sm py-0 mt-n2 mx-auto d-block btn-block com-btn -->
+
 		</form>
 		{% else %}
-		<a href="{% url 'login' %}" class="btn btn-outline-secondary btn-sm py-0" style="font-size: 0.8em;">comment</a>
+<!-- 		<a href="{% url 'login' %}" class="btn btn-outline-secondary btn-sm py-0 mx-auto d-block btn-block" style="font-size: 0.8em;">comment</a> -->
+		<a href="{% url 'login' %}" class="button btn-sm mt-n2" style="float:right;">Comment</a>
 		{% endif %}
 
-		<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">
-			{% if post.comment_list|length != 0 %}
-			<a href="{% url 'latest-comment-post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0" style="font-size: 0.8em;">Sort By Latest Comments</a>
-			{% endif %}
-			
-			{% include 'blog/comments.html' %}
-			
-		</div>
-		<br>
- 				<button class="cmt_btn ui button mb-5">show / hide comments</button>
-                <div class="comment-box">
-                {% if post.comment_set.all %}
-                    {% for c in post.comment_set.all %}
-                    
-                        <div class="ui segment mb-5">
-                            <!-- <img class="ui avatar image" src={{c.user.avatar.url}}> -->
-                            <span>{{ c.user }}</span>
-                            <div class='mt-5'>{{ c.body }}</div>
-                        </div>
+		<!-- <button class="cmt_btn button btn-sm">Show replies</button> -->
 
-                    {% endfor %}
-                {% endif %}
-                </div>
+		<button class="show-replies-button button-empty btn-sm py-0 mx-auto d-block btn-block">Show replies</button>
+    	<div class="comment-box" id="comment-box-{{ post.id }}">
+
+		<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">
+			<div class="top">
+			{% if post.comment_list|length|gtoe:7 %}
+			<a href="{% url 'latest-comment-post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0" style="font-size: 0.8em;">Sort By Latest Comments</a>
+			<h5><small class="font-weight-bold" style="font-size: 0.8em;">showing top 7 comments</small></h5>
+			{% endif %}
+			</div>
+			{% include 'blog/comments.html' %}
+
+		</div>
+			{% if post.comment_list|length|gtoe:7 %}
+			<br>
+			<a href="{% url 'post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0 mx-auto d-block" style="font-size: 0.8em;">Load More</a> 
+			{% endif %}
+		</div>
 
 		</div>
 	</article>
@@ -174,21 +176,21 @@
 	{% if is_paginated %}
 
 		{% if page_obj.has_previous %}
-		<a class="btn btn-outline-info mb-4" href="/?page=1">First</a>
-		<a class="btn btn-outline-info mb-4" href="/?page={{ page_obj.previous_page_number }}">Previous</a>
+		<a class="button-empty btn-sm mb-4" href="/?page=1">First</a>
+		<a class="button-empty btn-sm mb-4" href="/?page={{ page_obj.previous_page_number }}">Previous</a>
 		{% endif %}
 
 		{% for num in page_obj.paginator.page_range %}
 			{% if page_obj.number == num %}
-			<a class="btn btn-info mb-4" href="/?page={{ num }}">{{ num }}</a>
+			<a class="button btn-sm mb-4" href="/?page={{ num }}">{{ num }}</a>
 			{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-			<a class="btn btn-outline-info mb-4" href="/?page={{ num }}">{{ num }}</a>
+			<a class="button-empty btn-sm mb-4" href="/?page={{ num }}">{{ num }}</a>
 			{% endif %}
 		{% endfor %}
 
 		{% if page_obj.has_next %}
-		<a class="btn btn-outline-info mb-4" href="/?page={{ page_obj.next_page_number }}">Next</a>
-		<a class="btn btn-outline-info mb-4" href="/?page={{ page_obj.paginator.num_pages }}">Last</a>
+		<a class="button-empty btn-sm mb-4" href="/?page={{ page_obj.next_page_number }}">Next</a>
+		<a class="button-empty btn-sm mb-4" href="/?page={{ page_obj.paginator.num_pages }}">Last</a>
 		{% endif %}
 
 	{% endif %}
@@ -201,13 +203,16 @@
 
 		$( document ).ready(function() {
 			let display = false;
-			$(".cmt_btn").click(function () {
+
+			$(".show-replies-button").click(function(e) {
 				if (display===false) {
 					$(this).next(".comment-box").show("slow");
-					display=true
+					display=true;
+					$(this).text('Hide replies');
 				} else {
 					$(this).next(".comment-box").hide("slow");
-					display=false
+					display=false;
+					$(this).text('Show replies');
 				}  
 			});
 
@@ -250,9 +255,12 @@
 	                    comClone.find(".comlike-form").attr("action", response.comment_like_url);
 	                    comClone.find(".comlike-form").attr("id", response.comment.id);
 	                    comClone.find(".cl-input").attr("value", response.comment.id);
-	                    comClone.find(".com-like").attr("class", "btn btn-outline-info btn-sm py-0 com-like");
+	                    comClone.find(".com-like").attr("class", "btn btn-like0 btn-sm py-0 com-like");
+
+
 	                    comClone.find(".com-like").attr("id", "like-btn" + response.comment.id);
-	                    comClone.find(".com-like").text("Like");
+	                    comClone.find(".com-like").text("Like ");
+	                    comClone.find(".com-like").append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
 
 
 	                    comClone.find(".com-modal").text("0 Likes");
@@ -261,7 +269,9 @@
 	                    comClone.find(".com-modal").attr("data-target", "#commentlikesModalLong-" + response.comment.id);
 
 	                    comClone.find(".cmodal").attr("id", "commentlikesModalLong-" + response.comment.id);
-	                    comClone.find(".modal-body").attr("class", "modal-body liked-list" + response.comment.id);
+
+	                    comClone.find(".liked-list00").attr("class", "modal-body liked-list" + response.comment.id);
+
 	                    comClone.find(".list-unstyled").remove();
 
 
@@ -278,9 +288,14 @@
 
 
 	                    res = trimCount + 1;
-	                    $(`.comment-count-small${post_id}`).text(res + ' ' + 'Comments')
-	                    console.log(res)
+	                    $(`.comment-count-small${post_id}`).text(res + ' ' + 'Comments');
+	                    console.log(res);
 
+						if (display===false) {
+							$(`#comment-box-${post_id}`).show("slow");
+							display=true;
+							$(this).text('Hide replies');
+						};
 	                },
 	                error: function(error) {
 	                    console.log(error);
@@ -376,27 +391,37 @@
 					},
 					success: function(response) {
 						var userlikeHTML =  
-										'<div id="cl' +response.user_id + '">' +
+										'<div id="cl' +response.username + '">' +
 										'<ul class="list-unstyled">' +
 										'<li>' + 
+										'<a href="/user/' +
+										response.username + 
+										'">' +
 										'<img class="rounded-circle article-img" src="' + response.image + '">' +
-										'<small>' + response.username + '</small>' +
+										'<a class="mr-2 badge badge-light" href="/user/' +
+										response.username +
+										'">' +
+										response.username +
+										'</a>' +
 										'</li>' +
 										'</ul>' +
 										'</div>';
 						console.log(response)
-						if(trim == "Unlike") {
-							$(`#like-btn${comment_id}`).text('Like')
+						if(trim == "Liked") {
+							$(`#like-btn${comment_id}`).text('Like ')
 							res = trimCount - 1
 							
-							$(`#like-btn${comment_id}`).removeClass('btn-primary').addClass('btn-outline-info');
+							$(`#like-btn${comment_id}`).removeClass('btn-liked1').addClass('btn-like0');
+							$(`#like-btn${comment_id}`).append('<span class="like-icon"><i class="fa fa-heart icn-spinner"></i></span>');
 
-							$(`.liked-list${comment_id}`).find('#cl'+response.user_id).remove();
+							$(`.liked-list${comment_id}`).find('#cl'+response.username).remove();
 
 						} else {
-							$(`#like-btn${comment_id}`).text('Unlike')
+							$(`#like-btn${comment_id}`).text('Liked ')
 							res = trimCount + 1
-							$(`#like-btn${comment_id}`).removeClass('btn-outline-info').addClass('btn-primary');
+							$(`#like-btn${comment_id}`).removeClass('btn-like0').addClass('btn-liked1');
+							$(`#like-btn${comment_id}`).append('<span class="like-icon"><i class="fa fa-heart icn-spinner"></i></span>');
+
 							$(`.liked-list${comment_id}`).append(userlikeHTML);
 
 						}
@@ -432,17 +457,26 @@
 										'<div id="pl' +response.user_id + '">' +
 										'<ul class="list-unstyled">' +
 										'<li>' + 
+										'<a href="/user/' +
+										response.username + 
+										'">' +
 										'<img class="rounded-circle article-img" src="' + response.image + '">' +
-										'<small>' + response.username + '</small>' +
+										'<a class="mr-2 badge badge-light" href="/user/' +
+										response.username +
+										'">' +
+										response.username +
+										'</a>' +
 										'</li>' +
 										'</ul>' +
 										'</div>';
 
-						if(trim == "Unlike") {
-							$(`.like-btn${post_id}`).text('Like')
+						if(trim == "Liked") {
+							$(`.like-btn${post_id}`).text('Like ')
 							res = trimCount - 1
 							
-							$(`.like-btn${post_id}`).removeClass('btn-primary').addClass('btn-outline-info');
+							$(`.like-btn${post_id}`).removeClass('btn-liked1').addClass('btn-like0');
+
+							$(`.like-btn${post_id}`).append('<span class="like-icon"><i class="fa fa-heart icn-spinner"></i></span>')
 
 							$(`.liked-list${post_id}`).find('#pl'+response.user_id).remove();
 							// $(`.liked-list${post_id}`).find('#pl-'+response.user_id).remove();
@@ -450,9 +484,12 @@
 							console.log('removed')
 
 						} else {
-							$(`.like-btn${post_id}`).text('Unlike')
+							$(`.like-btn${post_id}`).text('Liked ')
 							res = trimCount + 1
-							$(`.like-btn${post_id}`).removeClass('btn-outline-info').addClass('btn-primary');
+							$(`.like-btn${post_id}`).removeClass('btn-like0').addClass('btn-liked1');
+
+							$(`.like-btn${post_id}`).append('<span class="like-icon"><i class="fa fa-heart icn-spinner"></i></span>')
+
 							$(`.liked-list${post_id}`).append(userlikeHTML);
 						}
 						console.log(response)

@@ -1,4 +1,6 @@
 {% extends 'blog/base.html' %}
+{% load custom_tags %}
+
 <body>
 {% block content %}
 	<article class="media content-section" id='{{ post.id }}'>
@@ -62,22 +64,24 @@
 			{% endfor %}
 		{% endif %}
 
-<br><br><hr>
+	<br><br><hr>
+	<div class="btn-group">
 		<form action="{% url 'like-post-view' %}" method="POST" class='like-form' id='{{ post.id }}'>
 			{% csrf_token %}
 			<input type="hidden" name="post_id" value="{{ post.id }}"> 
 			{% if request.user.is_authenticated %}
 			{% if request.user.profile in post.liked.all %}
-				<button type="submit" class="btn btn-primary btn-sm like-btn{{ post.id }}">Unlike</button>
+				<button type="submit" class="btn btn-liked1 btn-sm like-btn{{ post.id }}" style="font-size: 0.8em;">Liked <span class="like-icon"><i class="fa fa-heart"></i></span></button>
 			{% else %}
-				<button type="submit" class="btn btn-outline-info btn-sm like-btn{{ post.id }}">Like</button>
+			<!-- btn-sm py-0" style="font-size: 0.8em;" -->
+				<button type="submit" class="btn btn-like0 btn-sm like-btn{{ post.id }}" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></button>
 			{% endif %}
 			{% else %}
-				<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm">Like</a>
+				<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></a>
 			{% endif %}
 
 			<!-- Button trigger modal -->
-			<button type="button" class="btn btn-outline-dark btn-sm like-count{{ post.id }}" data-toggle="modal" data-target="#postlikesModalLong-{{ post.id }}">
+			<button type="button" class="btn btn-outline-dark btn-sm like-count{{ post.id }}" data-toggle="modal" data-target="#postlikesModalLong-{{ post.id }}" style="font-size: 0.8em;">
 			  <small>{{ post.num_likes }} Likes</small>
 			</button>
 
@@ -91,14 +95,16 @@
 					  <span aria-hidden="true">&times;</span>
 					</button>
 				  </div>
-				  <div class="modal-body">
+				  <div class="modal-body liked-list{{ post.id }}">
 					{% for user in post.liked.all %}
-					<div class="media-body">
+					<div id="pl{{ user.user.id }}">
 					<ul class="list-unstyled">
 					<li>
+						<div>
 						<a href="{% url 'user-posts' user %}">
-						<img class="rounded-circle article-img" src={{ user.image.url }}></a>
+						<img class="rounded-circle article-img" src="{{ user.image.url }}"></a>
 						<a class="mr-2 badge badge-light" href="{% url 'user-posts' user %}">{{ user }}</a>
+						</div>
 					</li>
 					</ul>
 					</div>
@@ -107,39 +113,33 @@
 				</div>
 			  </div>
 			</div>
-
-			<a class="mr-2 btn btn-outline-dark btn-sm comment-count{{ post.id }}" href="{% url 'post-detail' post.id %}"><small class="comment-count-small{{ post.id }}">{{ post.num_comments }} Comments</small></a>
+		<a class="mr-2 btn btn-outline-dark btn-sm comment-count{{ post.id }}" href="{% url 'post-detail' post.id %}"><small class="comment-count-small{{ post.id }}">{{ post.num_comments }} Comments</small></a>
 
 		</form>
-
+</div>
 		{% if post.author == request.user %}
-		<div class="mx-auto" style="width: 200px;">
-		<a class="btn btn-outline-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' post.id %}">Update</a>
-		<a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' post.id %}">Delete</a>
+		<div class="btn-group" style="float:right;">
+		<a class="btn btn-outline-secondary btn-sm" href="{% url 'post-update' post.id %}">Update</a>
+		<a class="btn btn-outline-danger btn-sm" href="{% url 'post-delete' post.id %}">Delete</a>
 		</div>
 		{% endif %} 
-		</div>
+		
+	</div>
 	</article>
 
 		<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">
-			{% if post.comment_list|length != 0 %}
+			{% if post.comment_list|length|gtoe:3 %}
 			<a href="{% url 'latest-comment-post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0" style="font-size: 0.8em;">Sort By Latest Comments</a>
 			{% endif %}
-			
+
 			{% include 'blog/comments.html' %}
-			
+
 		</div>
 
 		{% include 'blog/comment_template.html' %}
 
 {% endblock content %}
 </body>
-
-<!-- 	# POSTDELETEVIEW TO PREVIOUS PAGE
-	# def get_success_url(self):
-	# 	return self.request.GET.get('next', reverse('/'))
-		<a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' object.id %}?next={{ request.path }}">Delete</a>
- -->
 
  {% block scripts %} 
 	<script>
@@ -155,12 +155,12 @@
 				}  
 			});
 
+			// LIKE/UNLIKE POSTS
 			$('.like-form').submit(function(e){
 				e.preventDefault()
 				const post_id = $(this).attr('id')
 				const likeText = $(`.like-btn${post_id}`).text()
 				const trim = $.trim(likeText)
-				
 				const url = $(this).attr('action')
 
 				let res;
@@ -175,27 +175,58 @@
 						'post_id':post_id,
 					},
 					success: function(response) {
-						if(trim == "Unlike") {
-							$(`.like-btn${post_id}`).text('Like')
+						console.log('response.user_id'+response.user_id)
+						// LIST OF USERS WHO LIKED THE POST
+						var userlikeHTML =  
+										'<div id="pl' +response.user_id + '">' +
+										'<ul class="list-unstyled">' +
+										'<li>' + 
+										'<a href="/user/' +
+										response.username + 
+										'">' +
+										'<img class="rounded-circle article-img" src="' + response.image + '">' +
+										'<a class="mr-2 badge badge-light" href="/user/' +
+										response.username +
+										'">' +
+										response.username +
+										'</a>' +
+										'</li>' +
+										'</ul>' +
+										'</div>';
+
+						if(trim == "Liked") {
+							$(`.like-btn${post_id}`).text('Like ')
 							res = trimCount - 1
 							
-							$(`.like-btn${post_id}`).removeClass('btn-primary').addClass('btn-outline-info');
+							$(`.like-btn${post_id}`).removeClass('btn-liked1').addClass('btn-like0');
+							$(`.like-btn${post_id}`).append('<span class="like-icon"><i class="fa fa-heart icn-spinner"></i></span>');
+
+							$(`.liked-list${post_id}`).find('#pl'+response.user_id).remove();
+
+							console.log(response.user_id)
+							console.log('removed')
 
 						} else {
-							$(`.like-btn${post_id}`).text('Unlike')
+							$(`.like-btn${post_id}`).text('Liked ')
 							res = trimCount + 1
-							$(`.like-btn${post_id}`).removeClass('btn-outline-info').addClass('btn-primary');
+							$(`.like-btn${post_id}`).removeClass('btn-like0').addClass('btn-liked1');
+							$(`.like-btn${post_id}`).append('<span class="like-icon"><i class="fa fa-heart icn-spinner"></i></span>');
 
+							$(`.liked-list${post_id}`).append(userlikeHTML);
 						}
+						console.log(response)
+						console.log(response.username)
+						console.log(response.image)
 
-						$(`.like-count${post_id}`).text(res + ' ' + 'Likes')
+						$(`.like-count${post_id}`).text(res + ' ' + 'Likes');
 					},
 					error: function(response) {
 						console.log('error', response)
 					}
 				})
-			});
+			})
 
+			// LIKE/UNLIKE COMMENTS
 			$('.comlike-form').submit(function(e){
 				e.preventDefault()
 				const comment_id = $(this).attr('id')
@@ -221,28 +252,39 @@
 						'comment_id':comment_id,
 					},
 					success: function(response) {
+						// LIST OF USERS WHO LIKED THE COMMENT
 						var userlikeHTML =  
-										'<div id="cl' +response.user_id + '">' +
+										'<div id="cl' +response.username + '">' +
 										'<ul class="list-unstyled">' +
 										'<li>' + 
+										'<a href="/user/' +
+										response.username + 
+										'">' +
 										'<img class="rounded-circle article-img" src="' + response.image + '">' +
-										'<small>' + response.username + '</small>' +
+										'<a class="mr-2 badge badge-light" href="/user/' +
+										response.username +
+										'">' +
+										response.username +
+										'</a>' +
 										'</li>' +
 										'</ul>' +
 										'</div>';
 						console.log(response)
-						if(trim == "Unlike") {
-							$(`#like-btn${comment_id}`).text('Like');
+						if(trim == "Liked") {
+							$(`#like-btn${comment_id}`).text('Like ');
 							res = trimCount - 1;
 							
-							$(`#like-btn${comment_id}`).removeClass('btn-primary').addClass('btn-outline-info');
+							$(`#like-btn${comment_id}`).removeClass('btn-liked1').addClass('btn-like0');
+							$(`#like-btn${comment_id}`).append('<span class="like-icon"><i class="fa fa-heart icn-spinner"></i></span>');
 
-							$(`.liked-list${comment_id}`).find('#cl'+response.user_id).remove();
+							$(`.liked-list${comment_id}`).find('#cl'+response.username).remove();
 
 						} else {
-							$(`#like-btn${comment_id}`).text('Unlike');
+							$(`#like-btn${comment_id}`).text('Liked ');
 							res = trimCount + 1;
-							$(`#like-btn${comment_id}`).removeClass('btn-outline-info').addClass('btn-primary');
+							$(`#like-btn${comment_id}`).removeClass('btn-like0').addClass('btn-liked1');
+							$(`#like-btn${comment_id}`).append('<span class="like-icon"><i class="fa fa-heart icn-spinner"></i></span>');
+
 							$(`.liked-list${comment_id}`).append(userlikeHTML);
 
 						}
@@ -255,7 +297,7 @@
 				})
 			});
 
-
+			// DELETE 'TEMPORARY' COMMENTS RENDERED BY JQUERY
 	        $('.comdelete-form-temp').on("submit", function(e) {
 	        	e.preventDefault()
 	            const comment_id = $(this).attr('id');
@@ -287,15 +329,52 @@
 	            });
 	        });
 
+	        // DELETE COMMENTS
+	        $('.comdelete-form').on("submit", function(e) {
+	        	e.preventDefault()
+	            const comment_id = $(this).attr('id')
+	            console.log('delete success function - comment id '+comment_id)
+
+	            const url = $(this).attr('action')
+	            console.log(url)
+	            const serializedData = $(this).serialize()
+	            console.log(serializedData)
+
+	            $.ajax({
+	            	type: 'POST',
+	                url: url,
+					data: {
+						'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+						'comment_id':comment_id,
+					},
+					// dataType: 'text',
+	                success: function(response) {
+	                    $("#commentdeleteModal-"+response.comment_id).find('.close').click();
+
+	                    $(`.com-list${response.post_id}`).find('#cl'+response.comment_id).remove();
+
+	                    $(`.comment-count-small${response.post_id}`).text(response.num_comments + ' ' + 'Comments');
+	                },
+					error: function(response) {
+						console.log('error', response)
+					}
+	            });
+	        });
+
+	        // INFINITE SCROLL LOADING COMMENTS
 			var working = false;
 			$(window).scroll(function() {
 				console.log($(this).scrollTop());
+				console.log('document height'+$(document).height()+' ---  window height'+ $(window).height())
+				console.log('==' +($(document).height() - $(window).height()))
+				console.log('scroll top' +$(this).scrollTop())
 				// const comcount = $('.com-id').length;
 				const comcount = $('.clist').length; 
 				console.log('count='+comcount);
 				const post_id = $('.content-section').attr('id');
 
-				if($(this).scrollTop() +1 >= $(document).height() - $(window).height()) {
+				// if($(this).scrollTop() +1 >= $(document).height() - $(window).height())
+				if($(this).scrollTop() + 100 >= $(document).height() - $(window).height()) {
 					if (working == false) {
 						working = true;
 					
@@ -310,7 +389,6 @@
 					dataType: 'json',
 					success: function(response) {
 
-					   // ajax call get data from server and append to the div
 					   console.log('end of page')
 					   console.log('response data='+response)
 					   console.log('success function count='+comcount);
@@ -318,16 +396,17 @@
 					   console.log('response.comment='+response.comment);
 					   console.log('------------------')
 
-
 	                    setTimeout(function() {
 	                    	working = false;
 	                    }, 300);
+
 	                    var user_url = '/user/';
 	                    var comment_like_url = '/post/comment/like/';
 	                    var delete_url_start = '/post/commenttemp/';
 	                    var delete_url_end = '/delete/';
 	                    
 						var json_data = $.parseJSON(response.comment);
+						console.log(json_data)
 
 						$.each(json_data,function(index,data) {
 
@@ -353,11 +432,10 @@
 	                    comClone.find(".comlike-form").attr("action", comment_like_url);
 	                    comClone.find(".comlike-form").attr("id", data.pk);
 	                    comClone.find(".cl-input").attr("value", data.pk);
-	                    comClone.find(".com-like").attr("class", "btn btn-outline-info btn-sm py-0 com-like");
+	                    comClone.find(".com-like").attr("class", "btn btn-like0 btn-sm py-0 com-like");
+	                    comClone.find(".com-like").append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
+
 	                    comClone.find(".com-like").attr("id", "like-btn" + data.pk);
-
-	                    comClone.find(".com-like").text(response.likevalue);
-
 
 	                    comClone.find(".com-modal").text(data.fields.liked.length+ " Likes");
 
@@ -366,17 +444,47 @@
 	                    comClone.find(".com-modal").attr("data-target", "#commentlikesModalLong-" + data.pk);
 
 	                    comClone.find(".cmodal").attr("id", "commentlikesModalLong-" + data.pk);
-	                    comClone.find(".modal-body").attr("class", "modal-body liked-list" + data.pk);
-	                    comClone.find(".list-unstyled").remove();
+	                    comClone.find(".liked-list00").attr("class", "modal-body liked-list" + data.pk);
 
-	                    comClone.find(".delete-btn").attr("id", data.pk);
-	                    comClone.find(".delete-btn").attr("data-target", "#commentdeleteModal-"+data.pk);
-	                    comClone.find(".comdelete").attr("id", "commentdeleteModal-"+data.pk);
+	                    // LIST OF USERS WHO LIKED THE COMMENT
+						$.each(data.fields.liked_username, function(i, item) {
+						    console.log(data.fields.liked_username[i], data.fields.liked_user_pp[i]);
 
-	                    comClone.find(".comdelete-form-temp").attr("action", delete_url_start+data.pk+delete_url_end);
-	                    comClone.find(".comdelete-form-temp").attr("id", data.pk);
-	                    console.log('LIKED LIST ======= '+response.liked_list)
+					  	var userlikeHTML =  
+										'<div id="cl' +data.fields.liked_username[i] + '">' +
+										'<ul class="list-unstyled">' +
+										'<li>' + 
+										'<a href="/user/' +
+										data.fields.liked_username[i] + 
+										'">' +
+										'<img class="rounded-circle article-img" src="' + data.fields.liked_user_pp[i] + '"></a>' +
+										'<a class="mr-2 badge badge-light" href="/user/' +
+										data.fields.liked_username[i] + 
+										'">' +
+										data.fields.liked_username[i] +
+										'</a>' +
+										'</li>' +
+										'</ul>' +
+										'</div>';
 
+	                    comClone.find($(`.liked-list${data.pk}`).append(userlikeHTML));
+	                    });
+
+						// IF request.user == comment.author: show delete button
+	                    if (response.user == data.fields.user) {
+
+		                    comClone.find(".delete-btn").attr("id", data.pk);
+		                    comClone.find(".delete-btn").attr("data-target", "#commentdeleteModal-"+data.pk);
+		                    comClone.find(".comdelete").attr("id", "commentdeleteModal-"+data.pk);
+
+		                    comClone.find(".comdelete-form-temp").attr("action", delete_url_start+data.pk+delete_url_end);
+		                    comClone.find(".comdelete-form-temp").attr("id", data.pk);
+	                	}
+	                	else {
+	                		comClone.find(".delete-btn").remove()
+	                	};
+
+	                	// IF request.user liked the comment
 						function checkValue(value,arr) {
 						  var status = 'Not exist';
 						 
@@ -384,22 +492,28 @@
 						    var name = arr[i];
 						    if(name == value) {
 						      status = 'Exist';
-								comClone.find(".com-like").text("Unlike");
-								$(`#like-btn${data.pk}`).removeClass('btn-outline-info').addClass('btn-primary');
+								comClone.find(".com-like").text("Liked ");
+								$(`#like-btn${data.pk}`).removeClass('btn-like0').addClass('btn-liked1');
+								// $(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
 						      break;
 						    }
 						    else {
-								comClone.find(".com-like").text("Like");
-								$(`#like-btn${data.pk}`).removeClass('btn-primary').addClass('btn-outline-info');
+								comClone.find(".com-like").text("Like ");
+								$(`#like-btn${data.pk}`).removeClass('btn-liked1').addClass('btn-like0');
+								// $(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
 						    }
 						  }
 						  return status;
 						}
 						console.log('status : ' + checkValue(response.user, data.fields.liked) );
+						console.log(response.user)
+						console.log(data.fields.user)
+
+
 						});
-				}
-			});
-				}
+					}
+					});
+					}
 				}
 			});
 

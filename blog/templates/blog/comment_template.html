@@ -2,7 +2,6 @@
 
 <div class="clist-temp" id="clist00" style="display: none;">
 <div class="com-id-temp" id="cl00">
-	<br>
 	<article class="media comment-section">	
 	<img class="rounded-circle comment-img" src="">
 		<div class="media-body mt-1">
@@ -17,12 +16,12 @@
 				<input type="hidden" name="comment_id" value="00" class="cl-input"> 
 				{% if request.user.is_authenticated %}
 				{% if request.user.profile in comment.liked.all %}
-					<button type="submit" class="btn btn-primary btn-sm py-0 com-like" id="like-btn00" style="font-size: 0.8em;">Unlike</button>
+					<button type="submit" class="btn btn-liked1 btn-sm py-0 com-like" id="like-btn00" style="font-size: 0.8em;">Liked </button>
 				{% else %}
-					<button type="submit" class="btn btn-outline-info btn-sm py-0 com-like" id="like-btn00" style="font-size: 0.8em;">Like</button>
+					<button type="submit" class="btn btn-like0 btn-sm py-0 com-like" id="like-btn00" style="font-size: 0.8em;">Like </button>
 				{% endif %}
 				{% else %}
-					<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm py-0" style="font-size: 0.8em;">Like</a>
+					<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm py-0" style="font-size: 0.8em;">Like </a>
 				{% endif %}
 
 				<!-- Button trigger modal - Shows likes list of users -->
@@ -38,19 +37,21 @@
 						  <span aria-hidden="true">&times;</span>
 						</button>
 					  </div>
+
 					  <div class="modal-body liked-list00">
 						{% for user in comment.liked.all %}
 							<div id="cl00">
 								<ul class="list-unstyled">
 									<li>
-										<a href="">
-										<img class="rounded-circle article-img" src=""></a>
-										<a class="mr-2 badge badge-light" href="">{{ user }}</a>
+										<a class="comLiked_user_url" href="">
+										<img class="rounded-circle article-img comLiked_user_image" src=""></a>
+										<a class="mr-2 badge badge-light comLiked_user_url" href="">{{ user }}</a>
 									</li>
 								</ul>
 							</div>
 						{% endfor %}
 					  </div>
+
 					</div>
 				  </div>
 				</div>

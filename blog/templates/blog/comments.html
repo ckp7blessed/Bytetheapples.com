@@ -1,18 +1,9 @@
 {% load static %}
 {% load custom_tags %}
 
-
-{% if post.comment_list|length|gtoe:3 %}
-<h5><small>showing top 3 comments</small></h5>
-<a href="{% url 'post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0" style="font-size: 0.8em;">Load More</a> 
-{% endif %}
-
-
-{% for comment in post.comment_list|slice:"0:5" %}
-
+{% for comment in post.comment_list|slice:"0:7" %}
 <div class="clist" id="clist" >
 <div class="com-id" id="cl{{ comment.id }}">
-	<br>
 	<article class="media comment-section">	
 	<img class="rounded-circle comment-img" src="{{ comment.user.image.url }}">
 		<div class="media-body mt-1">
@@ -35,12 +26,12 @@
 				<input type="hidden" name="comment_id" value="{{ comment.id }}" class="cl-input"> 
 				{% if request.user.is_authenticated %}
 				{% if request.user.profile in comment.liked.all %}
-					<button type="submit" class="btn btn-primary btn-sm py-0 com-like" id="like-btn{{ comment.id }}" style="font-size: 0.8em;">Unlike</button>
+					<button type="submit" class="btn btn-liked1 btn-sm py-0 com-like" id="like-btn{{ comment.id }}" style="font-size: 0.8em;">Liked <span class="like-icon"><i class="fa fa-heart"></i></span></button>
 				{% else %}
-					<button type="submit" class="btn btn-outline-info btn-sm py-0 com-like" id="like-btn{{ comment.id }}" style="font-size: 0.8em;">Like</button>
+					<button type="submit" class="btn btn-like0 btn-sm py-0 com-like" id="like-btn{{ comment.id }}" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></button>
 				{% endif %}
 				{% else %}
-					<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm py-0" style="font-size: 0.8em;">Like</a>
+					<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm py-0" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></a>
 				{% endif %}
 
 				<!-- Button trigger modal - Shows likes list of users -->
@@ -60,7 +51,7 @@
 					  </div>
 					  <div class="modal-body liked-list{{ comment.id }}">
 						{% for user in comment.liked.all %}
-						<div id="cl{{ user.user.id }}">
+						<div id="cl{{ user.user.username }}">
 							<ul class="list-unstyled">
 								<li>
 									<a href="{% url 'user-posts' user %}">
@@ -87,5 +78,5 @@
 	</article>
 </div>
 </div>
-
 {% endfor %}
+
