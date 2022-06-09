@@ -5,10 +5,11 @@
 <div class="clist" id="clist" >
 <div class="com-id" id="cl{{ comment.id }}">
 	<article class="media comment-section">	
-	<img class="rounded-circle comment-img" src="{{ comment.user.image.url }}">
+	<a class="mr-2 comment-user" href="{% url 'user-posts' comment.user %}">	
+	<img class="rounded-circle comment-img" src="{{ comment.user.image.url }}"></a>
 		<div class="media-body mt-1">
 			<div class="article-metadata">
-				<a class="mr-2 comment-user" href="{% url 'user-posts' comment.user %}">{{ comment.user }}</a>
+				<a class="mr-2 text-dark profile-link comment-user" href="{% url 'user-posts' comment.user %}">{{ comment.user }}</a>
 				<small class="text-muted comment-created" style="float:right;">
 					{% if comment.created|timesince|upto == "show_date" %}
 					{{ comment.created|date:"F d, Y" }}
@@ -31,7 +32,7 @@
 					<button type="submit" class="btn btn-like0 btn-sm py-0 com-like" id="like-btn{{ comment.id }}" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></button>
 				{% endif %}
 				{% else %}
-					<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm py-0" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></a>
+					<a href="{% url 'login' %}" class="btn btn-like0 btn-sm py-0" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></a>
 				{% endif %}
 
 				<!-- Button trigger modal - Shows likes list of users -->
@@ -68,12 +69,17 @@
 			</form>
 			</div>
 			{% if request.user == comment.user.user %}
-			<div class="btn-group" style="float:right;">
-				<!-- Button trigger modal - Delete Button -->
-				<button class="btn btn-outline-danger btn-sm py-0 delete-btn{{ comment.id }}" style="font-size: 0.8em" data-toggle="modal" data-target="#commentdeleteModal-{{ comment.id }}">Delete</button>
-			</div>
+			<div class="btn-group dropdown" style="float:right;">
+						<button class="btn ud-action-button dropdown-toggle mt-n1 btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		   				•••</button>
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+							<!-- Button trigger modal - Delete Button -->
+							<button class="btn text-danger btn-sm dropdown-item py-0 delete-btn{{ comment.id }}" style="font-size: 0.8em" data-toggle="modal" data-target="#commentdeleteModal-{{ comment.id }}">Delete <i class="fa fa-trash"></i></button>
+						</div>
 			{% include 'blog/comment_confirm_delete.html' %}
+			</div>
 			{% endif %}
+			
 		</div>
 	</article>
 </div>

@@ -4,13 +4,19 @@
 <body>
 {% block content %}
 	<article class="media content-section" id='{{ post.id }}'>
-		<img class="rounded-circle article-img" src={{ object.author.profile.image.url }}>
+		{% if post.author == request.user %}
+		<a class="mr-2" href="{% url 'profile' %}">
+		{% else %}
+		<a class="mr-2" href="{% url 'user-posts' post.author.username %}">
+		{% endif %}
+		<img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}"></a>
+
 		<div class="media-body">
 		<div class="article-metadata">
 		{% if post.author == request.user %}
-		<a class="mr-2" href="{% url 'profile' %}">{{ object.author }}</a>
+		<a class="mr-2 text-dark profile-link" href="{% url 'profile' %}">{{ object.author }}</a>
 		{% else %}
-		<a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ object.author }}</a>
+		<a class="mr-2 text-dark profile-link" href="{% url 'user-posts' post.author.username %}">{{ object.author }}</a>
 		{% endif %}
 		<small class="text-muted">{{ object.date_posted | date:"F d, Y" }}</small>
 
@@ -77,7 +83,7 @@
 				<button type="submit" class="btn btn-like0 btn-sm like-btn{{ post.id }}" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></button>
 			{% endif %}
 			{% else %}
-				<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></a>
+				<a href="{% url 'login' %}" class="btn btn-like0 btn-sm" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></a>
 			{% endif %}
 
 			<!-- Button trigger modal -->
@@ -117,12 +123,18 @@
 
 		</form>
 </div>
-		{% if post.author == request.user %}
-		<div class="btn-group" style="float:right;">
-		<a class="btn btn-outline-secondary btn-sm" href="{% url 'post-update' post.id %}">Update</a>
-		<a class="btn btn-outline-danger btn-sm" href="{% url 'post-delete' post.id %}">Delete</a>
+
+	{% if post.author == request.user %}
+	<div class="btn-group dropdown" style="float:right;">
+		<button class="btn ud-action-button dropdown-toggle mt-n2 btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		    •••
+		</button>
+		<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+			<a class="dropdown-item" href="{% url 'post-update' post.id %}">Update</a>
+			<a class="text-danger dropdown-item" href="{% url 'post-delete' post.id %}">Delete <i class="fa fa-trash"></i></a>
 		</div>
-		{% endif %} 
+	 </div>
+	 {% endif %} 
 		
 	</div>
 	</article>
@@ -421,6 +433,7 @@
 
 	                    comClone.find(".com-id").attr("id", "cl"+data.pk);
 	                    console.log('comment id='+data.pk)
+	                    comClone.find(".comment-user-pp").attr("href", user_url + response.username);
 	                    comClone.find(".comment-img").attr("src", response.image);
 	                    comClone.find(".comment-user").text(response.username);
 
@@ -481,7 +494,7 @@
 		                    comClone.find(".comdelete-form-temp").attr("id", data.pk);
 	                	}
 	                	else {
-	                		comClone.find(".delete-btn").remove()
+	                		comClone.find(".delete-btn-dropdown").remove()
 	                	};
 
 	                	// IF request.user liked the comment
@@ -494,13 +507,13 @@
 						      status = 'Exist';
 								comClone.find(".com-like").text("Liked ");
 								$(`#like-btn${data.pk}`).removeClass('btn-like0').addClass('btn-liked1');
-								// $(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
+								$(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
 						      break;
 						    }
 						    else {
 								comClone.find(".com-like").text("Like ");
 								$(`#like-btn${data.pk}`).removeClass('btn-liked1').addClass('btn-like0');
-								// $(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
+								$(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
 						    }
 						  }
 						  return status;
