@@ -1,0 +1,138 @@
+{% load static %}
+{% load custom_tags %}
+
+<!DOCTYPE html>
+
+		<div class="article-metadata">
+		<a class="mr-2 text-dark profile-link" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+		<small class="text-muted">
+			{% if post.date_posted|timesince|upto == "show_date" %}
+			{{ post.date_posted|date:"F d, Y" }}
+			{% elif post.date_posted|timesince|upto == "Just Now" %}
+			{{ post.date_posted|timesince|upto }}
+			{% else %}
+			{{ post.date_posted|timesince|upto }} ago
+			{% endif %}
+		</small>
+		{% if post.category == None %}
+		<small style="float:right;">Uncategorized</small>
+		{% else %}
+		<small style="float:right;"><a href="{% url 'cat-results' post.category %}">category: {{ post.category }}</a></small>
+		{% endif %}
+		</div>
+		
+		<h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a>
+		</h2>
+		<p class="article-content">{{ post.content|urlizetrunc:26 }}</p>
+
+
+		<!--Carousel Wrapper-->
+		<div id="carousel-1z-{{ post.id }}" class="carousel slide carousel-fade carousel-dark" data-interval="false">
+		  <!--Indicators-->
+		  <ol class="carousel-indicators">
+			{% for postimage in post.postimage_set.all %}
+			<li data-target="#carousel-1z" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.counter0 == 0 %} active {% endif %}"></li>
+			{% endfor %}
+		  </ol>
+		  <!--/.Indicators-->
+		  <!--Slides-->
+		  <div class="carousel-inner" role="listbox">
+			<!--First slide-->
+			{% for postimage in post.postimage_set.all %}
+			<div class="carousel-item {% if forloop.counter0 == 0 %} active {% endif %}">
+			  <img class="d-block w-100 img-fluid " src="{{ postimage.image.url }}"
+				alt="First slide">
+			</div>
+			{% endfor %}
+			<!--/First slide-->
+		  </div>
+		  <!--/.Slides-->
+		  <!--Controls-->
+		  <a class="carousel-control-prev" href="#carousel-1z-{{ post.id }}" role="button" data-slide="prev">
+			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+			<span class="sr-only">Previous</span>
+		  </a>
+		  <a class="carousel-control-next" href="#carousel-1z-{{ post.id }}" role="button" data-slide="next">
+			<span class="carousel-control-next-icon" aria-hidden="true"></span>
+			<span class="sr-only">Next</span>
+		  </a>
+		  <!--/.Controls-->
+		</div>
+		<!--/.Carousel Wrapper-->
+
+<!-- 		 if post.image_url 
+		<img class="center-block img-fluid" src={{ post.image_url >
+		 endif  -->
+	<br>
+		{% if post.get_youtube_urls %}
+			{% for url in post.get_youtube_urls %}
+				<iframe width="100%" height="315" src="https://www.youtube.com/embed/{{ url }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			{% endfor %} 
+		{% endif %}
+
+	<br><br><hr>
+	<div class="btn-group">
+		<form action="{% url 'like-post-view' %}" method="POST" class='like-form' id='{{ post.id }}'>
+			{% csrf_token %}
+			<input type="hidden" name="post_id" value="{{ post.id }}"> 
+			{% if request.user.is_authenticated %}
+			{% if request.user.profile in post.liked.all %}
+				<button type="submit" class="btn btn-liked1 btn-sm like-btn{{ post.id }}" style="font-size: 0.8em;">Liked <span class="like-icon"><i class="fa fa-heart"></i></span></button>
+			{% else %}
+			<!-- btn-sm py-0" style="font-size: 0.8em;" -->
+				<button type="submit" class="btn btn-like0 btn-sm like-btn{{ post.id }}" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></button>
+			{% endif %}
+			{% else %}
+				<a href="{% url 'login' %}" class="btn btn-like0 btn-sm" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></a>
+			{% endif %}
+
+			<!-- Button trigger modal -->
+			<button type="button" class="btn btn-outline-dark btn-sm like-count{{ post.id }}" data-toggle="modal" data-target="#postlikesModalLong-{{ post.id }}" style="font-size: 0.8em;">
+			  <small>{{ post.num_likes }} Likes</small>
+			</button>
+
+			<!-- Modal -->
+			<div class="modal fade" id="postlikesModalLong-{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="postlikesModalLongTitle" aria-hidden="true">
+			  <div class="modal-dialog" role="document">
+				<div class="modal-content">
+				  <div class="modal-header">
+					<h5 class="modal-title" id="postlikesModalLongTitle">Liked by</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					  <span aria-hidden="true">&times;</span>
+					</button>
+				  </div>
+				  <div class="modal-body liked-list{{ post.id }}">
+					{% for user in post.liked.all %}
+					<div id="pl{{ user.user.id }}">
+					<ul class="list-unstyled">
+					<li>
+						<div>
+						<a href="{% url 'user-posts' user %}">
+						<img class="rounded-circle article-img" src="{{ user.image.url }}"></a>
+						<a class="mr-2 badge badge-light" href="{% url 'user-posts' user %}">{{ user }}</a>
+						</div>
+					</li>
+					</ul>
+					</div>
+					{% endfor %}
+				  </div>
+				</div>
+			  </div>
+			</div>
+		<a class="mr-2 btn btn-outline-dark btn-sm comment-count{{ post.id }}" href="{% url 'post-detail' post.id %}"><small class="comment-count-small{{ post.id }}">{{ post.num_comments }} Comments</small></a>
+
+		</form>
+	</div>
+
+	{% if post.author == request.user %}
+	<div class="btn-group dropdown" style="float:right;">
+		<button class="btn ud-action-button dropdown-toggle mt-n2 btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		    •••
+		</button>
+		<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+			<a class="dropdown-item" href="{% url 'post-update' post.id %}">Update</a>
+			<a class="text-danger dropdown-item" href="{% url 'post-delete' post.id %}">Delete <i class="fa fa-trash"></i></a>
+		</div>
+	 </div>
+	 {% endif %} 	
+	 <br>

@@ -1,207 +1,57 @@
 {% extends 'blog/base.html' %}
-<body>
+{% load static %}
+{% load crispy_forms_tags %}
+{% load custom_tags %}
+
+<!DOCTYPE html>
+
 {% block content %}
-	<article class="media content-section">
-		<img class="rounded-circle article-img" src={{ object.author.profile.image.url }}>
-	  	<div class="media-body">
-	  	<div class="article-metadata">
-	  	{% if post.author == request.user %}
-	  	<a class="mr-2" href="{% url 'profile' %}">{{ object.author }}</a>
-	  	{% else %}
-	  	<a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ object.author }}</a>
-	  	{% endif %}
-	    <small class="text-muted">{{ object.date_posted | date:"F d, Y" }}</small>
-
-		{% if post.category == None %}
-		<small style="float:right;">Uncategorized</small>
-		{% else %}
-		<small style="float:right;"><a href="{% url 'cat-results' post.category %}">category: {{ post.category }}</a></small>
-		{% endif %}
-		</div>
-	    
-	    <h2 class="article-title">{{ object.title }}</h2>
-	    <p class="article-content">{{ object.content|urlizetrunc:26 }}</p>
-
-		<!--Carousel Wrapper-->
-		<div id="carousel-1z-{{ post.id }}" class="carousel slide carousel-fade carousel-dark" data-interval="false">
-		  <!--Indicators-->
-		  <ol class="carousel-indicators">
-		  	{% for postimage in post.postimage_set.all %}
-		    <li data-target="#carousel-1z" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.counter0 == 0 %} active {% endif %}"></li>
-		    {% endfor %}
-		  </ol>
-		  <!--/.Indicators-->
-		  <!--Slides-->
-		  <div class="carousel-inner" role="listbox">
-		    <!--First slide-->
-		    {% for postimage in post.postimage_set.all %}
-		    <div class="carousel-item {% if forloop.counter0 == 0 %} active {% endif %}">
-		      <img class="d-block w-100 img-fluid " src="{{ postimage.image.url }}"
-		        alt="First slide">
-		    </div>
-		    {% endfor %}
-		    <!--/First slide-->
-		  </div>
-		  <!--/.Slides-->
-		  <!--Controls-->
-		  <a class="carousel-control-prev" href="#carousel-1z-{{ post.id }}" role="button" data-slide="prev">
-		    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-		    <span class="sr-only">Previous</span>
-		  </a>
-		  <a class="carousel-control-next" href="#carousel-1z-{{ post.id }}" role="button" data-slide="next">
-		    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-		    <span class="sr-only">Next</span>
-		  </a>
-		  <!--/.Controls-->
-		</div>
-		<!--/.Carousel Wrapper-->
-<br>
-		{% if post.get_youtube_urls %}
-			{% for url in post.get_youtube_urls %}
-				<iframe width="560" height="315" src="https://www.youtube.com/embed/{{ url }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-			{% endfor %}
-		{% endif %}
-
-<br><br><hr>
-		<form action="{% url 'like-post-view' %}" method="POST" class='like-form' id='{{ post.id }}'>
-			{% csrf_token %}
-			<input type="hidden" name="post_id" value="{{ post.id }}"> 
-			{% if request.user.is_authenticated %}
-			{% if request.user.profile in post.liked.all %}
-				<button type="submit" class="btn btn-primary btn-sm like-btn{{ post.id }}">Unlike</button>
-			{% else %}
-				<button type="submit" class="btn btn-outline-info btn-sm like-btn{{ post.id }}">Like</button>
-			{% endif %}
-			{% else %}
-				<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm">Like</a>
-			{% endif %}
-
-			<!-- Button trigger modal -->
-			<button type="button" class="btn btn-outline-dark btn-sm like-count{{ post.id }}" data-toggle="modal" data-target="#postlikesModalLong-{{ post.id }}">
-			  <small>{{ post.num_likes }} Likes</small>
-			</button>
-
-			<!-- Modal -->
-			<div class="modal fade" id="postlikesModalLong-{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="postlikesModalLongTitle" aria-hidden="true">
-			  <div class="modal-dialog" role="document">
-				<div class="modal-content">
-				  <div class="modal-header">
-					<h5 class="modal-title" id="postlikesModalLongTitle">Liked by</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					  <span aria-hidden="true">&times;</span>
-					</button>
-				  </div>
-				  <div class="modal-body">
-					{% for user in post.liked.all %}
-					<div class="media-body">
-					<ul class="list-unstyled">
-					<li>
-						<a href="{% url 'user-posts' user %}">
-						<img class="rounded-circle article-img" src={{ user.image.url }}></a>
-						<a class="mr-2 badge badge-light" href="{% url 'user-posts' user %}">{{ user }}</a>
-					</li>
-					</ul>
-					</div>
-					{% endfor %}
-				  </div>
-				</div>
-			  </div>
-			</div>
-
-			<a class="mr-2 btn btn-outline-dark btn-sm comment-count{{ post.id }}" href="{% url 'post-detail' post.id %}"><small class="comment-count-small{{ post.id }}">{{ post.num_comments }} Comments</small></a>
-
-		</form>
-
+	<article class="media content-section" id='{{ post.id }}'>
 		{% if post.author == request.user %}
-		<div class="mx-auto" style="width: 200px;">
-		<a class="btn btn-outline-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' post.id %}">Update</a>
-		<a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' post.id %}">Delete</a>
+		<a class="mr-2" href="{% url 'profile' %}">
+		{% else %}
+		<a class="mr-2" href="{% url 'user-posts' post.author.username %}">
+		{% endif %}
+		<img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}"></a>
+
+		<div class="media-body">
+
+		{% include 'blog/posts_main.html' %}
+		
+		{% if request.user.is_authenticated %}
+		<div style='clear:both'></div>
+		<br>
+		<form action="{% url 'comment-post-view' %}" method="POST" class="com-form" id="{{ post.id }}">
+			{% csrf_token %}
+			<input type="hidden" name="post_id" value="{{ post.id }}">
+			{{ c_form|crispy }}
+			<button type="submit" class="button btn-sm mt-n2 com-btn" id="{{ post.pk }}" name="submit_c_form" style="float:right;">
+				Comment 
+			</button>
+			<br><br>
+		</form>
+		{% else %}
+		<a href="{% url 'login' %}" class="button btn-sm text-decoration-none mt-n2" style="float:right;">Comment</a><br><br>
+		{% endif %}
+
+			{% if post.comment_list|length|gtoe:3 %}
+			<a href="{% url 'post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0 mt-n4" style="font-size: 0.8em;">Sort By Top Comments</a>
+			{% endif %}
+
+		<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">
+
+
+			{% include 'blog/comments.html' %}
+
 		</div>
-		{% endif %} 
-	  	</div>
-	</article>
-
-	<a href="{% url 'post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0" style="font-size: 0.8em;">Sort By Top Comments</a>
-	{% for comment in post.comment_list %}
-<br>
-<article class="media comment-section">	
-<img class="rounded-circle article-img" src="{{ comment.user.image.url }}">
-<div class="media-body mt-1">
-<div class="article-metadata">
-		<a class="mr-2" href="{% url 'user-posts' comment.user %}">{{ comment.user }}</a>
-		<small class="text-muted" style="float:right;">{{ comment.created|date:"F d, Y" }} {{ comment.created|timesince }} ago</small>
-		<small class="clc-text" id="clc{{ comment.id }}">{{ comment.num_likes }} Likes</small>
-<p class="article-content">{{ comment.body }}</p>
-
-</div>
 </div>
 </article>
-{% endfor %}
-
+<div class="infinite-scroll" data-url="{% url 'load-more-comments-detail' %}" style="display: none;"></div>
+		{% include 'blog/comment_template.html' %}
 
 {% endblock content %}
-</body>
-
-<!-- 	# POSTDELETEVIEW TO PREVIOUS PAGE
-	# def get_success_url(self):
-	# 	return self.request.GET.get('next', reverse('/'))
-	    <a class="btn btn-outline-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' object.id %}?next={{ request.path }}">Delete</a>
- -->
 
  {% block scripts %} 
-	<script>
-		$( document ).ready(function() {
-			let display = false
-			$(".cmt_btn").click(function () {
-				if (display===false) {
-					$(this).next(".comment-box").show("slow");
-					display=true
-				} else {
-					$(this).next(".comment-box").hide("slow");
-					display=false
-				}  
-			});
-
-			$('.like-form').submit(function(e){
-				e.preventDefault()
-				const post_id = $(this).attr('id')
-				const likeText = $(`.like-btn${post_id}`).text()
-				const trim = $.trim(likeText)
-				
-				const url = $(this).attr('action')
-
-				let res;
-				const likes = $(`.like-count${post_id}`).text()
-				const trimCount = parseInt(likes)
-				
-				$.ajax({
-					type: 'POST',
-					url: url,
-					data: {
-						'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
-						'post_id':post_id,
-					},
-					success: function(response) {
-						if(trim == "Unlike") {
-							$(`.like-btn${post_id}`).text('Like')
-							res = trimCount - 1
-							
-							$(`.like-btn${post_id}`).removeClass('btn-primary').addClass('btn-outline-info');
-
-						} else {
-							$(`.like-btn${post_id}`).text('Unlike')
-							res = trimCount + 1
-							$(`.like-btn${post_id}`).removeClass('btn-outline-info').addClass('btn-primary');
-
-						}
-
-						$(`.like-count${post_id}`).text(res + ' ' + 'Likes')
-					},
-					error: function(response) {
-						console.log('error', response)
-					}
-				})
-			})
-		});
-	</script>
-{% endblock scripts %}
+ <script src="{% static 'blog/main_detailview_bylatest.js' %}"></script>
+ <script src="{% static 'blog/base.js' %}"></script>
+ {% endblock scripts %}

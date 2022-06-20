@@ -1,6 +1,8 @@
 {% load static %}
 {% load custom_tags %}
 
+<!DOCTYPE html>
+
 {% for comment in post.comment_list|slice:"0:7" %}
 <div class="clist" id="clist" >
 <div class="com-id" id="cl{{ comment.id }}">

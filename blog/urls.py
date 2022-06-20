@@ -23,6 +23,7 @@ urlpatterns = [
 	path('search/', UserResultsView.as_view(), name='user_results'),
 	path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
 	path('post/load-more-comments-detail', views.load_more_comments_detail, name='load-more-comments-detail'),
+	path('post/load-more-comments-detail-bylatest', views.load_more_comments_detail, name='load-more-comments-detail-bylatest'),
 	path('post/<int:pk>/latest/', LatestCommentsPostDetailView.as_view(), name='latest-comment-post-detail'),
 	path('post/new/', PostCreateView.as_view(), name='post-create'),
 	path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),

@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.views.generic import (
 	ListView, 
 	DetailView, 
-	CreateView, 
+	CreateView,  
 	UpdateView, 
 	DeleteView
 ) 
@@ -96,9 +96,11 @@ class UserPostListView(ListView):
 	def get_context_data(self, *args, **kwargs):
 		# context = super(UserPostListView, self).get_context_data(*args, **kwargs)
 		context = super().get_context_data(*args, **kwargs)
+		c_form = CommentModelForm(self.request.POST or None)
 		user = get_object_or_404(User, username=self.kwargs.get('username'))
 		context['cats_menu'] = Category.objects.all()
 		context['user_pro'] = User.objects.filter(username=get_object_or_404(User, username=self.kwargs.get('username'))).first()
+		context['c_form'] = c_form
 		return context 
 
 
@@ -107,8 +109,10 @@ class PostDetailView(DetailView):
 
 	def get_context_data(self, *args, **kwargs):
 		cats_menu = Category.objects.all()
+		c_form = CommentModelForm(self.request.POST or None)
 		context = super(PostDetailView, self).get_context_data(*args, **kwargs)
 		context['cats_menu'] = cats_menu
+		context['c_form'] = c_form
 		return context
 
 	def get_queryset(self):
@@ -223,6 +227,99 @@ def load_more_comments_detail(request):
 	}
 	return JsonResponse(data, safe=False)
 
+#INFINITE SCROLL LOADING COMMENTS 
+def load_more_comments_detail_bylatest(request):
+	offset = int(request.POST['offset'])
+	print('\n'*3)
+	print(f'offset{offset}')
+	limit = 5
+	post_id = request.POST.get('post_id')
+	post = Post.objects.filter(id=post_id).first()
+	
+	# comments_to_sort = Comment.objects.filter(post=post).all()
+	# comments = sorted(comments_to_sort, key=lambda comment: comment.created())
+	comments = Comment.objects.filter(post=post).all().order_by('created')
+
+	total = Comment.objects.filter(post=post).all().count()
+	print(f'comments list - {comments}')
+	print(f'----------{total} COMMENTS ---------')
+	print(f'offset range=[{offset}:{offset+limit}]')
+
+	comments = comments[offset:offset+limit]
+
+	if request.user.is_anonymous:
+		profile_id = 1 
+	else:
+		profile = Profile.objects.get(user=request.user)
+		profile_id = profile.id
+
+	for comment in comments:
+		print("------------------")
+		print(comment)
+		print(comment.body)
+		u_name = comment.user
+		u_image = comment.user.image.url
+
+		like_count = comment.num_likes()
+		print(f'LIKE COUNT ====={like_count}')
+
+		c_create = comment.created
+		dated = date(c_create, "F d, Y")
+		print(dated)
+		t_since = timesince(c_create)
+		print(f't_since{t_since}')
+
+		up_to = custom_tags.upto(t_since)
+		print(f'up_to{up_to}')
+
+		if up_to == "show_date":
+			created = dated
+		elif up_to == "Just Now":
+			created = up_to
+		else:
+			created = f'{up_to} ago'
+	
+	comments_json = serializers.serialize('json', comments)
+	print('------------------------serialize--------------')
+	print(f'comments before serialized.......{comments}')
+	print('\n'*2)
+	print(f'comments_json serialized......{comments_json}')
+
+	comments_dict = json.loads(comments_json)
+	print(comments_dict)
+	for comment in comments_dict:
+		liked_users_profile_list = []
+		liked_users_profile_pic_list = []
+		for liked_users_id in comment['fields']['liked']:
+			print(liked_users_id)
+			liked_users_profile = Profile.objects.filter(id=liked_users_id).first()
+			print(liked_users_profile.user)
+			print(liked_users_profile.image.url)
+
+			#liked_users_profile_list = []
+			liked_users_profile_list.append(liked_users_profile.user.username)
+			print('list')
+			print(liked_users_profile_list)
+			liked_users_profile_pic_list.append(liked_users_profile.image.url)
+			comment['fields']['liked_username'] = liked_users_profile_list
+			comment['fields']['liked_user_pp'] = liked_users_profile_pic_list
+
+	print('--------final--------')
+	print(comments_dict)
+	comments_json = json.dumps(comments_dict)
+
+	data = {
+		'comment': comments_json,
+		#'comments': model_to_dict(comments),
+		'username': str(u_name),
+		'image': u_image,
+		'created': created,
+		'like_count': like_count,
+		'user': profile_id,
+		#'total_comments': total_comments,
+		#'nomore': nomore
+	}
+	return JsonResponse(data, safe=False)
 
 class LatestCommentsPostDetailView(DetailView):
 	model = Post 
@@ -238,7 +335,7 @@ class LatestCommentsPostDetailView(DetailView):
 					"comment_set",
 					# Specify the queryset to annotate and order by Count("liked")
 					#queryset = Post.objects.annotate(like_count=Count('liked')).order_by('-like_count')
-					queryset=Comment.objects.order_by("-created"),
+					queryset=Comment.objects.order_by("created"),
 					# Prefetch into post.comment_list
 					to_attr="comment_list",
 				)
@@ -248,7 +345,9 @@ class LatestCommentsPostDetailView(DetailView):
 	def get_context_data(self, *args, **kwargs):
 		cats_menu = Category.objects.all()
 		context = super().get_context_data(*args, **kwargs)
+		c_form = CommentModelForm(self.request.POST or None)
 		context['cats_menu'] = cats_menu
+		context['c_form'] = c_form
 		return context
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -312,8 +411,13 @@ class SearchResultsView(ListView):
 
 	def get_queryset(self):
 		query = self.request.GET.get("q")
-		object_list = Post.objects.filter(Q(content__icontains=query) | Q(title__icontains=query)).order_by('-date_posted')
-		return object_list
+		posts = Post.objects.filter(Q(content__icontains=query) | Q(title__icontains=query)).order_by('-date_posted')
+		return posts
+
+	# def get_queryset(self):
+	# 	query = self.request.GET.get("q")
+	# 	object_list = Post.objects.filter(Q(content__icontains=query) | Q(title__icontains=query)).order_by('-date_posted')
+	# 	return object_list
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
