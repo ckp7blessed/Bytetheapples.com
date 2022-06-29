@@ -34,11 +34,19 @@ color: gold;
 }
 
 .site-header .navbar-nav .nav-link:hover {
-  color: gold;
+  color: #1DA1F2;
 }
 
 .site-header .navbar-nav .nav-link.active {
   font-weight: 500;
+}
+
+.dropdown-toggle{
+  color: black;
+}
+
+.dropdown-toggle:hover {
+  color: #1DA1F2;
 }
 
 .article-title {
@@ -510,4 +518,10 @@ a.article-title:hover {
 .ud-action-button:focus,
 .ud-action-button:hover {
   color: #1DA1F2;
+}
+
+
+.clearer { 
+  overflow: hidden; 
+  width: 100%;
 }

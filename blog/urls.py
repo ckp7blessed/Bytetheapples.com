@@ -7,23 +7,26 @@ from . views import (
 	PostUpdateView,
 	PostDeleteView,
 	UserPostListView,
+	UserPostByCatListView,
 	SearchResultsView,
 	UserResultsView,
 	CategoryResultsView,
 	like_unlike_post,
 	del_comment,
 	del_com_temp,
-	load_more_comments_detail
+	load_more_comments_detail,
+	load_more_comments_detail_bylatest,
 )
 from . import views
 
 urlpatterns = [
 	path('', PostListView.as_view(), name='blog-home'),
-	path('user/<str:username>', UserPostListView.as_view(), name='user-posts'),
+	path('user/<str:username>/', UserPostListView.as_view(), name='user-posts'),
+	path('user/<str:username>/category/<str:category>/', UserPostByCatListView.as_view(), name='user-posts-bycat'),
 	path('search/', UserResultsView.as_view(), name='user_results'),
 	path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
-	path('post/load-more-comments-detail', views.load_more_comments_detail, name='load-more-comments-detail'),
-	path('post/load-more-comments-detail-bylatest', views.load_more_comments_detail, name='load-more-comments-detail-bylatest'),
+	path('post/load-more-comments-detail/', views.load_more_comments_detail, name='load-more-comments-detail'),
+	path('post/load-more-comments-detail-bylatest/', views.load_more_comments_detail_bylatest, name='load-more-comments-detail-bylatest'),
 	path('post/<int:pk>/latest/', LatestCommentsPostDetailView.as_view(), name='latest-comment-post-detail'),
 	path('post/new/', PostCreateView.as_view(), name='post-create'),
 	path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),

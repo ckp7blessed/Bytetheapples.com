@@ -6,7 +6,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.views.generic import ListView
 from django.views.generic.edit import DeleteView
-from blog.models import Post, Comment, CommentLike
+from blog.models import Post, Comment, CommentLike, Category
+from blog.forms import CommentModelForm
 from django.db.models import Q, Count, OuterRef, Prefetch
 from django.urls import reverse_lazy
 
@@ -30,6 +31,17 @@ class UserProfileListView(LoginRequiredMixin, ListView):
 	context_object_name = 'posts'
 	paginate_by = 5
 
+	def get_context_data(self, *args, **kwargs):
+		cats_menu = Category.objects.all()
+		c_form = CommentModelForm(self.request.POST or None)
+		context = super(UserProfileListView, self).get_context_data(*args, **kwargs)
+		user = self.request.user
+		users_categories = user.post_set.all().values_list("category__category_name", flat=True).exclude(category=None).distinct().order_by("category__category_name")
+		context['users_categories'] = users_categories
+		context['cats_menu'] = cats_menu
+		context['c_form'] = c_form
+		return context
+
 	def get_queryset(self):
 		return (
 			super()
@@ -50,9 +62,7 @@ class UserProfileListView(LoginRequiredMixin, ListView):
 			)
 		)
 
-	#original
-	# def get_queryset(self):
-	# 	return Post.objects.filter(author=self.request.user).order_by('-date_posted')
+
 
 @login_required
 def profile_settings(request):

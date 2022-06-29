@@ -42,10 +42,8 @@ $( document ).ready(function() {
 	            // comClone.appendTo($(`.com-list${post_id}`));
 	            comClone.prependTo($(`.com-list${post_id}`));
 
-	            comClone.attr("id", "clist");
+	            comClone.attr("id", "clist"+response.comment.id);
 	            comClone.removeAttr("style");
-	            comClone.find(".com-id-temp").attr("class", "com-id");
-	            comClone.find(".com-id").attr("id", "cl"+response.comment.id);
 	            comClone.find(".comment-img").attr("src", response.image);
 	            comClone.find(".comment-user").text(response.username);
 	            comClone.find(".comment-user").attr("href", response.user_url_start + response.username);
@@ -268,7 +266,7 @@ $( document ).ready(function() {
             success: function(response) {
                 $("#commentdeleteModal-"+response.comment_id).find('.close').click();
 
-                $(`.com-list${response.post_id}`).find('#cl'+response.comment_id).remove();
+                $(`.com-list${response.post_id}`).find('#clist'+response.comment_id).remove();
 
                 $(`.comment-count-small${response.post_id}`).text(response.num_comments + ' ' + 'Comments');
             },
@@ -300,7 +298,7 @@ $( document ).ready(function() {
             success: function(response) {
                 $("#commentdeleteModal-"+response.comment_id).find('.close').click();
 
-                $(`.com-list${response.post_id}`).find('#cl'+response.comment_id).remove();
+                $(`.com-list${response.post_id}`).find('#clist'+response.comment_id).remove();
 
                 $(`.comment-count-small${response.post_id}`).text(response.num_comments + ' ' + 'Comments');
             },

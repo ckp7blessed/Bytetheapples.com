@@ -9,13 +9,13 @@ $( document ).ready(function() {
 		console.log('document height'+$(document).height()+' ---  window height'+ $(window).height())
 		console.log('==' +($(document).height() - $(window).height()))
 		console.log('scroll top' +$(this).scrollTop())
-		// const comcount = $('.com-id').length;
 		const comcount = $('.clist').length; 
 		console.log('count='+comcount);
 		const post_id = $('.content-section').attr('id');
 
 		// if($(this).scrollTop() +1 >= $(document).height() - $(window).height())
-		if($(this).scrollTop() + 100 >= $(document).height() - $(window).height()) {
+		// if($(this).scrollTop() + 100 >= $(document).height() - $(window).height()) {
+		if (($(window).scrollTop() + 150 + $(window).innerHeight()) >= $(document).height()-100){
 			if (working == false) {
 				working = true;
 			
@@ -24,7 +24,7 @@ $( document ).ready(function() {
 			url: '/post/load-more-comments-detail/',
 			// url: '/post/load-more-comments-detail/',
 			// url: "{% url 'load-more-comments-detail' %}",
-			url: $('.infinite-scroll').data('url'),
+			// url: $('.infinite-scroll').data('url'),
 			data: {
 				'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
 				'post_id':post_id,
@@ -47,14 +47,11 @@ $( document ).ready(function() {
 
 				const comClone = $("#clist00").clone(true, true).val(null);
                 comClone.appendTo($(`.com-list${post_id}`));
-                comClone.attr("id", "clist");
+                comClone.attr("id", "clist" + data.pk);
                 comClone.removeAttr("style");
 
                 comClone.attr("class", "clist");
 
-                comClone.find(".com-id-temp").attr("class", "com-id");
-
-                comClone.find(".com-id").attr("id", "cl"+data.pk);
                 console.log('comment id='+data.pk)
                 comClone.find(".comment-user-pp").attr("href", user_url + response.username);
                 comClone.find(".comment-img").attr("src", response.image);

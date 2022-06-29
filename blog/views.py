@@ -66,7 +66,6 @@ class PostListView(ListView):
 			)
 		)
 
-
 class UserPostListView(ListView):
 	model = Post
 	template_name = 'blog/user_posts.html'
@@ -98,11 +97,53 @@ class UserPostListView(ListView):
 		context = super().get_context_data(*args, **kwargs)
 		c_form = CommentModelForm(self.request.POST or None)
 		user = get_object_or_404(User, username=self.kwargs.get('username'))
+		users_categories = user.post_set.all().values_list("category__category_name", flat=True).exclude(category=None).distinct().order_by("category__category_name")
+		context['users_categories'] = users_categories
 		context['cats_menu'] = Category.objects.all()
 		context['user_pro'] = User.objects.filter(username=get_object_or_404(User, username=self.kwargs.get('username'))).first()
 		context['c_form'] = c_form
 		return context 
 
+class UserPostByCatListView(ListView):
+	model = Post
+	template_name = 'blog/user_posts_bycategory.html'
+	context_object_name = 'posts'
+	paginate_by = 5
+
+	def get_queryset(self):
+		cat = get_object_or_404(Category, category_name=self.kwargs.get('category'))
+		user = get_object_or_404(User, username=self.kwargs.get('username'))
+		# return user.post_set.all().filter(category=cat).all().order_by('-date_posted')
+		return (
+			super()
+			.get_queryset()
+			# Filter by author/user
+			.filter(author__username=self.kwargs.get('username')).filter(category=cat).order_by('-date_posted')
+			# Prefetch comment using a Prefetch object gives you more control
+			.prefetch_related(
+				Prefetch(
+					"comment_set",
+					# Specify the queryset to annotate and order by Count("liked")
+					queryset=Comment.objects.annotate(
+						like_count=Count("liked")
+					).order_by("-like_count"),
+					# Prefetch into post.comment_list
+					to_attr="comment_list",
+				)
+			)
+		)
+
+	def get_context_data(self, *args, **kwargs):
+		# context = super(UserPostListView, self).get_context_data(*args, **kwargs)
+		context = super().get_context_data(*args, **kwargs)
+		c_form = CommentModelForm(self.request.POST or None)
+		user = get_object_or_404(User, username=self.kwargs.get('username'))
+		users_categories = user.post_set.all().values_list("category__category_name", flat=True).exclude(category=None).distinct().order_by("category__category_name")
+		context['users_categories'] = users_categories
+		context['cats_menu'] = Category.objects.all()
+		context['user_pro'] = User.objects.filter(username=get_object_or_404(User, username=self.kwargs.get('username'))).first()
+		context['c_form'] = c_form
+		return context 
 
 class PostDetailView(DetailView):
 	model = Post 
@@ -147,7 +188,8 @@ def load_more_comments_detail(request):
 	comments = sorted(comments_to_sort, key=lambda comment: comment.num_likes(), reverse=True )
 
 	total = Comment.objects.filter(post=post).all().count()
-	print(f'comments list - {comments}')
+	for comment in comments:
+		print(f'comments list - {comment.id}ID and {comment.body}')
 	print(f'----------{total} COMMENTS ---------')
 	print(f'offset range=[{offset}:{offset+limit}]')
 
@@ -238,7 +280,7 @@ def load_more_comments_detail_bylatest(request):
 	
 	# comments_to_sort = Comment.objects.filter(post=post).all()
 	# comments = sorted(comments_to_sort, key=lambda comment: comment.created())
-	comments = Comment.objects.filter(post=post).all().order_by('created')
+	comments = Comment.objects.filter(post=post).all().order_by('-created')
 
 	total = Comment.objects.filter(post=post).all().count()
 	print(f'comments list - {comments}')
@@ -335,7 +377,7 @@ class LatestCommentsPostDetailView(DetailView):
 					"comment_set",
 					# Specify the queryset to annotate and order by Count("liked")
 					#queryset = Post.objects.annotate(like_count=Count('liked')).order_by('-like_count')
-					queryset=Comment.objects.order_by("created"),
+					queryset=Comment.objects.order_by("-created"),
 					# Prefetch into post.comment_list
 					to_attr="comment_list",
 				)

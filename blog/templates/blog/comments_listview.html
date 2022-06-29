@@ -1,0 +1,11 @@
+{% load static %}
+{% load custom_tags %}
+
+<!DOCTYPE html>
+
+{% for comment in post.comment_list|slice:"0:7" %}
+{% include 'blog/comments.html' with comment=comment %}
+{% endfor %}
+
+
+
