@@ -23,6 +23,7 @@ from django.core.paginator import Paginator
 from django.core import serializers
 from . templatetags import custom_tags
 from django.template.defaultfilters import timesince, date
+from django.utils.dateparse import parse_datetime
 import json
 
 
@@ -178,40 +179,58 @@ class PostDetailView(DetailView):
 #INFINITE SCROLL LOADING COMMENTS 
 def load_more_comments_detail(request):
 	offset = int(request.POST['offset'])
+	# offset = {% for comment in post.comment_list|slice:"0:7" %} - comments.html
 	print('\n'*3)
 	print(f'offset{offset}')
-	limit = 5
+	limit = 5 # sending 5 comments via ajax
 	post_id = request.POST.get('post_id')
-	post = Post.objects.filter(id=post_id).first()
+	post = Post.objects.get(id=post_id)
 	
 	comments_to_sort = Comment.objects.filter(post=post).all()
 	comments = sorted(comments_to_sort, key=lambda comment: comment.num_likes(), reverse=True )
 
-	total = Comment.objects.filter(post=post).all().count()
-	for comment in comments:
-		print(f'comments list - {comment.id}ID and {comment.body}')
-	print(f'----------{total} COMMENTS ---------')
-	print(f'offset range=[{offset}:{offset+limit}]')
-
+	# total = Comment.objects.filter(post=post).all().count()
+	# for comment in comments:
+	# 	print(f'comments list - {comment.id}ID and {comment.body} by {comment.user}')
+	# print(f'----------{total} COMMENTS ---------')
+	# print(f'offset range=[{offset}:{offset+limit}]')
 	comments = comments[offset:offset+limit]
 
+	print('--------------------------')
+	print('\n'*2)
+	print(f'OFFSET COMMENTS --- {comments}')
+
 	if request.user.is_anonymous:
-		profile_id = 1 
+		profile_id = None
 	else:
 		profile = Profile.objects.get(user=request.user)
 		profile_id = profile.id
+	
+	comments_json = serializers.serialize('json', comments)
+	print('------------------------serialize--------------')
+	print(f'comments before serialized.......{comments}')
+	print('\n'*2)
+	print(f'comments_json serialized......{comments_json}')
 
-	for comment in comments:
-		print("------------------")
-		print(comment)
-		print(comment.body)
-		u_name = comment.user
-		u_image = comment.user.image.url
+	comments_dict = json.loads(comments_json)
+	print('------------------------comments dict--------------')
+	print(comments_dict)
 
-		like_count = comment.num_likes()
-		print(f'LIKE COUNT ====={like_count}')
+	for comment in comments_dict:
 
-		c_create = comment.created
+		liked_users_profile_list = []
+		liked_users_profile_pic_list = []
+
+		userid = comment['fields']['user']
+		user_profile = Profile.objects.get(id=userid)
+		print('\n'*2)
+		print('userid')
+		print(user_profile.user.username)
+		comment['fields']['username'] = user_profile.user.username
+		print(user_profile.image.url)
+		comment['fields']['user_pp'] = user_profile.image.url
+
+		c_create = parse_datetime(comment['fields']['created'])
 		dated = date(c_create, "F d, Y")
 		print(dated)
 		t_since = timesince(c_create)
@@ -226,140 +245,82 @@ def load_more_comments_detail(request):
 			created = up_to
 		else:
 			created = f'{up_to} ago'
-	
-	comments_json = serializers.serialize('json', comments)
-	print('------------------------serialize--------------')
-	print(f'comments before serialized.......{comments}')
-	print('\n'*2)
-	print(f'comments_json serialized......{comments_json}')
 
-	comments_dict = json.loads(comments_json)
-	print(comments_dict)
-	for comment in comments_dict:
-		liked_users_profile_list = []
-		liked_users_profile_pic_list = []
+		comment['fields']['created_custom'] = created
+
 		for liked_users_id in comment['fields']['liked']:
-			print(liked_users_id)
-			liked_users_profile = Profile.objects.filter(id=liked_users_id).first()
-			print(liked_users_profile.user)
-			print(liked_users_profile.image.url)
-
-			#liked_users_profile_list = []
+			liked_users_profile = Profile.objects.get(id=liked_users_id)
 			liked_users_profile_list.append(liked_users_profile.user.username)
-			print('list')
-			print(liked_users_profile_list)
 			liked_users_profile_pic_list.append(liked_users_profile.image.url)
 			comment['fields']['liked_username'] = liked_users_profile_list
 			comment['fields']['liked_user_pp'] = liked_users_profile_pic_list
 
-	print('--------final--------')
-	print(comments_dict)
 	comments_json = json.dumps(comments_dict)
 
 	data = {
 		'comment': comments_json,
-		#'comments': model_to_dict(comments),
-		'username': str(u_name),
-		'image': u_image,
-		'created': created,
-		'like_count': like_count,
 		'user': profile_id,
-		#'total_comments': total_comments,
 		#'nomore': nomore
 	}
+
 	return JsonResponse(data, safe=False)
 
-#INFINITE SCROLL LOADING COMMENTS 
+
+#INFINITE SCROLL LOADING COMMENTS BY LATEST
 def load_more_comments_detail_bylatest(request):
 	offset = int(request.POST['offset'])
-	print('\n'*3)
-	print(f'offset{offset}')
-	limit = 5
+	# offset = {% for comment in post.comment_list|slice:"0:7" %} - comments.html
+	limit = 5 # sending 5 comments at a time
 	post_id = request.POST.get('post_id')
-	post = Post.objects.filter(id=post_id).first()
+	post = Post.objects.get(id=post_id)
 	
-	# comments_to_sort = Comment.objects.filter(post=post).all()
-	# comments = sorted(comments_to_sort, key=lambda comment: comment.created())
 	comments = Comment.objects.filter(post=post).all().order_by('-created')
-
-	total = Comment.objects.filter(post=post).all().count()
-	print(f'comments list - {comments}')
-	print(f'----------{total} COMMENTS ---------')
-	print(f'offset range=[{offset}:{offset+limit}]')
-
 	comments = comments[offset:offset+limit]
 
 	if request.user.is_anonymous:
-		profile_id = 1 
+		profile_id = None
 	else:
 		profile = Profile.objects.get(user=request.user)
 		profile_id = profile.id
 
-	for comment in comments:
-		print("------------------")
-		print(comment)
-		print(comment.body)
-		u_name = comment.user
-		u_image = comment.user.image.url
+	comments_json = serializers.serialize('json', comments)
+	comments_dict = json.loads(comments_json)
 
-		like_count = comment.num_likes()
-		print(f'LIKE COUNT ====={like_count}')
+	for comment in comments_dict:
+		liked_users_profile_list = []
+		liked_users_profile_pic_list = []
 
-		c_create = comment.created
+		userid = comment['fields']['user']
+		user_profile = Profile.objects.get(id=userid)
+		comment['fields']['username'] = user_profile.user.username
+		comment['fields']['user_pp'] = user_profile.image.url
+
+		c_create = parse_datetime(comment['fields']['created'])
 		dated = date(c_create, "F d, Y")
-		print(dated)
 		t_since = timesince(c_create)
-		print(f't_since{t_since}')
-
 		up_to = custom_tags.upto(t_since)
-		print(f'up_to{up_to}')
-
 		if up_to == "show_date":
 			created = dated
 		elif up_to == "Just Now":
 			created = up_to
 		else:
 			created = f'{up_to} ago'
-	
-	comments_json = serializers.serialize('json', comments)
-	print('------------------------serialize--------------')
-	print(f'comments before serialized.......{comments}')
-	print('\n'*2)
-	print(f'comments_json serialized......{comments_json}')
+		comment['fields']['created_custom'] = created
 
-	comments_dict = json.loads(comments_json)
-	print(comments_dict)
-	for comment in comments_dict:
-		liked_users_profile_list = []
-		liked_users_profile_pic_list = []
 		for liked_users_id in comment['fields']['liked']:
-			print(liked_users_id)
-			liked_users_profile = Profile.objects.filter(id=liked_users_id).first()
-			print(liked_users_profile.user)
-			print(liked_users_profile.image.url)
 
-			#liked_users_profile_list = []
+			liked_users_profile = Profile.objects.get(id=liked_users_id)
 			liked_users_profile_list.append(liked_users_profile.user.username)
-			print('list')
-			print(liked_users_profile_list)
 			liked_users_profile_pic_list.append(liked_users_profile.image.url)
 			comment['fields']['liked_username'] = liked_users_profile_list
 			comment['fields']['liked_user_pp'] = liked_users_profile_pic_list
 
-	print('--------final--------')
-	print(comments_dict)
+
 	comments_json = json.dumps(comments_dict)
 
 	data = {
 		'comment': comments_json,
-		#'comments': model_to_dict(comments),
-		'username': str(u_name),
-		'image': u_image,
-		'created': created,
-		'like_count': like_count,
 		'user': profile_id,
-		#'total_comments': total_comments,
-		#'nomore': nomore
 	}
 	return JsonResponse(data, safe=False)
 

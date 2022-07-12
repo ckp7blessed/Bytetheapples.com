@@ -5,25 +5,18 @@ $( document ).ready(function() {
     // INFINITE SCROLL LOAD MORE COMMENTS
 	var working = false;
 	$(window).scroll(function() {
-		console.log($(this).scrollTop());
-		console.log('document height'+$(document).height()+' ---  window height'+ $(window).height())
-		console.log('==' +($(document).height() - $(window).height()))
-		console.log('scroll top' +$(this).scrollTop())
 		const comcount = $('.clist').length; 
-		console.log('count='+comcount);
 		const post_id = $('.content-section').attr('id');
 
 		// if($(this).scrollTop() +1 >= $(document).height() - $(window).height())
-		if($(this).scrollTop() + 100 >= $(document).height() - $(window).height()) {
+		// if($(this).scrollTop() + 100 >= $(document).height() - $(window).height()) {
+		if (($(window).scrollTop() + 150 + $(window).innerHeight()) >= $(document).height()-100){
 			if (working == false) {
 				working = true;
 			
 			$.ajax({
 			type: 'POST',
 			url: '/post/load-more-comments-detail-bylatest/',
-			// url: '/post/load-more-comments-detail/',
-			// url: "{% url 'load-more-comments-detail' %}",
-			// url: $('.infinite-scroll').data('url'),
 			data: {
 				'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
 				'post_id':post_id,
@@ -35,31 +28,28 @@ $( document ).ready(function() {
                 	working = false;
                 }, 300);
 
-                // console.log($('.infinite-scroll').data('url'))
                 var user_url = '/user/';
                 var comment_like_url = '/post/comment/like/';
                 var delete_url_start = '/post/commenttemp/';
                 var delete_url_end = '/delete/';
-                
 				var json_data = $.parseJSON(response.comment);
 
 				$.each(json_data,function(index,data) {
 
 				const comClone = $("#clist00").clone(true, true).val(null);
                 comClone.appendTo($(`.com-list${post_id}`));
-                comClone.attr("id", "clist"+data.pk);
+                comClone.attr("id", "clist" + data.pk);
                 comClone.removeAttr("style");
 
                 comClone.attr("class", "clist");
 
-                console.log('comment id='+data.pk)
-                comClone.find(".comment-user-pp").attr("href", user_url + response.username);
-                comClone.find(".comment-img").attr("src", response.image);
-                comClone.find(".comment-user").text(response.username);
+                comClone.find(".comment-user-pp").attr("href", user_url + data.fields.username);
+                comClone.find(".comment-img").attr("src", data.fields.user_pp);
+                comClone.find(".comment-user").text(data.fields.username);
 
-                comClone.find(".comment-user").attr("href", user_url + response.username);
+                comClone.find(".comment-user").attr("href", user_url + data.fields.username);
 
-                comClone.find(".comment-created").text(response.created);
+                comClone.find(".comment-created").text(data.fields.created_custom);
                 comClone.find(".comment-content").text(data.fields.body);
 
                 comClone.find(".comlike-form").attr("action", comment_like_url);

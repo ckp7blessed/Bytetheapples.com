@@ -5,10 +5,10 @@ $( document ).ready(function() {
     // INFINITE SCROLL LOAD MORE COMMENTS
 	var working = false;
 	$(window).scroll(function() {
-		console.log($(this).scrollTop());
-		console.log('document height'+$(document).height()+' ---  window height'+ $(window).height())
-		console.log('==' +($(document).height() - $(window).height()))
-		console.log('scroll top' +$(this).scrollTop())
+		// console.log($(this).scrollTop());
+		// console.log('document height'+$(document).height()+' ---  window height'+ $(window).height())
+		// console.log('==' +($(document).height() - $(window).height()))
+		// console.log('scroll top' +$(this).scrollTop())
 		const comcount = $('.clist').length; 
 		console.log('count='+comcount);
 		const post_id = $('.content-section').attr('id');
@@ -32,6 +32,10 @@ $( document ).ready(function() {
 			},
 			dataType: 'json',
 			success: function(response) {
+
+                console.log('-----------------RESPONSE')
+                // console.log(data)
+
                 setTimeout(function() {
                 	working = false;
                 }, 300);
@@ -42,6 +46,8 @@ $( document ).ready(function() {
                 var delete_url_end = '/delete/';
                 
 				var json_data = $.parseJSON(response.comment);
+				console.log('-----------------json_data')
+				console.log(json_data)
 
 				$.each(json_data,function(index,data) {
 
@@ -53,13 +59,15 @@ $( document ).ready(function() {
                 comClone.attr("class", "clist");
 
                 console.log('comment id='+data.pk)
-                comClone.find(".comment-user-pp").attr("href", user_url + response.username);
-                comClone.find(".comment-img").attr("src", response.image);
-                comClone.find(".comment-user").text(response.username);
+                console.log('comment username= '+ data.fields.username)
+                // console.log('comment body= ' + )
+                comClone.find(".comment-user-pp").attr("href", user_url + data.fields.username);
+                comClone.find(".comment-img").attr("src", data.fields.user_pp);
+                comClone.find(".comment-user").text(data.fields.username);
 
-                comClone.find(".comment-user").attr("href", user_url + response.username);
+                comClone.find(".comment-user").attr("href", user_url + data.fields.username);
 
-                comClone.find(".comment-created").text(response.created);
+                comClone.find(".comment-created").text(data.fields.created_custom);
                 comClone.find(".comment-content").text(data.fields.body);
 
                 comClone.find(".comlike-form").attr("action", comment_like_url);
