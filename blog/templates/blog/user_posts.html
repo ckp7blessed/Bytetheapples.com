@@ -8,7 +8,7 @@
 <!-- <div class="content-section"> -->
 <article class="content-section shadow">
 	    <img class="rounded-circle account-img" src="{{ user_pro.profile.image.url }}">
-	        <h2>{{ user_pro.username }}</h2>
+	        <h2>@{{ user_pro.username }}</h2>
 				<p class="article-content">
 			        <span class="text-secondary">Email: {{ user_pro.email|urlize }}</span><br>
 			        <span class="text-dark">Bio: {{ user_pro.profile.bio|urlizetrunc:26 }}</span><br>
@@ -64,7 +64,7 @@
 
 			{% if post.comment_list|length|gtoe:7 %}
 			<a href="{% url 'latest-comment-post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0" style="font-size: 0.8em;">Sort By Latest Comments</a>
-			<h5><small class="font-weight-bold" style="font-size: 0.8em;">showing top 7 comments</small></h5>
+			<h5 class="text-center"><small class="font-weight-bold text-center" style="font-size: 0.8em;">--showing top comments--</small></h5>
 			{% endif %}
 
 			<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">

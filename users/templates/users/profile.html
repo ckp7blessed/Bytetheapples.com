@@ -9,16 +9,14 @@
 <!-- <div class="content-section"> -->
 <article class="content-section shadow">
 	    <img class="rounded-circle account-img" src="{{ user.profile.image.url }}">
-	        <h2>{{ user.username }}</h2>
+	        <h2>@{{ user.username }}</h2>
 				<p class="article-content">
 			        <span class="text-secondary">Email: {{ user.email|urlize }}</span><br>
 			        <span class="text-dark">Bio: {{ user.profile.bio|urlizetrunc:26 }}</span><br>
 			        <span class="text-dark">Location: {{ user.profile.location }}</span><br>
 				</p>
-	<a href="{% url 'profile_settings' %}" class="button" role="button">Settings</a>
+	<a href="{% url 'profile_settings' %}" class="button" role="button">Settings <i class="fa fa-solid fa-gear"></i></a>
 </article>
-
-<!-- style="position:relative; top:35px;" -->
 
 <div class="content-section pb-5">
 <!-- Posts by {{ view.kwargs.username  -->
@@ -64,7 +62,7 @@
 
 			{% if post.comment_list|length|gtoe:7 %}
 			<a href="{% url 'latest-comment-post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0" style="font-size: 0.8em;">Sort By Latest Comments</a>
-			<h5><small class="font-weight-bold" style="font-size: 0.8em;">showing top 7 comments</small></h5>
+			<h5 class="text-center"><small class="font-weight-bold text-center" style="font-size: 0.8em;">--showing top comments--</small></h5>
 			{% endif %}
 
 			<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">

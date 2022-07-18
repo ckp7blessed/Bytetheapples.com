@@ -8,7 +8,7 @@
 <!-- <div class="content-section"> -->
 <article class="content-section shadow">
 	    <img class="rounded-circle account-img" src="{{ user_pro.profile.image.url }}">
-	        <h2>{{ user_pro.username }}</h2>
+	        <h2>@{{ user_pro.username }}</h2>
 				<p class="article-content">
 			        <span class="text-secondary">Email: {{ user_pro.email|urlize }}</span><br>
 			        <span class="text-dark">Bio: {{ user_pro.profile.bio|urlizetrunc:26 }}</span><br>

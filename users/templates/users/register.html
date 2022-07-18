@@ -1,9 +1,7 @@
-{% extends 'blog/base.html' %}
+{% extends 'blog/base_secondary.html' %}
 {% load account socialaccount %}
 {% load socialaccount %}
 {% load crispy_forms_tags %}
-
-<!DOCTYPE html>
 
 {% block content %}
 	<div class="content-section">
@@ -14,7 +12,7 @@
 				{{ form|crispy }}
 			</fieldset>
 			<div class="form-group">
-				<button class="btn btn-outline-info" type="submit">Sign Up</button>
+				<button class="button" type="submit">Sign Up</button>
 			</div>
 		</form>
 		<div class="border-top pt-3">

@@ -6,7 +6,8 @@ from django.forms.widgets import ClearableFileInput
 # cat_choice = Category.objects.all()
 
 class ImageForm(forms.ModelForm):
-    image = forms.ImageField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+    image = forms.ImageField(label='Add images', required=False,
+        widget=forms.ClearableFileInput(attrs={'multiple': True}))
 
     class Meta:
         model = PostImage
@@ -20,12 +21,15 @@ class ImageForm(forms.ModelForm):
 #         fields = ['category']
 
 
-ImageFormSet = inlineformset_factory(Post, PostImage, form=ImageForm, extra=1)
+ImageFormSet = inlineformset_factory(Post, PostImage, form=ImageForm, extra=1, can_delete=False)
 # CatFormSet = inlineformset_factory(Category, Post, form=CatForm)
 
 class CommentModelForm(forms.ModelForm):
     body = forms.CharField(label='', 
-                            widget=forms.TextInput(attrs={'placeholder': 'Add a comment...'}))
+                            widget=
+                            forms.Textarea(
+                                attrs={'placeholder': 'Write your reply \nMax 300 characters.', 
+                                'rows': 1, 'cols': 25}))
     class Meta:
         model = Comment 
-        fields = ('body', )
+        fields = ['body']

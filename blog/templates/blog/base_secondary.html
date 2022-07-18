@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+ <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'blog/main.css' %}">
+
+	{% if title %}
+		<title>Bit Sipur - {{ title }}</title>
+	{% else %}
+		<title>Bit Sipur</title>
+	{% endif %}
+</head>
+<body>
+	<header class="site-header">
+	  <nav class="navbar navbar-expand-md navbar-light bg-white shadow fixed-top mb-3">
+	    <div class="container">
+	      <a class="navbar-brand mr-4" href="{% url 'blog-home' %}">BitStory</a>
+	      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+	      <span class="navbar-toggler-icon"></span>
+	      </button>
+	      <div class="collapse navbar-collapse" id="navbarToggle">
+	        	<div class="navbar-nav mr-auto"></div>
+
+	        <!-- Navbar Right Side -->
+	        <div class="navbar-nav mr-auto" style="float:right;">
+
+	        	{% if user.is_anonymous %}
+	        	<a class="nav-item nav-link highlight-button" href="{% url 'login' %}">Login</a>
+	        	<a class="nav-item nav-link highlight-button" href="{% url 'register' %}">Register</a>
+	        	{% endif %}	
+	        
+	      	</div>
+	    	</div>
+	    </div>
+	  </nav>
+	</header>
+
+	<main role="main" class="container">
+	  <div class="row">
+	    <div class="col-md-8">
+	    	{% if messages %}
+	    		{% for message in messages %}
+	    			<div class="alert alert-{{ message.tags }}">
+	    				{{ message }}
+	    			</div>
+	    		{% endfor %}
+	    	{% endif %}
+	    	
+	    {% block content %}
+	    {% endblock %}
+	    </div>
+	    <hr>
+	      <span style="font-weight: 300;">2022 BitSipur | </span>
+	      <a class="misc-link" href="{% url 'blog-about' %}">About</a>
+	  </div>
+	</main>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS (For Bootstrap 4)-->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/74faac216c.js" crossorigin="anonymous"></script>
+
+	{% block scripts %}
+	{% endblock scripts %}
+</body>
+</html>

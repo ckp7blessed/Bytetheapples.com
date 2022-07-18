@@ -1,31 +1,32 @@
 {% extends 'blog/base.html' %}
 {% load crispy_forms_tags %}
 
-<!DOCTYPE html>
 
-<body>
-	{% block content %}
-	<h1>Settings</h1>
-	<div class="content-section">
-		<form method="POST" enctype="multipart/form-data">
-			{% csrf_token %}
-			<fieldset class="form-group">
-				<legend class="border-bottom mb-4">Update Profile Info</legend>
-				{{ u_form|crispy }}
-				<div class="media">
-					<img src="{{ user.profile.image.url }}">
-				</div>				
+{% block content %}
+
+<div class="content-section">
+	<h1 style="color: #1DA1F2;">Settings <i class="fa fa-solid fa-gear"></i></h1>
+	<form method="POST" enctype="multipart/form-data">
+		{% csrf_token %}
+		<fieldset class="form-group">
+			<legend class="border-bottom mb-4">Update Profile Info</legend>
+			{{ u_form|crispy }}
+
+				<br><img style="height:200px; width:200px;" src="{{ user.profile.image.url }}"><br>
+				
 				{{ p_form|crispy }}
-			</fieldset>
-			<legend class="border-bottom mb-4">Login</legend>
-			<ul>
-			<li><a class="mt-4" href="{% url 'password_reset' %}">Change Password</a></li>
-			<li><a class="mt-4" href="{% url 'user_confirm_delete' user.id %}">Delete Account</a></li>
-			</ul>
-			<div class="form-group">
-				<button class="btn btn-outline-info mt-4" type="submit">Update</button>
-			</div>
-		</form>
-	</div>
-	{% endblock content %}
-</body>
+
+
+		</fieldset>
+		<legend class="border-bottom mb-4">Login</legend>
+		<ul>
+		<li><a class="mt-4" href="{% url 'password_reset' %}">Change Password</a></li>
+		<li><a class="mt-4" href="">Update Email</a></li>
+		<li><a class="mt-4" href="{% url 'user_confirm_delete' user.id %}">Delete Account</a></li>
+		</ul>
+		<div class="form-group">
+			<button class="button-empty mt-4" type="submit">Update</button>
+		</div>
+	</form>
+</div>
+{% endblock content %}
