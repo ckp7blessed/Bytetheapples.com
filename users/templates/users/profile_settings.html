@@ -12,7 +12,11 @@
 			<legend class="border-bottom mb-4">Update Profile Info</legend>
 			{{ u_form|crispy }}
 
-				<br><img style="height:200px; width:200px;" src="{{ user.profile.image.url }}"><br>
+			{% if user.profile.background_image %}
+			<br><img style="height:220px; width:500px;" src="{{ user.profile.background_image.url }}"><br>
+			{% endif %}
+
+				<br><img class="rounded-circle" style="height:150px; width:150px;" src="{{ user.profile.image.url }}"><br>
 				
 				{{ p_form|crispy }}
 

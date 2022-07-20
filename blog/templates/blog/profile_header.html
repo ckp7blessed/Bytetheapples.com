@@ -1,0 +1,36 @@
+{% load static %}
+
+<!-- PROFILE HEADER DETAILS FOR user_posts.html, user_posts_bycategory.html -->
+
+<article class="content-section shadow">
+		{% if user_pro.profile.background_image %}
+		<br><img class="img-fluid" style="height:300px; width:690px;" src="{{ user_pro.profile.background_image.url }}"><br>
+		{% endif %}
+	    <img class="rounded-circle account-img" src="{{ user_pro.profile.image.url }}">
+	        <h2>@{{ user_pro.username }}</h2>
+				<p class="article-content">
+			        <span class="text-secondary">Email: {{ user_pro.email|urlize }}</span><br>
+			        <span class="text-dark">Bio: {{ user_pro.profile.bio|urlizetrunc:26 }}</span><br>
+			        <span class="text-dark">Location: {{ user_pro.profile.location }}</span><br>
+				</p>
+		<hr>
+		<h4>Social Media</h4>
+</article>
+
+<!-- style="position:relative; top:35px;" -->
+
+<div class="content-section pb-5">
+<!-- Posts by {{ view.kwargs.username  -->
+<h4 style="float:left">Total of {{ user_pro.post_set.all.count }} posts </h4>
+	          {% if users_categories %}
+	          	<button class="btn dropdown-toggle mr-auto" id="Dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="float:right;" > 
+	          		Categories
+	          	</button>
+	          	<div class="dropdown-menu shadow" aria-labelledby="Dropdown" style="overflow:auto">
+	          		{% for category in users_categories %}
+	          		<a class="dropdown-item" href="{% url 'user-posts-bycat' user_pro.username category %}">{{ category }}</a>
+	          		{% endfor %}
+	          	</div>
+	          {% endif %}
+
+</div>

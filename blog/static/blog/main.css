@@ -111,8 +111,8 @@ a.article-title:hover {
 }
 
 .account-img {
-  height: 125px;
-  width: 125px;
+  height: 150px;
+  width: 150px;
   margin-right: 20px;
   margin-bottom: 16px;
 }
@@ -553,9 +553,7 @@ a.article-title:hover {
   color: #1DA1F2;
 }
 
-@media (max-width: 500px) {
-    .dropdown-menu{
-        height:200px;
-        overflow-y:auto;
-    }
+.dropdown-menu {
+    position: relative;
+    z-index: 10000;
 }

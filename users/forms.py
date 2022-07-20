@@ -8,7 +8,7 @@ class UserRegisterForm(UserCreationForm):
 	email = forms.EmailField()
 	class Meta:
 		model = User 
-		fields = ['username', 'email', 'password1', 'password2']
+		fields = ['username', 'email', 'first_name', 'last_name','password1', 'password2']
 
 class CustomAuthForm(AuthenticationForm):
 	class Meta:
@@ -25,7 +25,7 @@ class UserUpdateForm(forms.ModelForm):
 	username = forms.CharField(max_length=20)
 	class Meta:
 		model = User 
-		fields = ['username']
+		fields = ['username', 'first_name', 'last_name']
 
 	def __init__(self, *args, **kwargs):
 		super(UserUpdateForm, self).__init__(*args, **kwargs)
@@ -33,6 +33,7 @@ class UserUpdateForm(forms.ModelForm):
 
 class ProfileUpdateForm(forms.ModelForm):
 	image = forms.ImageField(label='Profile Picture', required=False, widget=FileInput)
+	background_image = forms.ImageField(label='Background Image', required=False, widget=FileInput)
 	class Meta:
 		model = Profile 
 		fields = '__all__'

@@ -6,8 +6,11 @@
 
 {% block content %}
 
-<!-- <div class="content-section"> -->
+<!-- <div class="content-section">   width:650px;-->
 <article class="content-section shadow">
+		{% if user.profile.background_image %}
+		<br><img class="img-fluid" style="height:300px; width:690px;" src="{{ user.profile.background_image.url }}"><br>
+		{% endif %}
 	    <img class="rounded-circle account-img" src="{{ user.profile.image.url }}">
 	        <h2>@{{ user.username }}</h2>
 				<p class="article-content">
@@ -15,6 +18,9 @@
 			        <span class="text-dark">Bio: {{ user.profile.bio|urlizetrunc:26 }}</span><br>
 			        <span class="text-dark">Location: {{ user.profile.location }}</span><br>
 				</p>
+		<hr>
+		<h4>Social Media</h4>
+		<hr>
 	<a href="{% url 'profile_settings' %}" class="button" role="button">Settings <i class="fa fa-solid fa-gear"></i></a>
 </article>
 
