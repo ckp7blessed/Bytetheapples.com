@@ -18,6 +18,7 @@ class Profile(models.Model):
 	instagram_url = models.CharField(max_length=75, blank=True, null=True)
 	twitter_url = models.CharField(max_length=75, blank=True, null=True)
 	youtube_url = models.CharField(max_length=75, blank=True, null=True)
+	show_email = models.BooleanField(default=True, verbose_name="Show email in profile")
 
 	def __str__(self):
 		return f"{self.user.username}'s profile"

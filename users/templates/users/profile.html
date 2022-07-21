@@ -15,35 +15,37 @@
 	        <h2>@{{ user.username }}</h2>
 	        <h5>{{ user.first_name }} {{ user.last_name }}</h5>
 				<p class="article-content">
-			        <span class="text-secondary">Email: {{ user.email|urlize }}</span><br>
 			        <span class="text-dark">Bio: {{ user.profile.bio|urlizetrunc:26 }}</span><br>
-			        <span class="text-dark">Lives in {{ user.profile.location }}</span><br>
+			        <span class="text-dark">Lives in {{ user.profile.location }}</span>
 				</p>
 		<hr>
 		<div>
+			{% if user.profile.show_email %}
+			<a href="mailto:{{ user.email }}"><img class="rounded" src="/media/sm_logos/email-logo.png" style="height:50px; width:50px;" title="Email"></a>
+			{% endif %}
 			{% if user.profile.website_url %}
-			<a href="{{ user.profile.website_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded-circle"src="/media/sm_logos/website-logo.png" style="height:50px; width:50px;"></a>
+			<a href="{{ user.profile.website_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded-circle"src="/media/sm_logos/website-logo.png" style="height:50px; width:50px;" title="Personal Website"></a>
 			{% endif %}
 			{% if user.profile.linkedin_url %}
-			<a href="{{ user.profile.linkedin_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded"src="/media/sm_logos/linkedin-logo.png" style="height:50px; width:50px;"></a>
+			<a href="{{ user.profile.linkedin_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded"src="/media/sm_logos/linkedin-logo.png" style="height:50px; width:50px;" title="LinkedIn"></a>
 			{% endif %}
 			{% if user.profile.github_url %}
-			<a href="{{ user.profile.github_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded"src="/media/sm_logos/github-logo.png" style="height:50px; width:50px;"></a>
+			<a href="{{ user.profile.github_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded"src="/media/sm_logos/github-logo.png" style="height:50px; width:50px;" title="LinkedIn"></a>
 			{% endif %}
 			{% if user.profile.stackoverflow_url %}
-			<a href="{{ user.profile.stackoverflow_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/stackoverflow-logo.png" style="height:50px; width:50px;"></a>
+			<a href="{{ user.profile.stackoverflow_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/stackoverflow-logo.png" style="height:50px; width:50px;" title="Stack Overflow"></a>
 			{% endif %}
 			{% if user.profile.facebook_url %}
-			<a href="{{ user.profile.facebook_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/facebook-logo.png" style="height:50px; width:50px;"></a>
+			<a href="{{ user.profile.facebook_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/facebook-logo.png" style="height:50px; width:50px;" title="Facebook"></a>
 			{% endif %}
 			{% if user.profile.instagram_url %}
-			<a href="{{ user.profile.instagram_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/instagram-logo.png" style="height:50px; width:50px;"></a>
+			<a href="{{ user.profile.instagram_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/instagram-logo.png" style="height:50px; width:50px;" title="Instagram"></a>
 			{% endif %}
 			{% if user.profile.twitter_url %}
-			<a href="{{ user.profile.twitter_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/twitter-logo.png" style="height:50px; width:50px;"></a>
+			<a href="{{ user.profile.twitter_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/twitter-logo.png" style="height:50px; width:50px;" title="Twitter"></a>
 			{% endif %}
 			{% if user.profile.youtube_url %}
-			<a href="{{ user.profile.youtube_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/youtube-logo.png" style="height:50px; width:50px;"></a>
+			<a href="{{ user.profile.youtube_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/youtube-logo.png" style="height:50px; width:50px;" title="Youtube"></a>
 			{% endif %}
 		</div>
 		<hr>
