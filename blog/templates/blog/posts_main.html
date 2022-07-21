@@ -15,7 +15,7 @@
 		{% if post.category == None %}
 		<small style="float:right;">Uncategorized</small>
 		{% else %}
-		<small style="float:right;"><a href="{% url 'cat-results' post.category %}">category: {{ post.category }}</a></small>
+		<small style="float:right;"><a class="main-link" href="{% url 'cat-results' post.category %}">#{{ post.category }}</a></small>
 		{% endif %}
 		</div>
 		
@@ -38,7 +38,7 @@
 			<!--First slide-->
 			{% for postimage in post.postimage_set.all %}
 			<div class="carousel-item {% if forloop.counter0 == 0 %} active {% endif %}">
-			  <img class="d-block w-100 img-fluid " src="{{ postimage.image.url }}"
+			  <img data-enlargeable class="d-block w-100 img-fluid " src="{{ postimage.image.url }}"
 				alt="First slide">
 			</div>
 			{% endfor %}

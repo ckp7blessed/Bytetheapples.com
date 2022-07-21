@@ -61,9 +61,14 @@ color: gold;
   color: black;
 }
 
-/*.misc-link:hover {
+.main-link {
   color: #1DA1F2;
-}*/
+}
+
+.main-link:hover {
+  color: #1DA1F2 !important;
+  text-decoration: underline !important;
+}
 
 .dropdown-toggle{
   color: black;

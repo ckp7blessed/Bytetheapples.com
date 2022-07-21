@@ -4,17 +4,43 @@
 
 <article class="content-section shadow">
 		{% if user_pro.profile.background_image %}
-		<br><img class="img-fluid" style="height:300px; width:690px;" src="{{ user_pro.profile.background_image.url }}"><br>
+		<br><img data-enlargeable class="img-fluid" style="height:300px; width:690px;" src="{{ user_pro.profile.background_image.url }}"><br>
 		{% endif %}
-	    <img class="rounded-circle account-img" src="{{ user_pro.profile.image.url }}">
+	    <img data-enlargeable class="rounded-circle account-img" src="{{ user_pro.profile.image.url }}">
 	        <h2>@{{ user_pro.username }}</h2>
+	        <h5>{{ user_pro.first_name }} {{ user_pro.last_name }}</h5>
 				<p class="article-content">
 			        <span class="text-secondary">Email: {{ user_pro.email|urlize }}</span><br>
 			        <span class="text-dark">Bio: {{ user_pro.profile.bio|urlizetrunc:26 }}</span><br>
-			        <span class="text-dark">Location: {{ user_pro.profile.location }}</span><br>
+			        <span class="text-dark">Lives in {{ user_pro.profile.location }}</span><br>
 				</p>
 		<hr>
-		<h4>Social Media</h4>
+		<div>
+			{% if user_pro.profile.website_url %}
+			<a href="{{ user_pro.profile.website_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded-circle"src="/media/sm_logos/website-logo.png" style="height:50px; width:50px;"></a>
+			{% endif %}
+			{% if user_pro.profile.linkedin_url %}
+			<a href="{{ user_pro.profile.linkedin_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded"src="/media/sm_logos/linkedin-logo.png" style="height:50px; width:50px;"></a>
+			{% endif %}
+			{% if user_pro.profile.github_url %}
+			<a href="{{ user_pro.profile.github_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded"src="/media/sm_logos/github-logo.png" style="height:50px; width:50px;"></a>
+			{% endif %}
+			{% if user_pro.profile.stackoverflow_url %}
+			<a href="{{ user_pro.profile.stackoverflow_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/stackoverflow-logo.png" style="height:50px; width:50px;"></a>
+			{% endif %}
+			{% if user_pro.profile.facebook_url %}
+			<a href="{{ user_pro.profile.facebook_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/facebook-logo.png" style="height:50px; width:50px;"></a>
+			{% endif %}
+			{% if user_pro.profile.instagram_url %}
+			<a href="{{ user_pro.profile.instagram_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/instagram-logo.png" style="height:50px; width:50px;"></a>
+			{% endif %}
+			{% if user_pro.profile.twitter_url %}
+			<a href="{{ user_pro.profile.twitter_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/twitter-logo.png" style="height:50px; width:50px;"></a>
+			{% endif %}
+			{% if user_pro.profile.youtube_url %}
+			<a href="{{ user_pro.profile.youtube_url }}" target="_blank" rel="noopener noreferrer"><img class="rounded" src="/media/sm_logos/youtube-logo.png" style="height:50px; width:50px;"></a>
+			{% endif %}
+		</div>
 </article>
 
 <!-- style="position:relative; top:35px;" -->

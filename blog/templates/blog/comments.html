@@ -9,7 +9,7 @@
 	<img class="rounded-circle comment-img" src="{{ comment.user.image.url }}"></a>
 		<div class="media-body mt-1">
 			<div class="article-metadata">
-				<a class="mr-2 text-dark profile-link comment-user" href="{% url 'user-posts' comment.user %}">{{ comment.user }}</a>
+				<a class="mr-2 text-dark profile-link comment-user" href="{% url 'user-posts' comment.user %}">{{ comment.user.user.username }}</a>
 				<small class="text-muted comment-created" style="float:right;">
 					{% if comment.created|timesince|upto == "show_date" %}
 					{{ comment.created|date:"F d, Y" }}
@@ -19,7 +19,7 @@
 					{{ comment.created|timesince|upto }} ago
 					{% endif %}
 				</small>
-				<p class="comment-content">{{ comment.body }}</p>
+				<p class="comment-content">{{ comment.body|urlizetrunc:26 }}</p>
 			</div>
 			<div class="btn-group">
 			<form action="{% url 'like-comment-view' %}" method="POST" class="comlike-form" id='{{ comment.id }}'>

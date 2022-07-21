@@ -10,9 +10,17 @@ class Profile(models.Model):
 	background_image = models.ImageField(upload_to='profile_background_pics', blank=True, null=True,)
 	bio = models.CharField(max_length=200, help_text="200 characters or less")
 	location = models.CharField(max_length=50, default="n/a", help_text="City, State, Country")
+	website_url = models.CharField(max_length=75, blank=True, null=True)
+	linkedin_url = models.CharField(max_length=75, blank=True, null=True)
+	github_url = models.CharField(max_length=75, blank=True, null=True)
+	stackoverflow_url = models.CharField(max_length=75, blank=True, null=True)
+	facebook_url = models.CharField(max_length=75, blank=True, null=True)
+	instagram_url = models.CharField(max_length=75, blank=True, null=True)
+	twitter_url = models.CharField(max_length=75, blank=True, null=True)
+	youtube_url = models.CharField(max_length=75, blank=True, null=True)
 
 	def __str__(self):
-		return f'{self.user.username}'
+		return f"{self.user.username}'s profile"
 
 #--- profile picture resizing. update to AWS Lambda for production ---#
 	# def save(self, *args, **kwargs):
