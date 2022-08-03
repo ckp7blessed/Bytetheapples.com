@@ -98,10 +98,28 @@ class UserPostListView(ListView):
 		context = super().get_context_data(*args, **kwargs)
 		c_form = CommentModelForm(self.request.POST or None)
 		user = get_object_or_404(User, username=self.kwargs.get('username'))
+		profile = Profile.objects.get(user=user)
+		followers = profile.followers.all()
+		following = Profile.objects.filter(followers__in=[user])
+		if followers:
+			for follower in followers:
+				if follower == self.request.user:
+					is_following = True
+					break
+				else:
+					is_following = False
+		else:
+			is_following = False
+		number_of_followers = followers.count()
+
 		users_categories = user.post_set.all().values_list("category__category_name", flat=True).exclude(category=None).distinct().order_by("category__category_name")
 		context['users_categories'] = users_categories
-		context['cats_menu'] = Category.objects.all()
 		context['user_pro'] = User.objects.filter(username=get_object_or_404(User, username=self.kwargs.get('username'))).first()
+		context['following'] = following
+		context['followers'] = followers 
+		context['is_following'] = is_following
+		context['number_of_followers'] = number_of_followers
+		context['cats_menu'] = Category.objects.all()
 		context['c_form'] = c_form
 		return context 
 
@@ -139,10 +157,27 @@ class UserPostByCatListView(ListView):
 		context = super().get_context_data(*args, **kwargs)
 		c_form = CommentModelForm(self.request.POST or None)
 		user = get_object_or_404(User, username=self.kwargs.get('username'))
+		profile = Profile.objects.get(user=user)
+		followers = profile.followers.all()
+		following = Profile.objects.filter(followers__in=[user])
+		if followers:
+			for follower in followers:
+				if follower == self.request.user:
+					is_following = True
+					break
+				else:
+					is_following = False
+		else:
+			is_following = False
+		number_of_followers = followers.count()
 		users_categories = user.post_set.all().values_list("category__category_name", flat=True).exclude(category=None).distinct().order_by("category__category_name")
 		context['users_categories'] = users_categories
 		context['cats_menu'] = Category.objects.all()
 		context['user_pro'] = User.objects.filter(username=get_object_or_404(User, username=self.kwargs.get('username'))).first()
+		context['following'] = following
+		context['followers'] = followers 
+		context['is_following'] = is_following
+		context['number_of_followers'] = number_of_followers
 		context['c_form'] = c_form
 		return context 
 

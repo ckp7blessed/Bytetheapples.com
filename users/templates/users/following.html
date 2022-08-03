@@ -1,0 +1,68 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load custom_tags %}
+
+{% block content %}
+
+
+<article class="content-section shadow">
+	<article class="media comment-section">	
+	<a class="mr-2" href="{% url 'user-posts' user %}">	
+	<img class="rounded-circle comment-img" src="{{ user.profile.image.url }}"></a>
+		<div class="media-body mt-1">
+			<div class="">
+				<a class="mr-2 text-dark profile-link" href="{% url 'user-posts' user %}">{{ user.first_name }} {{ user.last_name }}</a><br>
+				<a class="mr-2 text-dark profile-link" href="{% url 'user-posts' user %}">@{{ user.username }}</a>
+			</div>
+		</div>
+	</article>
+
+	<div class="d-flex">
+	<a class="btn btn-light btn-lg w-50" style="text-align: center;" href="{% url 'followers' %}"><span class="font-weight-bold">{{ profile.followers.all.count }} </span>Followers</a>
+	<a class="btn btn-light btn-lg f-button w-50" style="text-align: center;" href="{% url 'following' %}"><span class="font-weight-bold">{{ following.count }} </span>Following</a>
+	</div>
+</article>
+
+{% for user in following %}
+
+<div class="flist">
+	<article class="media comment-section">	
+	<a class="mr-2" href="{% url 'user-posts' user %}">	
+	<img class="rounded-circle comment-img" src="{{ user.image.url }}"></a>
+		<div class="media-body mt-1">
+
+	    {% if user in following %}
+	    <div>
+	    	<form method="POST" action="{% url 'remove-follower' user.pk %}">
+	    	{% csrf_token %}
+	    	<button class="btn btn-unfollow unfollow-link" type="submit" style="float:right;"><span>Following</span></button>
+	    	</form>
+		</div>
+		{% else %}
+	    <div>
+	    	<form method="POST" action="{% url 'add-follower' user.pk %}">
+	    	{% csrf_token %}
+	    	<button class="btn btn-follow btn-light side-link mr-4" type="submit" style="float:right;">Follow</button>
+	    	</form>
+		</div>
+		{% endif %}
+
+
+		<a class="mr-2 text-dark profile-link" href="{% url 'user-posts' user %}">{{ user.user.first_name }} {{ user.user.last_name }}</a><br>
+
+		<a class="mr-2 text-dark profile-link" href="{% url 'user-posts' user %}">@{{ user.user.username }}</a>
+
+		<p class="comment-content">{{ user.bio|urlizetrunc:26 }}</p>
+	
+		</div>
+	</article>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+
+
+
+

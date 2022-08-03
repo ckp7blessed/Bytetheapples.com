@@ -4,12 +4,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.views.generic import ListView
+from django.views.generic import ListView, View
 from django.views.generic.edit import DeleteView
 from blog.models import Post, Comment, CommentLike, Category
 from blog.forms import CommentModelForm
+from users.models import Profile
 from django.db.models import Q, Count, OuterRef, Prefetch
 from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
 
 # Create your views here.
 
@@ -36,8 +38,25 @@ class UserProfileListView(LoginRequiredMixin, ListView):
 		c_form = CommentModelForm(self.request.POST or None)
 		context = super(UserProfileListView, self).get_context_data(*args, **kwargs)
 		user = self.request.user
+		profile = Profile.objects.get(user=user)
+		followers = profile.followers.all()
+		following = Profile.objects.filter(followers__in=[user])
+		if followers:
+			for follower in followers:
+				if follower == self.request.user:
+					is_following = True
+					break
+				else:
+					is_following = False
+		else:
+			is_following = False
+		number_of_followers = followers.count()
 		users_categories = user.post_set.all().values_list("category__category_name", flat=True).exclude(category=None).distinct().order_by("category__category_name")
 		context['users_categories'] = users_categories
+		context['following'] = following
+		context['followers'] = followers 
+		context['is_following'] = is_following
+		context['number_of_followers'] = number_of_followers
 		context['cats_menu'] = cats_menu
 		context['c_form'] = c_form
 		return context
@@ -118,3 +137,87 @@ class UserDeleteView(LoginRequiredMixin, DeleteView):
 # 	}
 # 	return render(request, 'users/profile.html', context)
 
+class FollowersListView(LoginRequiredMixin, ListView):
+	model = Profile
+	template_name = 'users/followers.html'
+	context_object_name = 'profile'
+
+	def get_context_data(self, *args, **kwargs):
+		context = super().get_context_data(*args, **kwargs)
+		user = self.request.user
+		profile = Profile.objects.get(user=user)
+		followers = profile.followers.all()
+		following = Profile.objects.filter(followers__in=[user])
+
+		number_of_followers = followers.count()
+
+		context['following'] = following
+		context['followers'] = followers 
+		context['number_of_followers'] = number_of_followers
+		context['cats_menu'] = Category.objects.all()
+		return context 
+
+	def get_queryset(self):
+		return (
+			super()
+			.get_queryset()
+			.get(user=self.request.user))
+
+class FollowingListView(LoginRequiredMixin, ListView):
+	model = Profile
+	template_name = 'users/following.html'
+	context_object_name = 'profile'
+
+	def get_context_data(self, *args, **kwargs):
+		context = super().get_context_data(*args, **kwargs)
+		user = self.request.user
+		profile = Profile.objects.get(user=user)
+		followers = profile.followers.all()
+		following = Profile.objects.filter(followers__in=[user])
+
+		number_of_followers = followers.count()
+
+		context['following'] = following
+		context['followers'] = followers 
+		context['number_of_followers'] = number_of_followers
+		context['cats_menu'] = Category.objects.all()
+		return context 
+
+	def get_queryset(self):
+		return (
+			super()
+			.get_queryset()
+			.get(user=self.request.user))
+
+#FOR USER_POSTS.HTML
+class AddFollower(LoginRequiredMixin, View):
+	def post(self, request, pk, *args, **kwargs):
+		profile = Profile.objects.get(pk=pk)
+		profile.followers.add(request.user)
+		
+		return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
+		#return HttpResponseRedirect(self.request.path_info)
+		#return redirect('user-posts', pk=profile.pk)		
+
+#FOR USER_POSTS.HTML
+class RemoveFollower(LoginRequiredMixin, View):
+	def post(self, request, pk, *args, **kwargs):
+		profile = Profile.objects.get(pk=pk)
+		profile.followers.remove(request.user)
+		
+		return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
+		#return HttpResponseRedirect(self.request.path_info)
+		#return redirect('user-posts', pk=profile.pk)	
+
+#AJAX RESPONSE FOR FOLLOWERS.HTML, FOLLOWING.HTML
+def add_follower(request, *args, **kwargs):
+	if request.method == 'POST':
+		id = request.POST.get('profile_id')
+		profile = Profile.objects.get(pk=pk)
+		profile.followers.add(request.user)
+
+		data = {
+			'success': '1',
+		}
+		return JsonResponse(data, safe=False)
+	return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))

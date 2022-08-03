@@ -16,19 +16,6 @@ ul {
   background-color: #4169E1;
 }
 
-/*#5f788a;*/
-
-
-
-/*.navbar-light .navbar-nav .nav-link {
-    color: black;
-}
-
-.navbar-light .navbar-nav .nav-link:hover {
-color: gold;
-}
-*/
-
 .site-header .navbar-nav .nav-link {
   color: black;
 }
@@ -181,6 +168,36 @@ a.article-title:hover {
 
 .btn-light {
    background-color: white;
+}
+
+.btn-follow {
+   background-color: white;
+   border: 1px solid #1DA1F2;
+}
+
+.btn-unfollow {
+   background-color: white;
+   color:  black;
+   border: 1px solid #1DA1F2;
+}
+
+.btn-unfollow:hover {
+   border: 1px solid red;
+}
+
+.unfollow-link {
+  color: black;
+  font-weight: 650;
+}
+
+.unfollow-link:hover span {
+  display: none
+}
+
+.unfollow-link:hover:before {
+  color: red;
+  text-decoration: none;
+  content: "Unfollow"
 }
 
 .button {
@@ -558,7 +575,20 @@ a.article-title:hover {
   color: #1DA1F2;
 }
 
+.f-button {
+    text-decoration-line: underline;
+    text-decoration-thickness: 3px;
+    text-decoration-color: #1DA1F2;
+}
+
+.f-button:hover {
+    text-decoration-line: underline;
+    text-decoration-thickness: 3px;
+    text-decoration-color: #1DA1F2;
+}
+
 .dropdown-menu {
     position: relative;
     z-index: 10000;
 }
+

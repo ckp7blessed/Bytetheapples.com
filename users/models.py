@@ -19,9 +19,10 @@ class Profile(models.Model):
 	twitter_url = models.CharField(max_length=75, blank=True, null=True)
 	youtube_url = models.CharField(max_length=75, blank=True, null=True)
 	show_email = models.BooleanField(default=True, verbose_name="Show email in profile")
+	followers = models.ManyToManyField(User, blank=True, related_name="followers")
 
 	def __str__(self):
-		return f"{self.user.username}'s profile"
+		return f"{self.user.username}"
 
 #--- profile picture resizing. update to AWS Lambda for production ---#
 	# def save(self, *args, **kwargs):

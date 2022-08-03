@@ -12,11 +12,108 @@
 		<br><img data-enlargeable class="img-fluid" style="height:300px; width:690px;" src="{{ user.profile.background_image.url }}"><br>
 		{% endif %}
 	    <img data-enlargeable class="rounded-circle account-img" src="{{ user.profile.image.url }}">
+
+	    {% if user == request.user %}
+	    {% else %}
+	    {% if is_following %}
+	    <div style="float:right;">
+	    	<form method="POST" action="{% url 'remove-follower' user.profile.pk %}">
+	    	{{ csrf_token }}
+	    	<button class="btn btn-outline-danger" type="submit">Unfollow</button>
+	    	</form>
+		</div>
+		{% else %}
+	    <div style="float:right;">
+	    	<form method="POST" action="{% url 'add-follower' user.profile.pk %}">
+	    	{{ csrf_token }}
+	    	<button class="btn btn-outline-success" type="submit">Follow</button>
+	    	</form>
+		</div>
+		{% endif %}
+		{% endif %}
+
+			<div class="test">
 	        <h2>@{{ user.username }}</h2>
+	        
+
+			<!-- Button trigger modal -->
+			<button type="button" class="btn btn-light btn-sm" data-toggle="modal" data-target="#followersModalLong" style="font-size: 0.8em; float:right;"><span class="font-weight-bold">
+			  {{ number_of_followers }} </span>Followers
+			</button>
+
+			<!-- Modal -->
+			<div class="modal fade" id="followersModalLong" tabindex="-1" role="dialog" aria-labelledby="followersModalLongTitle" aria-hidden="true">
+			  <div class="modal-dialog" role="document">
+				<div class="modal-content">
+				  <div class="modal-header">
+					<h5 class="modal-title" id="followersModalLongTitle">Followed by</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					  <span aria-hidden="true">&times;</span>
+					</button>
+				  </div>
+				  <div class="modal-body followers-list">
+					{% for user in followers %}
+					<div id="fwl{{ user.user.id }}">
+					<ul class="list-unstyled">
+					<li>
+						<div>
+						<a href="{% url 'user-posts' user %}">
+						<img class="rounded-circle article-img" src="{{ user.profile.image.url }}"></a>
+						<a class="mr-2 badge badge-light" href="{% url 'user-posts' user %}">{{ user }}</a>
+						</div>
+					</li>
+					</ul>
+					</div>
+					{% endfor %}
+				  </div>
+				</div>
+			  </div>
+			</div>
+
+			<!-- Button trigger modal -->
+			<button type="button" class="btn btn-light btn-sm mr-4" data-toggle="modal" data-target="#followingModalLong" style="font-size: 0.8em; float:right;"><span class="font-weight-bold">
+			  {{ following.count }} </span>Following
+			</button>
+
+			<!-- Modal -->
+			<div class="modal fade" id="followingModalLong" tabindex="-1" role="dialog" aria-labelledby="followingModalLongTitle" aria-hidden="true">
+			  <div class="modal-dialog" role="document">
+				<div class="modal-content">
+				  <div class="modal-header">
+					<h5 class="modal-title" id="followingModalLongTitle">Following</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					  <span aria-hidden="true">&times;</span>
+					</button>
+				  </div>
+				  <div class="modal-body following-list">
+					{% for user in following %}
+					<div id="fgl{{ user.user.id }}">
+					<ul class="list-unstyled">
+					<li>
+						<div>
+						<a href="{% url 'user-posts' user %}">
+						<img class="rounded-circle article-img" src="{{ user.image.url }}"></a>
+						<a class="mr-2 badge badge-light" href="{% url 'user-posts' user %}">{{ user }}</a>
+						</div>
+					</li>
+					</ul>
+					</div>
+					{% endfor %}
+				  </div>
+				</div>
+			  </div>
+			</div>
+
+
 	        <h5>{{ user.first_name }} {{ user.last_name }}</h5>
+	        </div>
+
+
 				<p class="article-content">
 			        <span class="text-dark">Bio: {{ user.profile.bio|urlizetrunc:26 }}</span><br>
+			        {% if user.profile.location != 'n/a'%}
 			        <span class="text-dark">Lives in {{ user.profile.location }}</span>
+			        {% endif %}
 				</p>
 		<hr>
 		<div>
