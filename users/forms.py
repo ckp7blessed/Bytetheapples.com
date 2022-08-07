@@ -37,7 +37,7 @@ class ProfileUpdateForm(forms.ModelForm):
 	class Meta:
 		model = Profile 
 		fields = '__all__'
-		exclude = ['user']
+		exclude = ['user', 'followers']
 	def __init__(self, *args, **kwargs):
 		super(ProfileUpdateForm, self).__init__(*args, **kwargs)
 		self.fields['bio'].widget = forms.Textarea(attrs={'rows': 4, 'cols': 25})

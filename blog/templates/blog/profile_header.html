@@ -12,114 +12,104 @@
 	    {% if request.user.is_authenticated %}
 	    {% if user_pro == request.user %}
 	    {% else %}
+		<form method="POST"
+			class="follower-form"
+			action="{% url 'toggle_follower' user_pro.profile.pk %}"
+			id="{{ user_pro.profile.pk }}">
+			{% csrf_token %}
+
 	    {% if is_following %}
-	    <div>
-	    	<form method="POST" action="{% url 'remove-follower' user_pro.profile.pk %}">
-	    	{% csrf_token %}
 	    	<button class="btn btn-unfollow unfollow-link" type="submit" style="float:right;"><span>Following</span></button>
-	    	</form>
-		</div>
 		{% else %}
-	    <div>
-	    	<form method="POST" action="{% url 'add-follower' user_pro.profile.pk %}">
-	    	{% csrf_token %}
 	    	<button class="btn btn-follow btn-light side-link mr-4" type="submit" style="float:right; position:relative;">Follow</button>
-	    	</form>
-		</div>
 		{% endif %}
+
+		</form>
 		{% endif %}
 		{% endif %}
 
 		<!-- bottom:0; -->
+    	<div class="title-top">
+        <h2>@{{ user_pro.username }}</h2>
 
+		<!-- Button trigger modal -->
+		<button type="button" class="btn btn-light btn-sm" data-toggle="modal" data-target="#followersModalLong" style="font-size: 0.8em; float:right;"><span class="font-weight-bold">
+		  {{ number_of_followers }} </span>Followers
+		</button>
 
-	    	<div class="test">
-	        <h2>@{{ user_pro.username }}</h2>
-
-
-			<!-- Button trigger modal -->
-			<button type="button" class="btn btn-light btn-sm" data-toggle="modal" data-target="#followersModalLong" style="font-size: 0.8em; float:right;"><span class="font-weight-bold">
-			  {{ number_of_followers }} </span>Followers
-			</button>
-
-			<!-- Modal -->
-			<div class="modal fade" id="followersModalLong" tabindex="-1" role="dialog" aria-labelledby="followersModalLongTitle" aria-hidden="true">
-			  <div class="modal-dialog" role="document">
-				<div class="modal-content">
-				  <div class="modal-header">
-					<h5 class="modal-title" id="followersModalLongTitle">Followed by</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					  <span aria-hidden="true">&times;</span>
-					</button>
-				  </div>
-				  <div class="modal-body followers-list">
-					{% for user in followers %}
-					<div id="fwl{{ user.user.id }}">
-					<ul class="list-unstyled">
-					<li>
-						<div>
-						<a href="{% url 'user-posts' user %}">
-						<img class="rounded-circle article-img" src="{{ user.profile.image.url }}"></a>
-						<a class="mr-2 badge badge-light" href="{% url 'user-posts' user %}">{{ user }}</a>
-						</div>
-					</li>
-					</ul>
+		<!-- Modal -->
+		<div class="modal fade" id="followersModalLong" tabindex="-1" role="dialog" aria-labelledby="followersModalLongTitle" aria-hidden="true">
+		  <div class="modal-dialog" role="document">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h5 class="modal-title" id="followersModalLongTitle">Followed by</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				  <span aria-hidden="true">&times;</span>
+				</button>
+			  </div>
+			  <div class="modal-body followers-list">
+				{% for user in followers %}
+				<div id="fwl{{ user.user.id }}">
+				<ul class="list-unstyled">
+				<li>
+					<div>
+					<a href="{% url 'user-posts' user %}">
+					<img class="rounded-circle article-img" src="{{ user.profile.image.url }}"></a>
+					<a class="mr-2 badge badge-light" href="{% url 'user-posts' user %}">{{ user }}</a>
 					</div>
-					{% endfor %}
-				  </div>
+				</li>
+				</ul>
 				</div>
+				{% endfor %}
 			  </div>
 			</div>
+		  </div>
+		</div>
 
-			<!-- Button trigger modal -->
-			<button type="button" class="btn btn-light btn-sm mr-4" data-toggle="modal" data-target="#followingModalLong" style="font-size: 0.8em; float:right;"><span class="font-weight-bold">
-			  {{ following.count }} </span>Following
-			</button>
+		<!-- Button trigger modal -->
+		<button type="button" class="btn btn-light btn-sm mr-4" data-toggle="modal" data-target="#followingModalLong" style="font-size: 0.8em; float:right;"><span class="font-weight-bold">
+		  {{ following.count }} </span>Following
+		</button>
 
-			<!-- Modal -->
-			<div class="modal fade" id="followingModalLong" tabindex="-1" role="dialog" aria-labelledby="followingModalLongTitle" aria-hidden="true">
-			  <div class="modal-dialog" role="document">
-				<div class="modal-content">
-				  <div class="modal-header">
-					<h5 class="modal-title" id="followingModalLongTitle">Following</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					  <span aria-hidden="true">&times;</span>
-					</button>
-				  </div>
-				  <div class="modal-body following-list">
-					{% for user in following %}
-					<div id="fgl{{ user.user.id }}">
-					<ul class="list-unstyled">
-					<li>
-						<div>
-						<a href="{% url 'user-posts' user %}">
-						<img class="rounded-circle article-img" src="{{ user.image.url }}"></a>
-						<a class="mr-2 badge badge-light" href="{% url 'user-posts' user %}">{{ user }}</a>
-						</div>
-					</li>
-					</ul>
+		<!-- Modal -->
+		<div class="modal fade" id="followingModalLong" tabindex="-1" role="dialog" aria-labelledby="followingModalLongTitle" aria-hidden="true">
+		  <div class="modal-dialog" role="document">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h5 class="modal-title" id="followingModalLongTitle">Following</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				  <span aria-hidden="true">&times;</span>
+				</button>
+			  </div>
+			  <div class="modal-body following-list">
+				{% for user in following %}
+				<div id="fgl{{ user.user.id }}">
+				<ul class="list-unstyled">
+				<li>
+					<div>
+					<a href="{% url 'user-posts' user %}">
+					<img class="rounded-circle article-img" src="{{ user.image.url }}"></a>
+					<a class="mr-2 badge badge-light" href="{% url 'user-posts' user %}">{{ user }}</a>
 					</div>
-					{% endfor %}
-				  </div>
+				</li>
+				</ul>
 				</div>
+				{% endfor %}
 			  </div>
 			</div>
+		  </div>
+		</div>
 
 
+        <h5>{{ user_pro.first_name }} {{ user_pro.last_name }}</h5>
+    	</div>
 
-	        <h5>{{ user_pro.first_name }} {{ user_pro.last_name }}</h5>
-	    	</div>
-
-
-
-
-
-				<p class="article-content">
-			        <span class="text-dark">Bio: {{ user_pro.profile.bio|urlizetrunc:26 }}</span><br>
-			        {% if user_pro.profile.location != 'n/a'%}
-			        <span class="text-dark">Lives in {{ user_pro.profile.location }}</span>
-			        {% endif %}
-				</p>
+		<p class="article-content">
+	        <span class="text-dark">Bio: {{ user_pro.profile.bio|urlizetrunc:26 }}</span>
+	        {% if user_pro.profile.location != 'n/a'%}
+	        <span class="text-dark">Lives in {{ user_pro.profile.location }}</span>
+	        {% endif %}
+		</p>
 		<hr>
 		<div>
 			{% if user.profile.show_email and request.user.is_authenticated %}
@@ -157,15 +147,14 @@
 <div class="content-section pb-5">
 <!-- Posts by {{ view.kwargs.username  -->
 <h4 style="float:left">Total of {{ user_pro.post_set.all.count }} posts </h4>
-	          {% if users_categories %}
-	          	<button class="btn dropdown-toggle mr-auto" id="Dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="float:right;" > 
-	          		Categories
-	          	</button>
-	          	<div class="dropdown-menu shadow" aria-labelledby="Dropdown" style="overflow:auto">
-	          		{% for category in users_categories %}
-	          		<a class="dropdown-item" href="{% url 'user-posts-bycat' user_pro.username category %}">{{ category }}</a>
-	          		{% endfor %}
-	          	</div>
-	          {% endif %}
-
+	  {% if users_categories %}
+	  	<button class="btn dropdown-toggle mr-auto" id="Dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="float:right;" > 
+	  		Categories
+	  	</button>
+	  	<div class="dropdown-menu shadow" aria-labelledby="Dropdown" style="overflow:auto">
+	  		{% for category in users_categories %}
+	  		<a class="dropdown-item" href="{% url 'user-posts-bycat' user_pro.username category %}">{{ category }}</a>
+	  		{% endfor %}
+	  	</div>
+	  {% endif %}
 </div>

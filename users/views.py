@@ -11,7 +11,7 @@ from blog.forms import CommentModelForm
 from users.models import Profile
 from django.db.models import Q, Count, OuterRef, Prefetch
 from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 
 # Create your views here.
 
@@ -148,7 +148,6 @@ class FollowersListView(LoginRequiredMixin, ListView):
 		profile = Profile.objects.get(user=user)
 		followers = profile.followers.all()
 		following = Profile.objects.filter(followers__in=[user])
-
 		number_of_followers = followers.count()
 
 		context['following'] = following
@@ -189,35 +188,27 @@ class FollowingListView(LoginRequiredMixin, ListView):
 			.get_queryset()
 			.get(user=self.request.user))
 
-#FOR USER_POSTS.HTML
-class AddFollower(LoginRequiredMixin, View):
+#FOR USER.POSTS.HTML (user profile page js not necessary)
+class ToggleFollower(LoginRequiredMixin, View):
 	def post(self, request, pk, *args, **kwargs):
 		profile = Profile.objects.get(pk=pk)
-		profile.followers.add(request.user)
-		
-		return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
-		#return HttpResponseRedirect(self.request.path_info)
-		#return redirect('user-posts', pk=profile.pk)		
 
-#FOR USER_POSTS.HTML
-class RemoveFollower(LoginRequiredMixin, View):
-	def post(self, request, pk, *args, **kwargs):
-		profile = Profile.objects.get(pk=pk)
-		profile.followers.remove(request.user)
-		
+		if request.user not in profile.followers.all():
+			profile.followers.add(request.user)
+		else:
+			profile.followers.remove(request.user)
 		return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
-		#return HttpResponseRedirect(self.request.path_info)
-		#return redirect('user-posts', pk=profile.pk)	
 
 #AJAX RESPONSE FOR FOLLOWERS.HTML, FOLLOWING.HTML
-def add_follower(request, *args, **kwargs):
-	if request.method == 'POST':
-		id = request.POST.get('profile_id')
-		profile = Profile.objects.get(pk=pk)
-		profile.followers.add(request.user)
+def toggle_follower_js(request, *args, **kwargs):
+    if request.method != 'POST':
+        return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
+    pk = request.POST.get('profile_id')
+    profile = Profile.objects.get(pk=pk)
 
-		data = {
-			'success': '1',
-		}
-		return JsonResponse(data, safe=False)
-	return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
+    if request.user not in profile.followers.all():
+        profile.followers.add(request.user)
+        return HttpResponse("Following") # JSON response is unnecessary
+    else:
+        profile.followers.remove(request.user)
+        return HttpResponse("Follow")

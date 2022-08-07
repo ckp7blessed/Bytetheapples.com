@@ -188,6 +188,7 @@ a.article-title:hover {
 .unfollow-link {
   color: black;
   font-weight: 650;
+/*  content: "Following"*/
 }
 
 .unfollow-link:hover span {
