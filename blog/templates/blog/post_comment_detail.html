@@ -1,0 +1,223 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load custom_tags %}
+
+{% block content %}
+	<article class="media content-section" id='{{ post.id }}'>
+		{% if post.author == request.user %}
+		<a class="mr-2" href="{% url 'profile' %}">
+		{% else %}
+		<a class="mr-2" href="{% url 'user-posts' post.author.username %}">
+		{% endif %}
+		<img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}"></a>
+
+		<div class="media-body">
+
+		{% include 'blog/posts_main.html' %}
+		
+		<hr style="background-color: #1DA1F2; height:1px;">
+		<br>
+
+<div class="media comment-parent" id="{{ comment.pk }}">
+	<a class="mr-2 comment-user" href="{% url 'user-posts' comment.user %}">	
+	<img class="rounded-circle comment-img" src="{{ comment.user.image.url }}"></a>
+		<div class="media-body mt-1">
+			<div class="article-metadata">
+				<a class="mr-2 text-dark profile-link comment-user" href="{% url 'user-posts' comment.user %}">{{ comment.user.user.username }}</a>
+				<small class="text-muted comment-created" style="float:right;">
+					{% if comment.created|timesince|upto == "show_date" %}
+					{{ comment.created|date:"F d, Y" }}
+					{% elif comment.created|timesince|upto == "Just Now" %}
+					{{ comment.created|timesince|upto }}
+					{% else %}
+					{{ comment.created|timesince|upto }} ago
+					{% endif %}
+				</small>
+				<p class="comment-content">{{ comment.body|urlizetrunc:26 }}</p>
+			</div>
+			<div class="btn-group">
+			<form action="{% url 'like-comment-view' %}" method="POST" class="comlike-form" id='{{ comment.id }}'>
+				{% csrf_token %}
+				<input type="hidden" name="comment_id" value="{{ comment.id }}" class="cl-input"> 
+				{% if request.user.is_authenticated %}
+				{% if request.user.profile in comment.liked.all %}
+					<button type="submit" class="btn btn-liked1 btn-sm py-0 com-like" id="like-btn{{ comment.id }}" style="font-size: 0.8em;">Liked <span class="like-icon"><i class="fa fa-heart"></i></span></button>
+				{% else %}
+					<button type="submit" class="btn btn-like0 btn-sm py-0 com-like" id="like-btn{{ comment.id }}" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></button>
+				{% endif %}
+				{% else %}
+					<a href="{% url 'login' %}" class="btn btn-like0 btn-sm py-0" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></a>
+				{% endif %}
+
+				<!-- Button trigger modal - Shows likes list of users -->
+				<button type="button" class="btn btn-outline-dark btn-sm py-0 com-modal like-count{{ comment.id }}" data-toggle="modal" style="font-size: 0.8em;" data-target="#commentlikesModalLong-{{ comment.id }}">
+				  <small class="clc-text" id="clc{{ comment.id }}">{{ comment.num_likes }} Likes</small>
+				</button>
+
+				<!-- Modal -->
+				<div class="modal fade cmodal" id="commentlikesModalLong-{{ comment.id }}" tabindex="-1" role="dialog" aria-labelledby="commentlikesModalLongTitle" aria-hidden="true">
+				  <div class="modal-dialog" role="document">
+					<div class="modal-content">
+					  <div class="modal-header">
+						<h5 class="modal-title" id="commentlikesModalLongTitle">Liked by</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					  </div>
+					  <div class="modal-body liked-list{{ comment.id }}">
+						{% for user in comment.liked.all %}
+						<div id="cl{{ user.user.username }}">
+							<ul class="list-unstyled">
+								<li>
+									<a href="{% url 'user-posts' user %}">
+									<img class="rounded-circle article-img" src="{{ user.image.url }}"></a>
+									<a class="mr-2 badge badge-light" href="{% url 'user-posts' user %}">{{ user }}</a>
+								</li>
+							</ul>
+						</div>
+						{% endfor %}
+					  </div>
+					</div>
+				  </div>
+				</div>
+			<a href="{% url 'post-comment-detail' post_pk=post.pk comment_pk=comment.pk %}" class="btn btn-outline-dark btn-sm py-0" style="font-size: 0.8em;">
+				{% if comment.children.count == 0 %}
+				Reply
+				{% else %}	
+				{{ comment.children.count }} Replies
+				{% endif %}
+				</a>
+
+			</form>
+			</div>
+			{% if request.user == comment.user.user %}
+			<div class="btn-group dropdown" style="float:right;">
+						<button class="btn ud-action-button dropdown-toggle mt-n1 btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		   				•••</button>
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+							<!-- Button trigger modal - Delete Button -->
+							<button class="btn text-danger btn-sm dropdown-item py-0 delete-btn{{ comment.id }}" style="font-size: 0.8em" data-toggle="modal" data-target="#commentdeleteModal-{{ comment.id }}">Delete <i class="fa fa-trash"></i></button>
+						</div>
+			{% include 'blog/comment_confirm_delete.html' %}
+			</div>
+			{% endif %}
+			
+		</div>
+</div>
+
+<hr style="background-color: #1DA1F2; height:1px;">
+		{% if request.user.is_authenticated %}
+		<div style='clear:both'></div>
+		<br>
+		<form action="{% url 'comment-reply' post_pk=post.pk comment_pk=comment.pk %}" method="POST">
+			{% csrf_token %}
+			<input type="hidden" name="post_id" value="{{ post.id }}">
+			{{ c_form|crispy }}
+			<button type="submit" class="button btn-sm mt-n2 com-btn" id="{{ post.pk }}" name="submit_c_form" style="float:right;">
+				Reply 
+			</button>
+			<br><br>
+		</form>
+		{% else %}
+		<a href="{% url 'login' %}" class="button btn-sm text-decoration-none mt-n2" style="float:right;">Reply</a><br><br>
+		{% endif %}
+
+
+<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">
+{% for comment in comment.children|slice:"0:7" %}
+<div class="clist" id="clist{{ comment.id }}" >
+	<article class="media comment-section">	
+	<a class="mr-2 comment-user" href="{% url 'user-posts' comment.user %}">	
+	<img class="rounded-circle comment-img" src="{{ comment.user.image.url }}"></a>
+		<div class="media-body mt-1">
+			<div class="article-metadata">
+				<a class="mr-2 text-dark profile-link comment-user" href="{% url 'user-posts' comment.user %}">{{ comment.user.user.username }}</a>
+				<small class="text-muted comment-created" style="float:right;">
+					{% if comment.created|timesince|upto == "show_date" %}
+					{{ comment.created|date:"F d, Y" }}
+					{% elif comment.created|timesince|upto == "Just Now" %}
+					{{ comment.created|timesince|upto }}
+					{% else %}
+					{{ comment.created|timesince|upto }} ago
+					{% endif %}
+				</small>
+				<p class="comment-content">{{ comment.body|urlizetrunc:26 }}</p>
+			</div>
+			<div class="btn-group">
+			<form action="{% url 'like-comment-view' %}" method="POST" class="comlike-form" id='{{ comment.id }}'>
+				{% csrf_token %}
+				<input type="hidden" name="comment_id" value="{{ comment.id }}" class="cl-input"> 
+				{% if request.user.is_authenticated %}
+				{% if request.user.profile in comment.liked.all %}
+					<button type="submit" class="btn btn-liked1 btn-sm py-0 com-like" id="like-btn{{ comment.id }}" style="font-size: 0.8em;">Liked <span class="like-icon"><i class="fa fa-heart"></i></span></button>
+				{% else %}
+					<button type="submit" class="btn btn-like0 btn-sm py-0 com-like" id="like-btn{{ comment.id }}" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></button>
+				{% endif %}
+				{% else %}
+					<a href="{% url 'login' %}" class="btn btn-like0 btn-sm py-0" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></a>
+				{% endif %}
+
+				<!-- Button trigger modal - Shows likes list of users -->
+				<button type="button" class="btn btn-outline-dark btn-sm py-0 com-modal like-count{{ comment.id }}" data-toggle="modal" style="font-size: 0.8em;" data-target="#commentlikesModalLong-{{ comment.id }}">
+				  <small class="clc-text" id="clc{{ comment.id }}">{{ comment.num_likes }} Likes</small>
+				</button>
+
+				<!-- Modal -->
+				<div class="modal fade cmodal" id="commentlikesModalLong-{{ comment.id }}" tabindex="-1" role="dialog" aria-labelledby="commentlikesModalLongTitle" aria-hidden="true">
+				  <div class="modal-dialog" role="document">
+					<div class="modal-content">
+					  <div class="modal-header">
+						<h5 class="modal-title" id="commentlikesModalLongTitle">Liked by</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					  </div>
+					  <div class="modal-body liked-list{{ comment.id }}">
+						{% for user in comment.liked.all %}
+						<div id="cl{{ user.user.username }}">
+							<ul class="list-unstyled">
+								<li>
+									<a href="{% url 'user-posts' user %}">
+									<img class="rounded-circle article-img" src="{{ user.image.url }}"></a>
+									<a class="mr-2 badge badge-light" href="{% url 'user-posts' user %}">{{ user }}</a>
+								</li>
+							</ul>
+						</div>
+						{% endfor %}
+					  </div>
+					</div>
+				  </div>
+				</div>
+			</form>
+			</div>
+			{% if request.user == comment.user.user %}
+			<div class="btn-group dropdown" style="float:right;">
+						<button class="btn ud-action-button dropdown-toggle mt-n1 btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		   				•••</button>
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+							<!-- Button trigger modal - Delete Button -->
+							<button class="btn text-danger btn-sm dropdown-item py-0 delete-btn{{ comment.id }}" style="font-size: 0.8em" data-toggle="modal" data-target="#commentdeleteModal-{{ comment.id }}">Delete <i class="fa fa-trash"></i></button>
+						</div>
+			{% include 'blog/comment_confirm_delete.html' %}
+			</div>
+			{% endif %}
+			
+		</div>
+	</article>
+</div>
+{% endfor %}
+</div>
+
+
+</div>
+</article>
+<!-- <div class="infinite-scroll" data-url="{% url 'load-more-comments-detail' %}" style="display: none;"></div> -->
+		{% include 'blog/comment_template.html' %}
+
+{% endblock content %}
+
+ {% block scripts %} 
+ <script src="{% static 'blog/main_comment_reply_detail.js' %}"></script>
+ <script src="{% static 'blog/base.js' %}"></script>
+ {% endblock scripts %}

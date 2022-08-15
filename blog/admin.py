@@ -48,7 +48,9 @@ class CommentAdmin(admin.ModelAdmin):
 			{
 				'fields':[
 					('post',
-					'post_id'),
+					'post_id', 'post_author'),
+					'is_parent',
+					'num_children',
 					'body',
 					'user',
 					'created',
@@ -59,11 +61,11 @@ class CommentAdmin(admin.ModelAdmin):
 			}
 		)
 	]
-	readonly_fields = ['created', 'post_id', 'id', 'num_likes']
+	readonly_fields = ['created', 'post_id', 'post_author', 'id', 'num_likes', 'is_parent', 'num_children',]
 
 	inlines = [CommentLikeInline] #this doesnt work, use 'liked' field instead
-	list_display = ('post', 'post_id', 'body', 'user', 'created', 'num_likes')
-	search_fields = ['post']
+	list_display = ('post', 'post_id', 'post_author', 'is_parent', 'num_children', 'body', 'user', 'created', 'num_likes')
+	search_fields = ['id', 'post', 'post_id', 'post_author']
 	list_per_page = 50
 
 admin.site.register(Post, PostAdmin)

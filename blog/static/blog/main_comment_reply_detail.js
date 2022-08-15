@@ -1,4 +1,4 @@
-// js for latest_comments_post_detail.html
+// js for post_comment_detail.html
 
 $( document ).ready(function() {
 
@@ -7,6 +7,7 @@ $( document ).ready(function() {
 	$(window).scroll(function() {
 		const comcount = $('.clist').length; 
 		const post_id = $('.content-section').attr('id');
+		const comment_parent_id = $('.comment-parent').attr('id');
 
 		// if($(this).scrollTop() +1 >= $(document).height() - $(window).height())
 		// if($(this).scrollTop() + 100 >= $(document).height() - $(window).height()) {
@@ -16,10 +17,11 @@ $( document ).ready(function() {
 			
 			$.ajax({
 			type: 'POST',
-			url: '/post/load-more-comments-detail-bylatest/',
+			url: '/post/load-more-replies-detail-bylatest/',
 			data: {
 				'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
 				'post_id':post_id,
+				'comment_parent_id': comment_parent_id, 
 				'offset': comcount
 			},
 			dataType: 'json',
@@ -55,7 +57,7 @@ $( document ).ready(function() {
                 comClone.find(".comlike-form").attr("action", comment_like_url);
                 comClone.find(".comlike-form").attr("id", data.pk);
                 comClone.find(".cl-input").attr("value", data.pk);
-                comClone.find(".com-like").attr("class", "btn btn-like0 btn-sm py-0 com-like");
+                comClone.find(".com-like").attr("class", "btn btn-sm py-0 com-like");
                 comClone.find(".com-like").append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
 
                 comClone.find(".com-like").attr("id", "like-btn" + data.pk);
@@ -92,14 +94,7 @@ $( document ).ready(function() {
                 comClone.find($(`.liked-list${data.pk}`).append(userlikeHTML));
                 });
 
-				comClone.find($("#reply-btn00").attr("href", '/post/'+ post_id + '/comment/'+data.pk));
-	              if (data.fields.reply_count == 0) {
-	                	comClone.find($("#reply-btn00").text('Reply'))
-	              }
-	              else {
-	              	comClone.find($("#reply-btn00").text(data.fields.reply_count + ' Replies'))
-	              };
-				comClone.find($("#reply-btn00").attr("id", 'reply-btn' + data.pk));
+				comClone.find($("#reply-btn00").remove());
 
 				// IF request.user == comment.author: show delete button
                 if (response.user == data.fields.user) {
@@ -116,32 +111,38 @@ $( document ).ready(function() {
             	};
 
             	// IF request.user liked the comment
-				function checkValue(value,arr) {
-				  var status = 'Not exist';
+				function checkValue(value, arr) {
+				  // var status = 'Not exist';
 				 
 				  for(var i=0; i<arr.length; i++) {
 				    var name = arr[i];
-				    if(name == value) {
-				      status = 'Exist';
-				      console.log('EXIST')
-						comClone.find(".com-like").text("Liked ");
-						$(`#like-btn${data.pk}`).removeClass('btn-like0').addClass('btn-liked1');
-						$(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
+				    if (name == value) {
+				      // status = 'Exist';
+				      console.log('EXIST');
+						comClone.find($(`#like-btn${data.pk}`)).text("Liked ");
+						comClone.find($(`#like-btn${data.pk}`).removeClass('btn-like0').addClass('btn-liked1'));
+						comClone.find($(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>'));
 				      break;
 				    }
 				    else {
-				    	console.log('NONExist')
-						comClone.find(".com-like").text("Like ");
-						$(`#like-btn${data.pk}`).removeClass('btn-liked1').addClass('btn-like0');
-						$(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
+				    	console.log('NONExist');
+						comClone.find($(`#like-btn${data.pk}`)).text("Like ");
+						// comClone.find($(`#like-btn${data.pk}`).removeClass('btn-liked1').addClass('btn-like0 '));
+						comClone.find($(`#like-btn${data.pk}`).attr('class', "btn btn-like0 btn-sm py-0 com-like"));
+						comClone.find($(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>'));
 				    }
 				  }
-				  return status;
+				  // return status;
 				}
 				checkValue(response.user, data.fields.liked);
-				console.log(response.user)
-				console.log(data.fields.liked)
-				console.log('---NEW--')
+				console.log(response.user);
+				console.log(data.fields.liked);
+				console.log('---NEW--');
+
+				if (data.fields.liked.length == 0) {
+					comClone.find($(`#like-btn${data.pk}`).attr('class', "btn btn-like0 btn-sm py-0 com-like"));
+				};
+
 
 				});
 

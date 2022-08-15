@@ -110,6 +110,16 @@ $( document ).ready(function() {
                 comClone.find($(`.liked-list${data.pk}`).append(userlikeHTML));
                 });
 
+				comClone.find($("#reply-btn00").attr("href", '/post/'+ post_id + '/comment/'+data.pk));
+	              if (data.fields.reply_count == 0) {
+	                	comClone.find($("#reply-btn00").text('Reply'))
+	              }
+	              else {
+	              	comClone.find($("#reply-btn00").text(data.fields.reply_count + ' Replies'))
+	              };
+				comClone.find($("#reply-btn00").attr("id", 'reply-btn' + data.pk));
+
+
 				// IF request.user == comment.author: show delete button
                 if (response.user == data.fields.user) {
 

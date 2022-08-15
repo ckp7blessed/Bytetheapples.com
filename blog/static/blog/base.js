@@ -277,7 +277,7 @@ $( document ).ready(function() {
     $('.comdelete-form-temp').on("submit", function(e) {
     	e.preventDefault();
         const comment_id = $(this).attr('id');
-        console.log('delete success function - comment id '+comment_id)
+        console.log('TEMP - delete success function - comment id '+comment_id)
 
         const url = $(this).attr('action');
         console.log(url)

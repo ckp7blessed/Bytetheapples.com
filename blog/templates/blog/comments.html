@@ -1,8 +1,8 @@
 {% load static %}
 {% load custom_tags %}
 
-<!DOCTYPE html>
 {% for comment in post.comment_list|slice:"0:7" %}
+{% if comment.is_parent %}
 <div class="clist" id="clist{{ comment.id }}" >
 	<article class="media comment-section">	
 	<a class="mr-2 comment-user" href="{% url 'user-posts' comment.user %}">	
@@ -37,7 +37,7 @@
 
 				<!-- Button trigger modal - Shows likes list of users -->
 				<button type="button" class="btn btn-outline-dark btn-sm py-0 com-modal like-count{{ comment.id }}" data-toggle="modal" style="font-size: 0.8em;" data-target="#commentlikesModalLong-{{ comment.id }}">
-				  <small class="clc-text" id="clc{{ comment.id }}">{{ comment.num_likes }} Likes</small>
+				  {{ comment.num_likes }} Likes
 				</button>
 
 				<!-- Modal -->
@@ -66,6 +66,14 @@
 					</div>
 				  </div>
 				</div>
+			<a href="{% url 'post-comment-detail' post_pk=post.pk comment_pk=comment.pk %}" class="btn btn-outline-dark btn-sm py-0" style="font-size: 0.8em;">
+				{% if comment.children.count == 0 %}
+				Reply
+				{% else %}	
+				{{ comment.children.count }} Replies
+				{% endif %}
+				</a>
+
 			</form>
 			</div>
 			{% if request.user == comment.user.user %}
@@ -83,5 +91,6 @@
 		</div>
 	</article>
 </div>
+{% endif %}
 {% endfor %}
 

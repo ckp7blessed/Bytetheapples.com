@@ -11,7 +11,7 @@ class Category(models.Model):
 	category_name = models.CharField(max_length=50, default='general coding', verbose_name="Categories")
 
 	def __str__(self):
-		return self.category_name
+		return self.category_name 
 
 	def get_absolute_url(self):
 		return reverse('blog-home')
@@ -97,6 +97,7 @@ class Comment(models.Model):
 	updated = models.DateTimeField(auto_now=True)
 	created = models.DateTimeField(auto_now_add=True)
 	liked = models.ManyToManyField(Profile, blank=True, related_name='com_likes')
+	parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
 
 	def __str__(self):
 		return f"Comment:{self.user}-{self.post}-{self.id}"
@@ -104,8 +105,24 @@ class Comment(models.Model):
 	def post_id(self):
 		return self.post.id
 
+	def post_author(self):
+		return self.post.author
+
 	def num_likes(self):
 		return self.liked.all().count()
+
+	def num_children(self):
+		return Comment.objects.filter(parent=self).all().count()
+
+	@property 
+	def children(self):
+		return Comment.objects.filter(parent=self).order_by('-created').all()
+
+	@property
+	def is_parent(self):
+		if self.parent is None:
+			return True
+		return False
 
 class CommentLike(models.Model):
 	user = models.ForeignKey(Profile, on_delete=models.CASCADE)

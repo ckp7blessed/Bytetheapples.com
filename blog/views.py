@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User 
 from django.views.generic import (
+	View,
 	ListView, 
 	DetailView, 
 	CreateView,  
@@ -202,7 +203,7 @@ class PostDetailView(DetailView):
 					"comment_set",
 					# Specify the queryset to annotate and order by Count("liked")
 					#queryset = Post.objects.annotate(like_count=Count('liked')).order_by('-like_count')
-					queryset=Comment.objects.annotate(
+					queryset=Comment.objects.filter(parent=None).annotate(
 						like_count=Count("liked")
 					).order_by("-like_count"),
 					# Prefetch into post.comment_list
@@ -210,6 +211,150 @@ class PostDetailView(DetailView):
 				)
 			)
 		)
+
+def post_comment_detail_view(request, post_pk, comment_pk, *args, **kwargs):
+	post = get_object_or_404(Post, pk=post_pk)
+	comment = get_object_or_404(Comment, pk=comment_pk)
+	c_form = CommentModelForm(request.POST or None)
+	cats_menu = Category.objects.all()
+	context = {
+		'post': post,
+		'comment': comment,
+		'c_form': c_form,
+		'cats_menu': cats_menu
+	}
+	return render(request, 'blog/post_comment_detail.html', context)
+
+
+class CommentReplyView(LoginRequiredMixin, View):
+	def post(self, request, post_pk, comment_pk, *args, **kwargs):
+		post = Post.objects.get(pk=post_pk)
+		parent_comment = Comment.objects.get(pk=comment_pk)
+		profile = Profile.objects.get(user=request.user)
+		c_form = CommentModelForm(request.POST)
+
+		if c_form.is_valid():
+			instance = c_form.save(commit=False)
+			instance.user = profile
+			instance.username = profile.user.username
+			instance.post = post
+			instance.parent = parent_comment
+			instance.save()
+			print(instance, instance.user, instance.body, instance.username)
+		return redirect('post-comment-detail', post_pk=post_pk, comment_pk=comment_pk)	
+		#return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
+
+
+#INFINITE SCROLL LOADING REPLIES BY LATEST
+def load_more_replies_detail_bylatest(request):
+	offset = int(request.POST['offset'])
+	print(offset)
+	# offset = {% for comment in post.comment_list|slice:"0:7" %} - comments.html
+	limit = 5 # sending 5 comments at a time
+	post_id = request.POST.get('post_id')
+	post = Post.objects.get(id=post_id)
+
+	comment_parent_id = request.POST.get('comment_parent_id')
+	comment_parent = Comment.objects.get(pk=comment_parent_id)
+	comments = comment_parent.children
+	comments = comments[offset:offset+limit]
+	
+	# comments = Comment.objects.filter(post=post).all().filter(parent=None).order_by('-created')
+	# comments = comments[offset:offset+limit]
+	print(comments)
+
+	if request.user.is_anonymous:
+		profile_id = None
+	else:
+		profile = Profile.objects.get(user=request.user)
+		profile_id = profile.id
+
+	comments_json = serializers.serialize('json', comments)
+	print('--------comment_json (serialized)-------')
+	print(comments_json)
+	print('/n')
+	comments_dict = json.loads(comments_json)
+	print('--------comments_dict (json.loads)-------')
+	print(comments_dict)
+	print('/n')
+
+	for comment in comments_dict:
+		liked_users_profile_list = []
+		liked_users_profile_pic_list = []
+
+		userid = comment['fields']['user']
+		user_profile = Profile.objects.get(id=userid)
+		comment['fields']['username'] = user_profile.user.username
+		comment['fields']['user_pp'] = user_profile.image.url
+
+		c_create = parse_datetime(comment['fields']['created'])
+		dated = date(c_create, "F d, Y")
+		t_since = timesince(c_create)
+		up_to = custom_tags.upto(t_since)
+		if up_to == "show_date":
+			created = dated
+		elif up_to == "Just Now":
+			created = up_to
+		else:
+			created = f'{up_to} ago'
+		comment['fields']['created_custom'] = created
+
+		# comment_id = Comment.objects.get(pk=comment['pk'])
+		# comment['fields']['reply_count'] = comment_id.children.count()
+
+		for liked_users_id in comment['fields']['liked']:
+
+			liked_users_profile = Profile.objects.get(id=liked_users_id)
+			liked_users_profile_list.append(liked_users_profile.user.username)
+			liked_users_profile_pic_list.append(liked_users_profile.image.url)
+			comment['fields']['liked_username'] = liked_users_profile_list
+			comment['fields']['liked_user_pp'] = liked_users_profile_pic_list
+
+
+	comments_json = json.dumps(comments_dict)
+	print('--------comments_json (json.dumps)-------')
+	print(comments_json)
+	print('/n')
+
+	data = {
+		'comment': comments_json,
+		'user': profile_id,
+	}
+	print('--------------------------!!!!!!!!-------')
+	print(data)
+	return JsonResponse(data, safe=False)
+
+
+# @login_required
+# def comment_post(request):
+# 	profile = Profile.objects.get(user=request.user)
+# 	c_form = CommentModelForm()
+
+# 	if request.method == "POST":
+# 		c_form = CommentModelForm(request.POST)
+# 		if c_form.is_valid():
+# 			instance = c_form.save(commit=False)
+# 			instance.user = profile
+# 			instance.username = profile.user.username
+# 			instance.post = Post.objects.get(id=request.POST.get('post_id'))
+# 			instance.save()
+# 			print(instance, instance.user, instance.body, instance.username)
+
+# 			data = {
+# 				'comment': model_to_dict(instance),
+# 				'username': profile.user.username,
+# 				'image': profile.image.url,
+# 				'user_url_start': "/user/",
+# 				'comment_like_url': "post/comment/like/",
+# 				'delete_url_start': "post/commenttemp/",
+# 				'delete_url_end': "/delete/",
+
+# 			}
+# 			return JsonResponse(data, status=200)
+# 			# return JsonResponse({'comment': model_to_dict(instance)}, instance.username, status=200)
+# 		return redirect('blog-home')
+
+
 
 #INFINITE SCROLL LOADING COMMENTS 
 def load_more_comments_detail(request):
@@ -221,7 +366,7 @@ def load_more_comments_detail(request):
 	post_id = request.POST.get('post_id')
 	post = Post.objects.get(id=post_id)
 	
-	comments_to_sort = Comment.objects.filter(post=post).all()
+	comments_to_sort = Comment.objects.filter(post=post).all().filter(parent=None)
 	comments = sorted(comments_to_sort, key=lambda comment: comment.num_likes(), reverse=True )
 
 	# total = Comment.objects.filter(post=post).all().count()
@@ -283,6 +428,9 @@ def load_more_comments_detail(request):
 
 		comment['fields']['created_custom'] = created
 
+		comment_id = Comment.objects.get(pk=comment['pk'])
+		comment['fields']['reply_count'] = comment_id.children.count()
+
 		for liked_users_id in comment['fields']['liked']:
 			liked_users_profile = Profile.objects.get(id=liked_users_id)
 			liked_users_profile_list.append(liked_users_profile.user.username)
@@ -291,26 +439,30 @@ def load_more_comments_detail(request):
 			comment['fields']['liked_user_pp'] = liked_users_profile_pic_list
 
 	comments_json = json.dumps(comments_dict)
+	print(comments_json)
 
 	data = {
 		'comment': comments_json,
 		'user': profile_id,
 		#'nomore': nomore
 	}
-
+	print('--------------------------!!!!!!!!-------')
+	print(data)
 	return JsonResponse(data, safe=False)
 
 
 #INFINITE SCROLL LOADING COMMENTS BY LATEST
 def load_more_comments_detail_bylatest(request):
 	offset = int(request.POST['offset'])
+	print(offset)
 	# offset = {% for comment in post.comment_list|slice:"0:7" %} - comments.html
 	limit = 5 # sending 5 comments at a time
 	post_id = request.POST.get('post_id')
 	post = Post.objects.get(id=post_id)
 	
-	comments = Comment.objects.filter(post=post).all().order_by('-created')
+	comments = Comment.objects.filter(post=post).all().filter(parent=None).order_by('-created')
 	comments = comments[offset:offset+limit]
+	print(comments)
 
 	if request.user.is_anonymous:
 		profile_id = None
@@ -341,6 +493,9 @@ def load_more_comments_detail_bylatest(request):
 		else:
 			created = f'{up_to} ago'
 		comment['fields']['created_custom'] = created
+
+		comment_id = Comment.objects.get(pk=comment['pk'])
+		comment['fields']['reply_count'] = comment_id.children.count()
 
 		for liked_users_id in comment['fields']['liked']:
 
@@ -373,7 +528,7 @@ class LatestCommentsPostDetailView(DetailView):
 					"comment_set",
 					# Specify the queryset to annotate and order by Count("liked")
 					#queryset = Post.objects.annotate(like_count=Count('liked')).order_by('-like_count')
-					queryset=Comment.objects.order_by("-created"),
+					queryset=Comment.objects.filter(parent=None).order_by("-created"),
 					# Prefetch into post.comment_list
 					to_attr="comment_list",
 				)

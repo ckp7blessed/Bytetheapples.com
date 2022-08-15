@@ -411,6 +411,11 @@ a.article-title:hover {
     border-radius: 10px;
 }
 
+hr.reply {
+  border-top: 1px;
+  background-color: #1DA1F2;
+}
+
 
 /*LIKE BUTTONS*/
 

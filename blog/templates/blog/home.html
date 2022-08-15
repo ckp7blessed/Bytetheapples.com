@@ -5,6 +5,7 @@
 
 {% block content %}
 	{% for post in posts %}
+
 	<article class="media content-section shadow">
 		<a class="mr-2" href="{% url 'user-posts' post.author.username %}">
 			<img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}"></a>

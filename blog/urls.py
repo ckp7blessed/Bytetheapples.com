@@ -16,6 +16,9 @@ from . views import (
 	del_com_temp,
 	load_more_comments_detail,
 	load_more_comments_detail_bylatest,
+	CommentReplyView,
+	post_comment_detail_view,
+	load_more_replies_detail_bylatest,
 )
 from . import views
 
@@ -36,6 +39,10 @@ urlpatterns = [
 	#path('profile/<int:pk>/', ProfileListView.as_view(template_name='blog/profile_list.html'), name='profile-view'),
 	path('post/liked/', views.like_unlike_post, name='like-post-view'),
 	path('post/comment/', views.comment_post, name='comment-post-view'),
+	path('post/<int:post_pk>/comment/<int:comment_pk>/reply', CommentReplyView.as_view(), name='comment-reply'),
+	#path('post/<int:post_pk>/comment/<int:comment_pk>', PostCommentDetailView.as_view(), name='post-comment-detail-v'),
+	path('post/<int:post_pk>/comment/<int:comment_pk>', views.post_comment_detail_view, name='post-comment-detail'),
+	path('post/load-more-replies-detail-bylatest/', views.load_more_replies_detail_bylatest, name='load-more-replies-detail-bylatest'),
 	path('post/comment/like/', views.like_unlike_comment, name='like-comment-view'),
 	path('post/comment/<int:pk>/delete/', views.del_comment, name='comment-delete'),
 	path('post/commenttemp/<int:pk>/delete/', views.del_com_temp, name='comment-delete-temp'),

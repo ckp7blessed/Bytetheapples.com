@@ -1,7 +1,5 @@
 {% load static %}
 
-<!DOCTYPE html>
-
 <div class="clist-temp" id="clist00" style="display: none;">
 	<article class="media comment-section">	
 	<a class="mr-2 comment-user-pp" href="">	
@@ -16,15 +14,9 @@
 			<form action="{% url 'like-comment-view' %}" method="POST" class="comlike-form" id='00'>
 				{% csrf_token %}
 				<input type="hidden" name="comment_id" value="00" class="cl-input"> 
-				{% if request.user.is_authenticated %}
-				{% if request.user.profile in comment.liked.all %}
-					<button type="submit" class="btn btn-liked1 btn-sm py-0 com-like" id="like-btn00" style="font-size: 0.8em;">Liked </button>
-				{% else %}
-					<button type="submit" class="btn btn-like0 btn-sm py-0 com-like" id="like-btn00" style="font-size: 0.8em;">Like </button>
-				{% endif %}
-				{% else %}
-					<a href="{% url 'login' %}" class="btn btn-like0 btn-sm py-0" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></a>
-				{% endif %}
+
+					<button type="submit" class="btn btn-sm py-0 com-like" id="like-btn00" style="font-size: 0.8em;">Like </button>
+
 
 				<!-- Button trigger modal - Shows likes list of users -->
 				<button type="button" class="btn btn-outline-dark btn-sm py-0 com-modal like-count00" id="clc00" data-toggle="modal" style="font-size: 0.8em;" data-target="#commentlikesModalLong-00"><small>0 Likes</small></button>
@@ -41,22 +33,16 @@
 					  </div>
 
 					  <div class="modal-body liked-list00">
-						{% for user in comment.liked.all %}
-							<div id="cl00">
-								<ul class="list-unstyled">
-									<li>
-										<a class="comLiked_user_url" href="">
-										<img class="rounded-circle article-img comLiked_user_image" src=""></a>
-										<a class="mr-2 badge badge-light comLiked_user_url" href="">{{ user }}</a>
-									</li>
-								</ul>
-							</div>
-						{% endfor %}
+
 					  </div>
 
 					</div>
 				  </div>
 				</div>
+			<a href="" class="btn btn-outline-dark btn-sm py-0" style="font-size: 0.8em;" id="reply-btn00">
+				  <small>{{ comment.children.count }} Replies</small>
+				</a>
+
 			</form>
 			</div>
 
