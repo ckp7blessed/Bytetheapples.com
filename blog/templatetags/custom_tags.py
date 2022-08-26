@@ -1,5 +1,6 @@
 from django import template
 from django.template.defaultfilters import stringfilter
+from blog.models import Notification
 
 register = template.Library()
 
@@ -84,3 +85,9 @@ def gtoe(a, b):
 #March 28, 2022 ['1', 'day,'] ago
 #March 29, 2022 ['23', 'hours,'] ago
 #March 30, 2022 ['11', 'minutes'] ago
+
+@register.inclusion_tag('blog/show_notifications.html', takes_context=True)
+def show_notifications(context):
+    request_user = context['request'].user
+    notifications = Notification.objects.filter(to_user=request_user).exclude(user_has_seen=True).order_by('-date')
+    return {'notifications':notifications}

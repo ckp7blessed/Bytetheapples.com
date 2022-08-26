@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.views.generic import ListView, View
 from django.views.generic.edit import DeleteView
-from blog.models import Post, Comment, CommentLike, Category
+from blog.models import Post, Comment, CommentLike, Category, Notification
 from blog.forms import CommentModelForm
 from users.models import Profile
 from django.db.models import Q, Count, OuterRef, Prefetch
@@ -195,6 +195,7 @@ class ToggleFollower(LoginRequiredMixin, View):
 
 		if request.user not in profile.followers.all():
 			profile.followers.add(request.user)
+			Notification.objects.create(notification_type=3, from_user=request.user, to_user=profile.user)
 		else:
 			profile.followers.remove(request.user)
 		return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
@@ -208,6 +209,7 @@ def toggle_follower_js(request, *args, **kwargs):
 
     if request.user not in profile.followers.all():
         profile.followers.add(request.user)
+        Notification.objects.create(notification_type=3, from_user=request.user, to_user=profile.user)
         return HttpResponse("Following") # JSON response is unnecessary
     else:
         profile.followers.remove(request.user)

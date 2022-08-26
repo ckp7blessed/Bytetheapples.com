@@ -12,13 +12,13 @@ from django.views.generic import (
 	UpdateView, 
 	DeleteView
 ) 
-from . models import Post, PostImage, Like, Category, Comment, CommentLike
+from . models import Post, PostImage, Like, Category, Comment, CommentLike, Notification
 from users.models import Profile
 from django.db.models import Q, Count, OuterRef, Prefetch
 from itertools import chain
 from . forms import ImageForm, ImageFormSet, CommentModelForm
 from django.db import transaction
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.forms.models import model_to_dict
 from django.core.paginator import Paginator
 from django.core import serializers
@@ -217,6 +217,7 @@ def post_comment_detail_view(request, post_pk, comment_pk, *args, **kwargs):
 	comment = get_object_or_404(Comment, pk=comment_pk)
 	c_form = CommentModelForm(request.POST or None)
 	cats_menu = Category.objects.all()
+
 	context = {
 		'post': post,
 		'comment': comment,
@@ -240,6 +241,9 @@ class CommentReplyView(LoginRequiredMixin, View):
 			instance.post = post
 			instance.parent = parent_comment
 			instance.save()
+			notification = Notification.objects.create(notification_type=2, from_user=request.user, 
+				to_user=parent_comment.user.user, comment=parent_comment)
+			print(notification)
 			print(instance, instance.user, instance.body, instance.username)
 		return redirect('post-comment-detail', post_pk=post_pk, comment_pk=comment_pk)	
 		#return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
@@ -653,6 +657,7 @@ def like_unlike_post(request):
 			post_obj.liked.remove(profile)
 		else:
 			post_obj.liked.add(profile)
+			Notification.objects.create(notification_type=1, from_user=request.user, to_user=post_obj.author, post=post_obj)
 
 		like, created = Like.objects.get_or_create(user=profile, post_id=post_id)
 
@@ -680,6 +685,7 @@ def like_unlike_post(request):
 @login_required
 def comment_post(request):
 	profile = Profile.objects.get(user=request.user)
+	post = Post.objects.get(id=request.POST.get('post_id'))
 	c_form = CommentModelForm()
 
 	if request.method == "POST":
@@ -688,8 +694,10 @@ def comment_post(request):
 			instance = c_form.save(commit=False)
 			instance.user = profile
 			instance.username = profile.user.username
-			instance.post = Post.objects.get(id=request.POST.get('post_id'))
+			instance.post = post
 			instance.save()
+			Notification.objects.create(notification_type=2, from_user=request.user, 
+				to_user=post.author, post=post)
 			print(instance, instance.user, instance.body, instance.username)
 
 			data = {
@@ -765,6 +773,8 @@ def like_unlike_comment(request):
 			comment_obj.liked.remove(profile)
 		else:
 			comment_obj.liked.add(profile)
+			Notification.objects.create(notification_type=1, from_user=request.user, 
+				to_user=comment_obj.user.user, comment=comment_obj)
 
 		like, created = CommentLike.objects.get_or_create(user=profile, comment_id=comment_id, post_id=post.id)
 
@@ -791,6 +801,50 @@ def like_unlike_comment(request):
 		return JsonResponse(data, safe=False)
 	return redirect('blog-home')
 
+
+class PostNotification(View):
+	def get(self, request, notification_pk, post_pk, *args, **kwargs):
+		notification = Notification.objects.get(pk=notification_pk)
+		post = Post.objects.get(pk=post_pk)
+
+		notification.user_has_seen = True
+		notification.save()
+
+		return redirect('post-detail', pk=post_pk)
+
+class CommentReplyNotification(View):
+	def get(self, request, notification_pk, post_pk, comment_pk, *args, **kwargs):
+		notification = Notification.objects.get(pk=notification_pk)
+		post = Post.objects.get(pk=post_pk)
+		comment = Comment.objects.get(pk=comment_pk)
+
+		notification.user_has_seen = True
+		notification.save()
+
+		return redirect('post-comment-detail', post_pk=post_pk, comment_pk=comment_pk)
+
+class FollowNotification(View):
+	def get(self, request, notification_pk, profile_pk, *args, **kwargs):
+		notification = Notification.objects.get(pk=notification_pk)
+		profile = Profile.objects.get(pk=profile_pk)
+
+		notification.user_has_seen = True
+		notification.save()
+
+		return redirect('user-posts', username=profile.user.username)
+
+class RemoveNotification(View):
+	def get(self, request, notification_pk, *args, **kwargs):
+		notification = Notification.objects.get(pk=notification_pk)	
+
+		notification.user_has_seen = True
+		notification.save()
+
+		data = {
+			'notification_count': Notification.objects.filter(to_user=request.user).exclude(user_has_seen=True).count()
+		}
+
+		return JsonResponse(data, safe=False)
 
 def about(request):
 	return render(request, 'blog/about.html', {'title':'About'})

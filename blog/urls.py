@@ -19,6 +19,10 @@ from . views import (
 	CommentReplyView,
 	post_comment_detail_view,
 	load_more_replies_detail_bylatest,
+	PostNotification,
+	CommentReplyNotification,
+	FollowNotification,
+	RemoveNotification,
 )
 from . import views
 
@@ -46,5 +50,9 @@ urlpatterns = [
 	path('post/comment/like/', views.like_unlike_comment, name='like-comment-view'),
 	path('post/comment/<int:pk>/delete/', views.del_comment, name='comment-delete'),
 	path('post/commenttemp/<int:pk>/delete/', views.del_com_temp, name='comment-delete-temp'),
+	path('notification/<int:notification_pk>/post/<int:post_pk>/', PostNotification.as_view(), name='post-notification'),
+	path('notification/<int:notification_pk>/post/<int:post_pk>/<int:comment_pk>/', CommentReplyNotification.as_view(), name='comment-reply-notification'),
+	path('notification/<int:notification_pk>/profile/<int:profile_pk>/', FollowNotification.as_view(), name='follow-notification'),
+	path('notification/delete/<int:notification_pk>/', RemoveNotification.as_view(), name='notification-delete'),
 	path('about/', views.about, name='blog-about'),
 ]

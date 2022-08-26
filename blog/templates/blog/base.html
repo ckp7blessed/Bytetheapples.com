@@ -1,4 +1,6 @@
 {% load static %}
+{% load custom_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -113,7 +115,16 @@
 		          <ul class="list-group">
 		          	<li class="list-group-item list-group-item"><a class="btn btn-light side-link" href="{% url 'blog-home' %}"><i class="fa fa-solid fa-store"></i> Home</a></li>
 		          	<li class="list-group-item list-group-item"><a class="btn btn-light side-link" href="{% url 'following' %}"><i class="fa fa-solid fa-users"></i> Friends</a></li>
-		            <li class="list-group-item list-group-item"> <i class="fa fa-solid fa-bell"></i> Notifications</li>
+
+		          	{% if user.is_authenticated %}
+		          	<li class="list-group-item list-group-item">
+		          		{% show_notifications %}
+		            </li>
+		            {% else %}
+		            <li class="list-group-item list-group-item">
+		            <a href="{% url 'login' %}" class="btn btn-light side-link"><i class="fa fa-solid fa-bell"></i> Notifications</a></li>
+		            {% endif %}
+
 		            <li class="list-group-item list-group-item"><i class="fas fa-solid fa-inbox"></i> Messages</li>
 		          </ul>
 		      </div>
@@ -133,6 +144,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/74faac216c.js" crossorigin="anonymous"></script>
 
+<script src="{% static 'blog/notifications.js' %}" type="text/javascript"></script> 
 	{% block scripts %}
 	{% endblock scripts %}
 </body>
