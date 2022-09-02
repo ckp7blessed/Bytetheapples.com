@@ -686,3 +686,49 @@ hr.reply {
 .scrollbar-rare-wind {
     scrollbar-color: #a8edea #F5F5F5;
 }
+
+.empty-text {
+    color: #777;
+    font-size: 1.5rem;
+    text-align:  center;
+}
+
+.sent-message {
+    background-color: #f3f3f3;
+    border-radius: 10px;
+    padding: 10px 15px;
+    width: 40%;
+    font-weight: 500;
+}
+
+.received-message {
+    background-color: #1982FC;
+    color: #fff;
+    border-radius: 10px;
+    padding: 10px 15px;
+    width: 40%;
+    float: right;
+    font-weight: 500;
+}
+
+.message-receiver-container {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.message-image {
+    border-radius: 10px;
+    max-width: 35%;
+    height: auto;
+}
+
+.message-r {
+    float:right;
+    margin-top:-10px;
+    color: white !important; 
+}
+
+.message-l {
+    float:right;
+    margin-top:-10px;
+}

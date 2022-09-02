@@ -12,11 +12,11 @@ from django.views.generic import (
 	UpdateView, 
 	DeleteView
 ) 
-from . models import Post, PostImage, Like, Category, Comment, CommentLike, Notification
+from . models import Post, PostImage, Like, Category, Comment, CommentLike, Notification, ThreadModel, MessageModel
 from users.models import Profile
 from django.db.models import Q, Count, OuterRef, Prefetch
 from itertools import chain
-from . forms import ImageForm, ImageFormSet, CommentModelForm
+from . forms import ImageForm, ImageFormSet, CommentModelForm, ThreadForm, MessageForm
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.forms.models import model_to_dict
@@ -833,6 +833,16 @@ class FollowNotification(View):
 
 		return redirect('user-posts', username=profile.user.username)
 
+class ThreadNotification(View):
+	def get(self, request, notification_pk, thread_pk, *args, **kwargs):
+		notification = Notification.objects.get(pk=notification_pk)
+		thread = ThreadModel.objects.get(pk=thread_pk)
+
+		notification.user_has_seen = True
+		notification.save()
+
+		return redirect('thread', pk=thread_pk)
+
 class RemoveNotification(View):
 	def get(self, request, notification_pk, *args, **kwargs):
 		notification = Notification.objects.get(pk=notification_pk)	
@@ -845,6 +855,88 @@ class RemoveNotification(View):
 		}
 
 		return JsonResponse(data, safe=False)
+
+class ListThread(LoginRequiredMixin, View):
+	def get(self, request, *args, **kwargs):
+		threads = ThreadModel.objects.filter(Q(user=request.user) | Q(receiver=request.user))
+
+		context = {
+			'threads': threads
+		}
+
+		return	render(request, 'blog/inbox.html', context)
+
+class CreateThread(LoginRequiredMixin, View):
+	def get(self, request, *args, **kwargs):
+		form = ThreadForm()
+		context = {
+			'form': form
+		}
+
+		return render(request, 'blog/create_thread.html', context)
+
+	def post(self, request, *args, **kwargs):
+		form = ThreadForm(request.POST)
+		username = request.POST.get('username')
+
+		try:
+			receiver = User.objects.get(username=username)
+			if ThreadModel.objects.filter(user=request.user, receiver=receiver).exists():
+				thread = ThreadModel.objects.filter(user=request.user, receiver=receiver)[0]
+				return redirect('thread', pk=thread.pk)
+			elif ThreadModel.objects.filter(user=receiver, receiver=request.user).exists():
+				thread = ThreadModel.objects.filter(user=receiver, receiver=request.user[0])
+				return redirect('thread', pk=thread.pk)
+
+			if form.is_valid():
+				thread = ThreadModel(
+						user=request.user,
+						receiver=receiver
+					)
+				thread.save()
+
+				return redirect('thread', pk=thread.pk)
+		except:
+			messages.error(request, 'That username does not exist')
+			return redirect('create-thread')
+
+class ThreadView(LoginRequiredMixin, View):
+	def get(self, request, pk, *args, **kwargs):
+		form = MessageForm()
+		thread = ThreadModel.objects.get(pk=pk)
+		message_list = MessageModel.objects.filter(thread__pk__contains=pk)
+		context = {
+			'thread': thread,
+			'form': form,
+			'message_list': message_list,
+		}
+		return render(request, 'blog/thread.html', context)
+
+class CreateMessage(LoginRequiredMixin, View):
+	def post(self, request, pk, *args, **kwargs):
+		form = MessageForm(request.POST, request.FILES)
+		thread = ThreadModel.objects.get(pk=pk)
+		if thread.receiver == request.user:
+			receiver = thread.user
+		else:
+			receiver = thread.receiver
+
+		if form.is_valid():
+			message = form.save(commit=False)
+			message.thread = thread 
+			message.sender_user = request.user
+			message.receiver_user = receiver
+			message.save()
+
+		Notification.objects.create(
+			notification_type=4,
+			from_user=request.user,
+			to_user=receiver,
+			thread=thread
+		)
+
+		return redirect('thread', pk=pk)
+
 
 def about(request):
 	return render(request, 'blog/about.html', {'title':'About'})

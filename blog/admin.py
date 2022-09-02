@@ -1,5 +1,5 @@
 from django.contrib import admin
-from . models import Post, PostImage, Category, Like, Comment, CommentLike, Notification
+from . models import Post, PostImage, Category, Like, Comment, CommentLike, Notification, ThreadModel
 # Register your models here.
 
 class ImageInline(admin.TabularInline):
@@ -73,3 +73,4 @@ admin.site.register(Like)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(CommentLike)
 admin.site.register(Notification)
+admin.site.register(ThreadModel)

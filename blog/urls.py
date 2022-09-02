@@ -23,6 +23,11 @@ from . views import (
 	CommentReplyNotification,
 	FollowNotification,
 	RemoveNotification,
+	ThreadNotification,
+	ListThread,
+	CreateThread,
+	ThreadView,
+	CreateMessage,	
 )
 from . import views
 
@@ -53,6 +58,11 @@ urlpatterns = [
 	path('notification/<int:notification_pk>/post/<int:post_pk>/', PostNotification.as_view(), name='post-notification'),
 	path('notification/<int:notification_pk>/post/<int:post_pk>/<int:comment_pk>/', CommentReplyNotification.as_view(), name='comment-reply-notification'),
 	path('notification/<int:notification_pk>/profile/<int:profile_pk>/', FollowNotification.as_view(), name='follow-notification'),
+	path('notification/<int:notification_pk>/thread/<int:thread_pk>/', ThreadNotification.as_view(), name='thread-notification'),
 	path('notification/delete/<int:notification_pk>/', RemoveNotification.as_view(), name='notification-delete'),
+	path('inbox/', ListThread.as_view(), name='inbox'),
+	path('inbox/create-thread/', CreateThread.as_view(), name='create-thread'),
+	path('inbox/<int:pk>/', ThreadView.as_view(), name='thread'),
+	path('inbox/<int:pk>/create-message/', CreateMessage.as_view(), name='create-message'),
 	path('about/', views.about, name='blog-about'),
 ]

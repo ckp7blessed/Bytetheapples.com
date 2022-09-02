@@ -1,5 +1,5 @@
 from django import forms
-from .models import Post, PostImage, Category, Comment
+from .models import Post, PostImage, Category, Comment, MessageModel
 from django.forms import inlineformset_factory
 from django.forms.widgets import ClearableFileInput
 
@@ -33,3 +33,15 @@ class CommentModelForm(forms.ModelForm):
     class Meta:
         model = Comment 
         fields = ['body']
+
+class ThreadForm(forms.Form):
+    username = forms.CharField(label='', max_length=100, widget=forms.TextInput(attrs={'placeholder': '@'}))
+
+class MessageForm(forms.ModelForm):
+    body = forms.CharField(label='', max_length=1000)
+
+    image = forms.ImageField(label='Add an image', required=False)
+
+    class Meta:
+        model = MessageModel
+        fields = ['body', 'image']

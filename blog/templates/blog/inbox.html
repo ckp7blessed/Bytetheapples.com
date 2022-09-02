@@ -1,0 +1,30 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container content-section">
+	<div class="row">
+		<div class="col-md-12 p-5">
+			<h3>Your Messages</h3><br>
+			<h4>Welcome to your inbox!</h4>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12 p-5">
+			<form method="GET" action="{% url 'create-thread' %}">
+			<button class="btn btn-lg btn-block button" type="submit">New Message</button>
+			</form>
+		</div>		
+	</div>
+	{% for thread in threads.all %}
+	<div class="row mb-3">
+		<div class="card col-md-12 p-3 shadow-sm">
+			<h5><img class="rounded-circle account-header-img" src="{{ thread.receiver.profile.image.url }}"> @{{ thread.receiver }}</h5>
+			<a href="{% url 'thread' thread.pk %}" class="stretched-link"></a>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+
+{% endblock content %}

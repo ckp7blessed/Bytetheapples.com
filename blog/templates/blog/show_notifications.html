@@ -36,7 +36,12 @@
 				<a class="notification-link" href="{% url 'comment-reply-notification' notification.pk notification.comment.post.pk notification.comment.pk %}"><span class="notification-user">@{{ notification.from_user }} </span>replied on your comment</a>
 				<span class="dropdown-item-close" id="{{ notification.pk }}">&times;</span>
 			</div>
-			{% endif %}
+			{% endif %}	
+		{% elif notification.notification_type == 4 %}
+		<div class="dropdown-item-parent" id="noti-{{ notification.pk }}">
+			<a class="notification-link" href="{% url 'thread-notification' notification.pk notification.thread.pk %}"><span class="notification-user">@{{ notification.from_user }} </span>sent you a message</a>
+			<span class="dropdown-item-close" id="{{ notification.pk }}">&times;</span>
+		</div>
 		{% else %}
 			<div class="dropdown-item-parent" id="noti-{{ notification.pk }}">
 				<a class="notification-link" href="{% url 'follow-notification' notification.pk notification.from_user.profile.pk %}"><span class="notification-user">@{{ notification.from_user }} </span>has started following you</a>
