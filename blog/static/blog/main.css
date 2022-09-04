@@ -172,6 +172,11 @@ a.article-title:hover {
    background-color: white;
 }
 
+.btn-blue {
+   background-color: white;
+   border: 1px solid #1DA1F2;
+}
+
 .btn-follow {
    background-color: white;
    border: 1px solid #1DA1F2;
@@ -731,4 +736,12 @@ hr.reply {
 .message-l {
     float:right;
     margin-top:-10px;
+}
+
+.fa-envelope-blue {
+    color: #1DA1F2;
+}
+
+.fa-envelope-blue: hover {
+    color: white !important;
 }

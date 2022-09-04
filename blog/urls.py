@@ -27,7 +27,8 @@ from . views import (
 	ListThread,
 	CreateThread,
 	ThreadView,
-	CreateMessage,	
+	CreateMessage,
+	profile_to_thread,	
 )
 from . import views
 
@@ -64,5 +65,6 @@ urlpatterns = [
 	path('inbox/create-thread/', CreateThread.as_view(), name='create-thread'),
 	path('inbox/<int:pk>/', ThreadView.as_view(), name='thread'),
 	path('inbox/<int:pk>/create-message/', CreateMessage.as_view(), name='create-message'),
+	path('inbox/<int:profile_pk>/profile-message/', views.profile_to_thread, name='profile-message'),
 	path('about/', views.about, name='blog-about'),
 ]

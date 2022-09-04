@@ -82,11 +82,12 @@
 				  <div class="dropdown-menu dropdown-menu-lg-right p-2 text-white shadow">
 					<div class="form-group">
 					<form action="{% url 'search-results' %}" method="get">
-					  <input name="q" type="text" placeholder="Search by keyword...">
+					  <input name="q" type="text" placeholder="Search by keyword..." title="press enter on your keyboard">
 					</form>
 				   <form class= "mt-1" action="{% url 'user_results' %}" method="get">
-				  <input name="q1" type="text" placeholder="Search by username...">
+				  <input name="q1" type="text" placeholder="Search by username..." title="press enter on your keyboard">
 				</form>
+				<small style="color: black">press enter on your keyboard</small>
 				  </div>
 				</div>
 				</div><br><br>

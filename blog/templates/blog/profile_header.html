@@ -12,12 +12,12 @@
 	    {% if request.user.is_authenticated %}
 	    {% if user_pro == request.user %}
 	    {% else %}
+
 		<form method="POST"
 			class="follower-form"
 			action="{% url 'toggle_follower' user_pro.profile.pk %}"
 			id="{{ user_pro.profile.pk }}">
 			{% csrf_token %}
-
 	    {% if is_following %}
 	    	<button class="btn btn-unfollow unfollow-link" type="submit" style="float:right;"><span>Following</span></button>
 		{% else %}
@@ -25,6 +25,7 @@
 		{% endif %}
 
 		</form>
+			<a href="{% url 'profile-message' user_pro.pk %}" style="float:right;" class="btn btn-xs btn-blue mr-4 fa-envelope-blue" title="Direct message @{{ user_pro.username }}"><i class="fa fa-envelope fa-lg " aria-hidden="true" ></i></a>
 		{% endif %}
 		{% endif %}
 

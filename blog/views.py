@@ -888,7 +888,7 @@ class CreateThread(LoginRequiredMixin, View):
 				thread = ThreadModel.objects.filter(user=receiver, receiver=request.user[0])
 				return redirect('thread', pk=thread.pk)
 
-			if form.is_valid():
+			else:
 				thread = ThreadModel(
 						user=request.user,
 						receiver=receiver
@@ -899,6 +899,26 @@ class CreateThread(LoginRequiredMixin, View):
 		except:
 			messages.error(request, 'That username does not exist')
 			return redirect('create-thread')
+
+@login_required
+def profile_to_thread(request, profile_pk, *args, **kwargs):
+	receiver = get_object_or_404(User, pk=profile_pk)
+
+	if ThreadModel.objects.filter(user=request.user, receiver=receiver).exists():
+		thread = ThreadModel.objects.filter(user=request.user, receiver=receiver)[0]
+		return redirect('thread', pk=thread.pk)
+	elif ThreadModel.objects.filter(user=receiver, receiver=request.user).exists():
+		thread = ThreadModel.objects.filter(user=receiver, receiver=request.user[0])
+		return redirect('thread', pk=thread.pk)
+
+	else:
+		thread = ThreadModel(
+				user=request.user,
+				receiver=receiver
+			)
+		thread.save()
+
+		return redirect('thread', pk=thread.pk)
 
 class ThreadView(LoginRequiredMixin, View):
 	def get(self, request, pk, *args, **kwargs):
