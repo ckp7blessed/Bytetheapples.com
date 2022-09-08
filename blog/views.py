@@ -26,6 +26,7 @@ from . templatetags import custom_tags
 from django.template.defaultfilters import timesince, date
 from django.utils.dateparse import parse_datetime
 import json
+import requests
 
 
 def home(request):
@@ -956,7 +957,6 @@ class CreateMessage(LoginRequiredMixin, View):
 		)
 
 		return redirect('thread', pk=pk)
-
 
 def about(request):
 	return render(request, 'blog/about.html', {'title':'About'})

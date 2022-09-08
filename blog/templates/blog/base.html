@@ -129,6 +129,13 @@
 		            <li class="list-group-item list-group-item"><a class="btn btn-light side-link" href="{% url 'inbox' %}"><i class="fas fa-solid fa-inbox"></i> Messages</a></li>
 		          </ul>
 		      </div>
+
+		      {% block news_content %}
+		      <div class="content-section shadow">
+		      	<h4>Tech News</h4>
+		      	{% news_feed %}
+		      </div>
+		      {% endblock %}
 		      
 	      <span style="font-weight: 300;">2022 BitSipur | </span>
 	      <a class="misc-link" href="{% url 'blog-about' %}">About</a>

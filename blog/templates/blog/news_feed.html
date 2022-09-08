@@ -1,0 +1,19 @@
+{% load static %}
+
+
+{% for title, description, image, url, source in news %}
+<div class="content-section">
+	<div class="">
+
+		{% if image %}
+		<img src="{{ image }}" class="img-fluid" style="height:100px; width:100px;">
+		{% endif %}
+
+		<div style="position:relative">
+			<a href="{{ url }}" class="stretched-link"><h5 class="">{{ title }}</h5></a>
+			<p class="">{{ description|truncatechars:100 }}</p>
+			<small style="float:right; margin-top:-20px;">-{{ source }}</small>
+		</div>
+	</div>
+</div>
+{% endfor %}
