@@ -20,7 +20,7 @@
 			{% csrf_token %}
 			<input type="hidden" name="post_id" value="{{ post.id }}">
 			{{ c_form|crispy }}
-			<button type="submit" class="button btn-sm mt-n2 com-btn" id="{{ post.pk }}" name="submit_c_form" style="float:right;">
+			<button type="submit" class="button btn-sm mt-n2 com-btn mx-auto d-block" id="{{ post.pk }}" name="submit_c_form" style="float:right;">
 				Comment 
 			</button>
 
@@ -55,11 +55,6 @@
 		{% else %}
 		<br><br>
 		<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">
-
-
-		{% include 'blog/comments.html' with comment="test" %}
-
-
 		</div>
 		{% endif %}
 

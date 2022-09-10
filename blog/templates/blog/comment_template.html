@@ -10,7 +10,7 @@
 				<small class="text-muted comment-created" style="float:right;">Just Now</small>
 				<p class="comment-content">{{ comment.body }}</p>
 			</div>	
-			<div class="btn-group">
+			<div class="btn-group llc-btn">
 			<form action="{% url 'like-comment-view' %}" method="POST" class="comlike-form" id='00'>
 				{% csrf_token %}
 				<input type="hidden" name="comment_id" value="00" class="cl-input"> 

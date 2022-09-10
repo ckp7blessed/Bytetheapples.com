@@ -21,7 +21,7 @@
 				</small>
 				<p class="comment-content">{{ comment.body|urlizetrunc:26 }}</p>
 			</div>
-			<div class="btn-group">
+			<div class="btn-group llc-btn">
 			<form action="{% url 'like-comment-view' %}" method="POST" class="comlike-form" id='{{ comment.id }}'>
 				{% csrf_token %}
 				<input type="hidden" name="comment_id" value="{{ comment.id }}" class="cl-input"> 

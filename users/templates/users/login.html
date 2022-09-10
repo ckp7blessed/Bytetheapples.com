@@ -14,7 +14,7 @@
 			<div class="form-group">
 				<button class="button" type="submit">Log In</button>
 				<small class='text-muted ml-2'>
-					<a href="{% url 'password_reset' %}">Forgot Password?</a>
+					<a class="btn btn-sm btn-light side-link" href="{% url 'password_reset' %}">Forgot Password?</a>
 				</small>
 			</div>
 		</form>
@@ -31,15 +31,21 @@
 				     >{{brand.name}}</a>
 				{% endfor %}
 				{% endif %}
+
+				{% if provider.name == 'Google' %}
 				  <a title="{{provider.name}}" class="socialaccount_provider {{provider.id}}" 
-				     href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}">{{provider.name}}</a>
+				     href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"><img src="/media/signin_buttons/btn_google_signin_dark_normal_web.png"></a>
+				{% endif %}
+
+				  <a title="{{provider.name}}" class="socialaccount_provider {{provider.id}}" 
+				     href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"></a>
 				{% endfor %}
 				</div>
 				</div>
 				</div>
 		<div class="border-top pt-3">
 			<small class="text-muted">
-				Need An Account?<a href="{% url 'register' %}"> Sign Up Now</a>
+				Don't have an account?<a href="{% url 'register' %}"> Sign up</a>
 			</small>
 		</div>
 	</div>

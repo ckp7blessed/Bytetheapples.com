@@ -38,6 +38,35 @@ ul {
   text-decoration: none;
 }
 
+/*Resizing based on screen size*/
+@media (max-width: 768px) {
+  .side-link {
+    font-size:11px;
+    padding:4px 6px;
+  }
+}
+
+@media (min-width: 768px) {
+  .side-link {
+    font-size:12px;
+    padding:6px 12px;
+  }
+}
+
+@media (min-width: 992px) {
+  .side-link {
+    font-size:14px;
+    padding:8px 12px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .side-link {
+    padding:10px 20px;
+    font-size:14px;
+  }
+}
+
 .misc-link {
   font-weight: 300;
   color: black;
@@ -208,6 +237,26 @@ a.article-title:hover {
   content: "Unfollow"
 }
 
+.fp-button {
+/*  background-color: #1DA1F2;
+  border: 2px solid #1DA1F2;*/
+/*  color: white !important;*/
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  font-weight : bold;
+  display: inline-block;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 16px;
+  position: relative;
+  z-index: 0;
+}
+
+.btn-outline-dark:hover {
+    background-color: #ACADAC !important;
+}
+
 .button {
   background-color: #1DA1F2;
   border: 2px solid #1DA1F2;
@@ -287,20 +336,34 @@ a.article-title:hover {
     100% { background-position: 0 0; }
 }
 
+/*Resizing based on screen size*/
+@media (max-width: 768px) {
+  .button {
+    font-size:11px;
+    padding:4px 6px;
+  }
+}
 
-/*  background-color: #ddd;
-  border: none;
-  color: black;*/
+@media (min-width: 768px) {
+  .button {
+    font-size:12px;
+    padding:6px 12px;
+  }
+}
 
-  /*#87CEFA*/
-  /*border: 2px solid #ADD8E6;*/
+@media (min-width: 992px) {
+  .button {
+    font-size:14px;
+    padding:8px 12px;
+  }
+}
 
-
-  /*rgb(202,228,246);*/
-
-/*  twitter 
-  rgb(255, 255, 255);*/
-
+@media (min-width: 1200px) {
+  .button {
+    padding:10px 20px;
+    font-size:14px;
+  }
+}
 
 .button-empty {
   background-color: #1DA1F2;
@@ -359,6 +422,34 @@ a.article-title:hover {
     border-radius: 10px;
 }
 
+/*Resizing based on screen size*/
+@media (max-width: 768px) {
+  .button-empty {
+    font-size:11px;
+    padding:4px 6px;
+  }
+}
+
+@media (min-width: 768px) {
+  .button-empty {
+    font-size:12px;
+    padding:6px 12px;
+  }
+}
+
+@media (min-width: 992px) {
+  .button-empty {
+    font-size:14px;
+    padding:8px 12px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .button-empty {
+    padding:10px 20px;
+    font-size:14px;
+  }
+}
 
 .highlight-button {
   background-color: white;
@@ -638,7 +729,7 @@ hr.reply {
   text-align: left;
   padding: 10px 20px;
   background-color: #f3faff;
-  max-height: 500px !important;
+  max-height: 300px !important;
   overflow-y: auto !important;
 }
 
@@ -647,7 +738,7 @@ hr.reply {
   font-weight: 500; 
 }
 
-.notification-user {
+.notification-user, .category-main {
   color: #4169e1;
 }
 
@@ -744,4 +835,150 @@ hr.reply {
 
 .fa-envelope-blue: hover {
     color: white !important;
+}
+
+
+/*Resizing based on screen size*/
+@media (max-width: 768px) {
+  .search {
+    font-size:11px;
+    padding:4px 6px;
+  }
+}
+
+@media (min-width: 768px) {
+  .search {
+    font-size:12px;
+    padding:6px 12px;
+  }
+}
+
+@media (min-width: 992px) {
+  .search {
+    font-size:14px;
+    padding:8px 12px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .search {
+    padding:10px 20px;
+    font-size:14px;
+  }
+}
+
+/*Resizing based on screen size*/
+/*like, # of likes button on post*/
+@media (max-width: 768px) {
+  .ll-btn {
+    font-size:12px;
+    padding:4px 8px;
+  }
+}
+
+@media (min-width: 768px) {
+  .ll-btn {
+    font-size:12px;
+    padding:4px 8px;
+  }
+}
+
+@media (min-width: 992px) {
+  .ll-btn {
+    font-size:16px;
+    padding:6px 12px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .ll-btn {
+    padding:6px 12px;
+    font-size:16px;
+  }
+}
+
+/*Resizing based on screen size*/
+/*# of comments button on post*/
+@media (max-width: 768px) {
+  .nc-btn {
+    font-size:10px;
+  }
+}
+
+@media (min-width: 768px) {
+  .nc-btn {
+    font-size:10px;
+  }
+}
+
+@media (min-width: 992px) {
+  .nc-btn {
+    font-size:14px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .nc-btn {
+    font-size:14px;
+  }
+}
+
+/*Resizing based on screen size*/
+/*action dropdown button*/
+@media (max-width: 768px) {
+  .action-btn {
+    font-size:10px;
+    padding:2px 4px;
+  }
+}
+
+@media (min-width: 768px) {
+  .action-btn {
+    font-size:10px;
+    padding:2px 4px;
+  }
+}
+
+@media (min-width: 992px) {
+  .action-btn {
+    font-size:14px;
+    padding:4px 8px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .action-btn {
+    padding:4px 8px;
+    font-size:14px;
+  }
+}
+
+/*Resizing based on screen size*/
+/*like, # of likes button on comment/reply*/
+@media (max-width: 768px) {
+  .llc-btn {
+    font-size:12px;
+    padding:4px 8px;
+  }
+}
+
+@media (min-width: 768px) {
+  .llc-btn {
+    font-size:12px;
+    padding:4px 8px;
+  }
+}
+
+@media (min-width: 992px) {
+  .llc-btn {
+    font-size:16px;
+    padding:6px 12px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .llc-btn {
+    padding:6px 12px;
+    font-size:16px;
+  }
 }

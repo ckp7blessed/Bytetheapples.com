@@ -34,16 +34,18 @@
 	        <div class="navbar-nav mr-auto" style="float:right;">
 
 	          {% if cats_menu %}
-	          <li class="nav-item dropdown my-auto">
+	          
+	          <div class="nav-item dropdown my-auto">
 	          	<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 	          		Categories
 	          	</a>
-	          	<div class="dropdown-menu shadow" aria-labelledby="navbarDropdown">
+	          	<div class="dropdown-menu dropdown-content scrollbar-rare-wind shadow" aria-labelledby="navbarDropdown">
 	          		{% for item in cats_menu %}
-	          		<a class="dropdown-item" href="{% url 'cat-results' item %}">{{ item }}</a>
+	          		<a class="dropdown-item category-main" href="{% url 'cat-results' item %}">{{ item }}</a>
 	          		{% endfor %}
 	          	</div>
-	          </li>
+	          </div>
+	          
 	          {% endif %}
 
 	        	{% if user.is_anonymous %}
@@ -73,13 +75,13 @@
 
 	    </div>
 
-	    <div class="col-md-4 d-none d-md-block" style="">
+	    <div class="col-md-4 d-none d-md-block">
 	    	<div class="sticky-top">
 
     			<!-- Search -->
 				<div class="btn-block btn-group mx-auto">
 				  <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false"><i class='fas fa-search'></i> Search</button>
-				  <div class="dropdown-menu dropdown-menu-lg-right p-2 text-white shadow">
+				  <div class="dropdown-menu dropdown-menu-lg-right p-2 text-white shadow search">
 					<div class="form-group">
 					<form action="{% url 'search-results' %}" method="get">
 					  <input name="q" type="text" placeholder="Search by keyword..." title="press enter on your keyboard">
@@ -133,7 +135,7 @@
 		      {% block news_content %}
 		      <div class="content-section shadow">
 		      	<h4>Tech News</h4>
-		      	{% news_feed %}
+		      	{% comment %}{% news_feed %}{% endcomment %}
 		      </div>
 		      {% endblock %}
 		      

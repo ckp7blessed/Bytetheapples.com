@@ -69,7 +69,7 @@
 		{% endif %}
 
 	<br><br><hr>
-	<div class="btn-group">
+	<div class="btn-group ll-btn">
 		<form action="{% url 'like-post-view' %}" method="POST" class='like-form' id='{{ post.id }}'>
 			{% csrf_token %}
 			<input type="hidden" name="post_id" value="{{ post.id }}"> 
@@ -117,13 +117,13 @@
 				</div>
 			  </div>
 			</div>
-		<a class="mr-2 btn btn-outline-dark btn-sm comment-count{{ post.id }}" href="{% url 'post-detail' post.id %}"><small class="comment-count-small{{ post.id }}">{{ post.num_comments }} Comments</small></a>
+		<a class="btn btn-outline-dark btn-sm nc-btn comment-count{{ post.id }}" href="{% url 'post-detail' post.id %}"><small class="comment-count-small{{ post.id }}">{{ post.num_comments }} Comments</small></a>
 
 		</form>
 	</div>
 
 	{% if post.author == request.user %}
-	<div class="btn-group dropdown" style="float:right;">
+	<div class="btn-group dropdown action-btn" style="float:right;">
 		<button class="btn ud-action-button dropdown-toggle mt-n2 btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 		    •••
 		</button>

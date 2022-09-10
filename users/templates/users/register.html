@@ -17,7 +17,7 @@
 		</form>
 		<div class="border-top pt-3">
 			<small class="text-muted">
-				Already Have An Account?<a class="ml-2" href="{% url 'login' %}">Sign In</a>
+				Have an account already?<a class="ml-2" href="{% url 'login' %}">Log in</a><br><br>
 			</small>
 			<div class="socialaccount_ballot">
 			{% get_providers as socialaccount_providers %}
@@ -32,8 +32,14 @@
 			     >{{brand.name}}</a>
 			{% endfor %}
 			{% endif %}
+
+			{% if provider.name == 'Google' %}
 			  <a title="{{provider.name}}" class="socialaccount_provider {{provider.id}}" 
-			     href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}">{{provider.name}}</a>
+			     href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"><img src="/media/signin_buttons/btn_google_signin_dark_normal_web.png"></a>
+			{% endif %}
+
+			  <a title="{{provider.name}}" class="socialaccount_provider {{provider.id}}" 
+			     href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"></a>
 			{% endfor %}
 			</div>
 			</div>

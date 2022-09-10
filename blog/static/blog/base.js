@@ -14,6 +14,19 @@ $( document ).ready(function() {
 		}  
 	});
 
+	  function detectMob() {
+	    return ( ( window.innerWidth <= 391 ) && ( window.innerHeight <= 845 ) );
+	  };
+
+	  console.log(detectMob());
+	  var alerted = sessionStorage.getItem('alerted') || '';
+	  if (detectMob()){
+	    if (alerted != 'yes') {
+	     alert("Please use a desktop browser for best experience");
+	     sessionStorage.setItem('alerted','yes');
+	    };
+	  };
+
 	$('img[data-enlargeable]').addClass('img-enlargeable').click(function() {
 	  var src = $(this).attr('src');
 	  var modal;
