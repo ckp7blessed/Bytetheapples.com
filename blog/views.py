@@ -40,7 +40,7 @@ class PostListView(ListView):
 	template_name = 'blog/home.html'
 	context_object_name = 'posts'
 	ordering = ['-date_posted']
-	paginate_by = 5
+	paginate_by = 7
 
 	def get_context_data(self, *args, **kwargs):
 		cats_menu = Category.objects.all()
@@ -73,7 +73,7 @@ class UserPostListView(ListView):
 	model = Post
 	template_name = 'blog/user_posts.html'
 	context_object_name = 'posts'
-	paginate_by = 5
+	paginate_by = 7
 
 	def get_queryset(self):
 		return (
@@ -129,7 +129,7 @@ class UserPostByCatListView(ListView):
 	model = Post
 	template_name = 'blog/user_posts_bycategory.html'
 	context_object_name = 'posts'
-	paginate_by = 5
+	paginate_by = 7
 
 	def get_queryset(self):
 		cat = get_object_or_404(Category, category_name=self.kwargs.get('category'))
@@ -605,7 +605,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 class SearchResultsView(ListView):
 	model = Post 
 	template_name = 'blog/search_results.html'
-	paginate_by = 5
+	paginate_by = 7
 
 	def get_queryset(self):
 		query = self.request.GET.get("q")
@@ -635,7 +635,7 @@ class CategoryResultsView(ListView):
 	model = Post
 	template_name = 'blog/cat_posts.html'
 	context_object_name = 'posts'
-	paginate_by = 5
+	paginate_by = 7
 
 	def get_queryset(self):
 		cats = get_object_or_404(Category, category_name=self.kwargs.get('category'))

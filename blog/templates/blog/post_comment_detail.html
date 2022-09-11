@@ -36,7 +36,7 @@
 				</small>
 				<p class="comment-content">{{ comment.body|urlizetrunc:26 }}</p>
 			</div>
-			<div class="btn-group">
+			<div class="btn-group ll-btn">
 			<form action="{% url 'like-comment-view' %}" method="POST" class="comlike-form" id='{{ comment.id }}'>
 				{% csrf_token %}
 				<input type="hidden" name="comment_id" value="{{ comment.id }}" class="cl-input"> 
@@ -81,7 +81,7 @@
 					</div>
 				  </div>
 				</div>
-			<a href="{% url 'post-comment-detail' post_pk=post.pk comment_pk=comment.pk %}" class="btn btn-outline-dark btn-sm py-0" style="font-size: 0.8em;">
+			<a href="{% url 'post-comment-detail' post_pk=post.pk comment_pk=comment.pk %}" class="btn btn-outline-dark btn-sm nc-btn py-0" style="font-size: 0.8em;">
 				{% if comment.children.count == 0 %}
 				Reply
 				{% else %}	
@@ -92,7 +92,7 @@
 			</form>
 			</div>
 			{% if request.user == comment.user.user %}
-			<div class="btn-group dropdown" style="float:right;">
+			<div class="btn-group dropdown action-btn" style="float:right;">
 						<button class="btn ud-action-button dropdown-toggle mt-n1 btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 		   				•••</button>
 						<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -144,7 +144,7 @@
 				</small>
 				<p class="comment-content">{{ comment.body|urlizetrunc:26 }}</p>
 			</div>
-			<div class="btn-group">
+			<div class="btn-group ll-btn">
 			<form action="{% url 'like-comment-view' %}" method="POST" class="comlike-form" id='{{ comment.id }}'>
 				{% csrf_token %}
 				<input type="hidden" name="comment_id" value="{{ comment.id }}" class="cl-input"> 
@@ -192,7 +192,7 @@
 			</form>
 			</div>
 			{% if request.user == comment.user.user %}
-			<div class="btn-group dropdown" style="float:right;">
+			<div class="btn-group dropdown action-btn" style="float:right;">
 						<button class="btn ud-action-button dropdown-toggle mt-n1 btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 		   				•••</button>
 						<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">

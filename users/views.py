@@ -31,7 +31,7 @@ class UserProfileListView(LoginRequiredMixin, ListView):
 	model = Post
 	template_name = 'users/profile.html'
 	context_object_name = 'posts'
-	paginate_by = 5
+	paginate_by = 7
 
 	def get_context_data(self, *args, **kwargs):
 		cats_menu = Category.objects.all()

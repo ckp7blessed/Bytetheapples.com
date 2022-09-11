@@ -105,6 +105,31 @@ a.article-title:hover {
   text-decoration: none;
 }
 
+/*Resizing based on screen size*/
+@media (max-width: 768px) {
+  .article-title {
+    font-size:20px;
+  }
+}
+
+@media (min-width: 768px) {
+  .article-title {
+    font-size:20px;
+  }
+}
+
+@media (min-width: 992px) {
+  .article-title {
+    font-size:36px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .article-title {
+    font-size:36px;
+  }
+}
+
 .article-content {
   white-space: pre-line;
   font-size: 17px;
@@ -171,6 +196,14 @@ a.article-title:hover {
   margin-right: 16px;
 }
 
+/*Resizing based on screen size*/
+@media (max-width: 768px) {
+  .comment-img {
+      height: 35px;
+      width: 35px;
+  }
+}
+
 .comment-section {
   background: #ffffff;
   padding: 10px 20px;
@@ -178,6 +211,13 @@ a.article-title:hover {
   border-radius: 3px;
   margin-bottom: 1px;
 }
+
+/*Resizing based on screen size*/
+/*@media (max-width: 768px) {
+  .comment-section {
+    float: left;
+  }
+}*/
 
 .profile-link {
   font-weight: 650;
