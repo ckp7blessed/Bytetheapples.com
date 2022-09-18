@@ -631,6 +631,11 @@ class UserResultsView(ListView):
 		object_list = User.objects.filter(username__icontains=query)
 		return object_list
 
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['query'] = self.request.GET.get('q1')
+		return context
+
 class CategoryResultsView(ListView):
 	model = Post
 	template_name = 'blog/cat_posts.html'
@@ -737,6 +742,16 @@ def del_comment(request, *args, **kwargs):
 		else:
 			return redirect('login')
 		return JsonResponse(data, safe=False)
+	return redirect('blog-home')
+
+def del_parent_comment(request, pk, *args, **kwargs):
+	if request.method == 'POST':
+		comment_obj = get_object_or_404(Comment, pk=pk)
+		comment_id = comment_obj.pk 
+		post_id = comment_obj.post.pk
+		if request.user.id == comment_obj.user.user.id:
+			comment_obj.delete()
+		return redirect('post-detail', pk=post_id)
 	return redirect('blog-home')
 
 def del_com_temp(request, *args, **kwargs):

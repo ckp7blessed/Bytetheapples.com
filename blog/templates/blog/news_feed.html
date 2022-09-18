@@ -1,10 +1,10 @@
 {% load static %}
 
+<!-- HTML FOR THE SIDEBAR NEWSFEED  -->
 
 {% for title, description, image, url, source in news %}
 <div class="content-section">
-	<div class="">
-
+	<div>
 		{% if image %}
 		<img src="{{ image }}" class="img-fluid" style="height:100px; width:100px;">
 		{% endif %}

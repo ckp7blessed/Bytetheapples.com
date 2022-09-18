@@ -2,6 +2,23 @@
 
 $( document ).ready(function() {
 
+
+    // DELETE COMMENTS
+    $('.comdelete-form').on("submit", function(e) {
+        const comment_id = $(this).attr('id');
+        console.log('delete success function - comment id '+comment_id)
+
+		let res;
+		const likes = $('.parent-com-count').text();
+		const trimCount = parseInt(likes);
+
+		res = trimCount - 1;
+
+		$('.parent-com-count').text(res + ' ');
+		$('.parent-com-count').append('<small><i class="fa fa-heart fa-heart-blue"></i></small>');
+
+    });
+
     // INFINITE SCROLL LOAD MORE COMMENTS
 	var working = false;
 	$(window).scroll(function() {
@@ -62,7 +79,8 @@ $( document ).ready(function() {
 
                 comClone.find(".com-like").attr("id", "like-btn" + data.pk);
 
-                comClone.find(".com-modal").text(data.fields.liked.length+ " Likes");
+                comClone.find(".com-modal").text(data.fields.liked.length+ " ");
+                comClone.find(".com-modal").append('<small><i class="fa fa-heart fa-heart-blue"></i></small>');
 
                 comClone.find(".com-modal").attr("id", "clc" + data.pk);
                 comClone.find(".com-modal").attr("class", "btn btn-outline-dark btn-sm py-0 com-modal like-count" + data.pk);

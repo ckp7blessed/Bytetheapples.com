@@ -212,13 +212,6 @@ a.article-title:hover {
   margin-bottom: 1px;
 }
 
-/*Resizing based on screen size*/
-/*@media (max-width: 768px) {
-  .comment-section {
-    float: left;
-  }
-}*/
-
 .profile-link {
   font-weight: 650;
 }
@@ -292,6 +285,11 @@ a.article-title:hover {
   position: relative;
   z-index: 0;
 }
+
+.btn-outline-dark {
+    border: 1px solid #ACADAC !important;
+}
+
 
 .btn-outline-dark:hover {
     background-color: #ACADAC !important;
@@ -756,13 +754,15 @@ hr.reply {
     display: block;
 }
 
+
+/*FOR THE NOTIFICATIONS DROPDOWN*/
 .dropdown-content {
   position: absolute;
   min-width: 400px;
   box-shadow: 0px 8px 8px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
   font-size: 1rem;
-  border: 3px solid #A6AEB2;
+  border: 2px solid #C0C0C0;
   /*border: 5px;*/
   border-width:3px;
   border-style: solid;
@@ -877,6 +877,13 @@ hr.reply {
     color: white !important;
 }
 
+.fa-comment {
+    color: #1DA1F2;
+}
+
+.fa-heart-blue {
+    color: #1DA1F2;
+}
 
 /*Resizing based on screen size*/
 @media (max-width: 768px) {
@@ -947,7 +954,7 @@ hr.reply {
 
 @media (min-width: 768px) {
   .nc-btn {
-    font-size:10px;
+    font-size:14px;
   }
 }
 

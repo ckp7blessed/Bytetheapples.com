@@ -1,6 +1,6 @@
 $( document ).ready(function() {
 
-	$('.dropdown-menu').on("click.bs.dropdown", function (e) {
+	$('.dropdown-content').on("click.bs.dropdown", function (e) {
 	    e.stopPropagation();                 
 	});
 

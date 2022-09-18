@@ -3,6 +3,9 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
+<!-- BASE INDEX FOR SITE -->
+
 <head>
 
  <!-- Required meta tags -->
@@ -30,30 +33,28 @@
 	      <div class="collapse navbar-collapse" id="navbarToggle">
 	        	<div class="navbar-nav mr-auto"></div>
 
-	        <!-- Navbar Right Side -->
-	        <div class="navbar-nav mr-auto" style="float:right;">
+		        <!-- Navbar Right Side -->
+		        <div class="navbar-nav mr-auto" style="float:right;">
 
-	          {% if cats_menu %}
-	          
-	          <div class="nav-item dropdown my-auto">
-	          	<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-	          		Categories
-	          	</a>
-	          	<div class="dropdown-menu dropdown-content scrollbar-rare-wind shadow" aria-labelledby="navbarDropdown">
-	          		{% for item in cats_menu %}
-	          		<a class="dropdown-item category-main" href="{% url 'cat-results' item %}">{{ item }}</a>
-	          		{% endfor %}
-	          	</div>
-	          </div>
-	          
-	          {% endif %}
+		          {% if cats_menu %}
+		          <div class="nav-item dropdown my-auto">
+		          	<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		          		Categories
+		          	</a>
+		          	<div class="dropdown-menu dropdown-content scrollbar-rare-wind shadow" aria-labelledby="navbarDropdown">
+		          		{% for item in cats_menu %}
+		          		<a class="dropdown-item category-main" href="{% url 'cat-results' item %}">{{ item }}</a>
+		          		{% endfor %}
+		          	</div>
+		          </div>
+		          {% endif %}
 
-	        	{% if user.is_anonymous %}
-	        	<a class="nav-item nav-link highlight-button" href="{% url 'login' %}">Login</a>
-	        	<a class="nav-item nav-link highlight-button" href="{% url 'register' %}">Register</a>
-	        	{% endif %}	
-	        
-	      	</div>
+		        	{% if user.is_anonymous %}
+		        	<a class="nav-item nav-link highlight-button" href="{% url 'login' %}">Login</a>
+		        	<a class="nav-item nav-link highlight-button" href="{% url 'register' %}">Register</a>
+		        	{% endif %}	
+		        
+		      	</div>
 	    	</div>
 	    </div>
 	  </nav>
@@ -81,17 +82,17 @@
     			<!-- Search -->
 				<div class="btn-block btn-group mx-auto">
 				  <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false"><i class='fas fa-search'></i> Search</button>
-				  <div class="dropdown-menu dropdown-menu-lg-right p-2 text-white shadow search">
-					<div class="form-group">
-					<form action="{% url 'search-results' %}" method="get">
-					  <input name="q" type="text" placeholder="Search by keyword..." title="press enter on your keyboard">
-					</form>
-				   <form class= "mt-1" action="{% url 'user_results' %}" method="get">
-				  <input name="q1" type="text" placeholder="Search by username..." title="press enter on your keyboard">
-				</form>
-				<small style="color: black">press enter on your keyboard</small>
-				  </div>
-				</div>
+				   <div class="dropdown-menu dropdown-menu-lg-right p-2 text-white shadow search">
+						<div class="form-group">
+							<form action="{% url 'search-results' %}" method="get">
+							  <input name="q" type="text" placeholder="Search by keyword..." title="press enter on your keyboard">
+							</form>
+						   <form class= "mt-1" action="{% url 'user_results' %}" method="get">
+						  		<input name="q1" type="text" placeholder="Search by username..." title="press enter on your keyboard">
+						 	</form>
+						<small style="color: black">press enter on your keyboard</small>
+					   </div>
+					</div>
 				</div><br><br>
 
 				<!-- Profile -->
@@ -154,7 +155,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/74faac216c.js" crossorigin="anonymous"></script>
 
-<script src="{% static 'blog/notifications.js' %}" type="text/javascript"></script> 
+<script src="{% static 'blog/notifications.js' %}" type="text/javascript"></script>
 	{% block scripts %}
 	{% endblock scripts %}
 </body>

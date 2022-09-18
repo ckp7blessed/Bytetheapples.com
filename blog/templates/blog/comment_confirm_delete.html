@@ -1,3 +1,5 @@
+<!-- COMMENT DELETE FORM INSIDE MODAL -->
+
 <div class="modal" id="commentdeleteModal-{{ comment.id }}" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -12,11 +14,11 @@
         This can’t be undone.</p>
       </div>
       <div class="modal-footer">
-		<form action="{% url 'comment-delete' comment.id %}" method="POST" class="comdelete-form" id="{{ comment.id }}">
-			{% csrf_token %}
-			<div class="form-group">
-				<button class="btn btn-danger" type="submit">Delete</button>
-		        <button type="button" class="btn btn-secondary closebtn" data-dismiss="modal">Close</button>
+    		<form action="{% url 'comment-delete' comment.id %}" method="POST" class="comdelete-form" id="{{ comment.id }}">
+    			{% csrf_token %}
+    			<div class="form-group">
+    				<button class="btn btn-danger" type="submit">Delete</button>
+    		    <button type="button" class="btn btn-secondary closebtn" data-dismiss="modal">Close</button>
         	</div>
         </form>	
       </div>

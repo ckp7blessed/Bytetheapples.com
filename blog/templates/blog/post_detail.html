@@ -3,6 +3,8 @@
 {% load crispy_forms_tags %}
 {% load custom_tags %}
 
+<!-- HTML FOR POST DETAIL PAGE -->
+
 {% block content %}
 	<article class="media content-section" id='{{ post.id }}'>
 		{% if post.author == request.user %}
@@ -13,38 +15,33 @@
 		<img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}"></a>
 
 		<div class="media-body">
-
 		{% include 'blog/posts_main.html' %}
 		
-		{% if request.user.is_authenticated %}
-		<div style='clear:both'></div>
-		<br>
-		<form action="{% url 'comment-post-view' %}" method="POST" class="com-form" id="{{ post.id }}">
-			{% csrf_token %}
-			<input type="hidden" name="post_id" value="{{ post.id }}">
-			{{ c_form|crispy }}
-			<button type="submit" class="button btn-sm mt-n2 com-btn" id="{{ post.pk }}" name="submit_c_form" style="float:right;">
-				Comment 
-			</button>
-			<br><br>
-		</form>
-		{% else %}
-		<a href="{% url 'login' %}" class="button btn-sm text-decoration-none mt-n2" style="float:right;">Comment</a><br><br>
-		{% endif %}
+			{% if request.user.is_authenticated %}
+			<div style='clear:both'></div><br>
+				<form action="{% url 'comment-post-view' %}" method="POST" class="com-form" id="{{ post.id }}">
+					{% csrf_token %}
+					<input type="hidden" name="post_id" value="{{ post.id }}">
+					{{ c_form|crispy }}
+					<button type="submit" class="button btn-sm mt-n2 com-btn" id="{{ post.pk }}" name="submit_c_form" style="float:right;">
+						Comment 
+					</button>
+					<br><br>
+				</form>
+			{% else %}
+			<a href="{% url 'login' %}" class="button btn-sm text-decoration-none mt-n2" style="float:right;">Comment</a><br><br>
+			{% endif %}
 
 			{% if post.comment_list|length|gtoe:3 %}
 			<a href="{% url 'latest-comment-post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0 mt-n4" style="font-size: 0.8em;">Sort By Latest Comments</a>
 			{% endif %}
 
-		<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">
-
-
-			{% include 'blog/comments.html' %}
-
+			<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">
+				{% include 'blog/comments.html' %}
+			</div>
 		</div>
-</div>
-</article>
-<!-- <div class="infinite-scroll" data-url="{% url 'load-more-comments-detail' %}" style="display: none;"></div> -->
+	</article>
+
 		{% include 'blog/comment_template.html' %}
 
 {% block news_content %}

@@ -60,7 +60,8 @@ $( document ).ready(function() {
 
                 comClone.find(".com-like").attr("id", "like-btn" + data.pk);
 
-                comClone.find(".com-modal").text(data.fields.liked.length+ " Likes");
+                comClone.find(".com-modal").text(data.fields.liked.length+ " ");
+                comClone.find(".com-modal").append('<small><i class="fa fa-heart fa-heart-blue"></i></small>');
 
                 comClone.find(".com-modal").attr("id", "clc" + data.pk);
                 comClone.find(".com-modal").attr("class", "btn btn-outline-dark btn-sm py-0 com-modal like-count" + data.pk);
@@ -94,10 +95,12 @@ $( document ).ready(function() {
 
 				comClone.find($("#reply-btn00").attr("href", '/post/'+ post_id + '/comment/'+data.pk));
 	              if (data.fields.reply_count == 0) {
-	                	comClone.find($("#reply-btn00").text('Reply'))
+	                	comClone.find($("#reply-btn00").text('0 '));
+	                	comClone.find($("#reply-btn00").append('<small><i class="fa fa-solid fa-comment"></i></small>'));
 	              }
 	              else {
-	              	comClone.find($("#reply-btn00").text(data.fields.reply_count + ' Replies'))
+	              	comClone.find($("#reply-btn00").text(data.fields.reply_count + ' '));
+	              	comClone.find($("#reply-btn00").append('<small><i class="fa fa-solid fa-comment"></i></small>'));
 	              };
 				comClone.find($("#reply-btn00").attr("id", 'reply-btn' + data.pk));
 

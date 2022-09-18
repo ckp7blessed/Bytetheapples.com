@@ -1,13 +1,14 @@
 {% extends 'blog/base.html' %}
 
-<!DOCTYPE html>
+<!-- HTML FOR USERNAME SEARCH RESULTS -->
 
-<body>
 {% block content %}
-	<h1>Search Results</h1>
+
+	<h1>Search Results for: '{{ query }}'</h1>
 	{% for user in object_list %}
 	<article class="media content-section">
-		<img class="rounded-circle article-img" src="{{ user.profile.image.url }}">
+		<a class="mr-2" href="{% url 'user-posts' user.username %}">
+		<img class="rounded-circle article-img" src="{{ user.profile.image.url }}"></a>
 		<div class="media-body">
 		<div class="article-metadata">
 		<a class="mr-2" href="{% url 'user-posts' user.username %}">{{ user.username }}</a>
@@ -21,4 +22,4 @@
 {% block news_content %}
 {% endblock %}
 {% endblock content %}
-</body>
+

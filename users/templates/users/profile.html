@@ -3,6 +3,7 @@
 {% load crispy_forms_tags %}
 {% load custom_tags %}
 
+<!-- HTML FOR THE LOGGED IN USER'S PROFILE PAGE -->
 
 {% block content %}
 
@@ -165,55 +166,7 @@
 
 </div>
 
-{% for post in posts %}
-	<article class="media content-section shadow">
-		<a class="mr-2" href="{% url 'user-posts' post.author.username %}">
-			<img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}"></a>
-		<div class="media-body">
-
-		{% include 'blog/posts_main.html' %}
-		
-		{% if request.user.is_authenticated %}
-		<br>
-		<form action="{% url 'comment-post-view' %}" method="POST" class="com-form" id="{{ post.id }}">
-			{% csrf_token %}
-			<input type="hidden" name="post_id" value="{{ post.id }}">
-			{{ c_form|crispy }}
-			<button type="submit" class="button btn-sm mt-n2 com-btn" id="{{ post.pk }}" name="submit_c_form" style="float:right;">
-				Comment 
-			</button>
-		</form>
-		{% else %}
-		<a href="{% url 'login' %}" class="button btn-sm text-decoration-none mt-n2" style="float:right;">Comment</a>
-		{% endif %}
-	
-		{% if post.comment_list %}
-		<button class="show-replies-button button-empty btn-sm py-0 mx-auto d-block btn-block">Show replies</button>
-    	<div class="comment-box" id="comment-box-{{ post.id }}">
-
-			{% if post.comment_list|length|gtoe:7 %}
-			<a href="{% url 'latest-comment-post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0" style="font-size: 0.8em;">Sort By Latest Comments</a>
-			<h5 class="text-center"><small class="font-weight-bold text-center" style="font-size: 0.8em;">--showing top comments--</small></h5>
-			{% endif %}
-
-			<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">
-			{% include 'blog/comments.html' %}
-
-			</div>
-				{% if post.comment_list|length|gtoe:7 %}
-				<br>
-				<a href="{% url 'post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0 mx-auto d-block" style="font-size: 0.8em;">Show more replies</a> 
-				{% endif %}
-		</div>
-		{% else %}
-		<br><br>
-		<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">
-		{% include 'blog/comments.html' %}
-		</div>
-		{% endif %}
-		</div>
-	</article>
-{% endfor %}
+	{% include 'blog/user_posts_main.html' %}
 
 	{% include 'blog/comment_template.html' %}
 

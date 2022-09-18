@@ -3,6 +3,8 @@
 {% load crispy_forms_tags %}
 {% load custom_tags %}
 
+<!-- HTML FOR SHOWING THE LATEST COMMENTS IN POST DETAIL -->
+
 {% block content %}
 	<article class="media content-section" id='{{ post.id }}'>
 		{% if post.author == request.user %}
@@ -44,8 +46,8 @@
 		</div>
 </div>
 </article>
-<!-- <div class="infinite-scroll" data-url="{% url 'load-more-comments-detail-bylatest' %}" style="display: none;"></div> -->
-		{% include 'blog/comment_template.html' %}
+
+	{% include 'blog/comment_template.html' %}
 
 {% endblock content %}
 

@@ -103,7 +103,8 @@ $( document ).ready(function() {
 	            comClone.find(".com-like").append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
 
 
-	            comClone.find(".com-modal").text("0 Likes");
+	            comClone.find(".com-modal").text("0 ");
+	            comClone.find(".com-modal").append('<small><i class="fa fa-heart fa-heart-blue"></i></small>');
 	            comClone.find(".com-modal").attr("id", "clc" + response.comment.id);
 	            comClone.find(".com-modal").attr("class", "btn btn-outline-dark btn-sm py-0 com-modal like-count" + response.comment.id);
 	            comClone.find(".com-modal").attr("data-target", "#commentlikesModalLong-" + response.comment.id);
@@ -114,6 +115,9 @@ $( document ).ready(function() {
 
 	            comClone.find(".list-unstyled").remove();
 
+	            comClone.find($("#reply-btn00").attr("href", '/post/'+ post_id + '/comment/'+response.comment.id));
+	            comClone.find($("#reply-btn00").text("0 "));
+	            comClone.find($("#reply-btn00").append('<small><i class="fa fa-solid fa-comment"></i></small>'));
 
 	            comClone.find(".delete-btn").attr("id", response.comment.id);
 	            comClone.find(".delete-btn").attr("data-target", "#commentdeleteModal-"+response.comment.id);
@@ -128,7 +132,8 @@ $( document ).ready(function() {
 
 
 	            res = trimCount + 1;
-	            $(`.comment-count-small${post_id}`).text(res + ' ' + 'Comments');
+	            $(`.comment-count-small${post_id}`).text(res + ' ');
+	            // $(`.comment-count-small${post_id}`).append('<small><i class="fa fa-solid fa-comment"></i></small>');
 	            console.log(res);
 
 				if (display===false) {
@@ -207,7 +212,8 @@ $( document ).ready(function() {
 				console.log(response.username)
 				console.log(response.image)
 
-				$(`.like-count${post_id}`).text(res + ' ' + 'Likes');
+				$(`.like-count${post_id}`).text(res +' ');
+				$(`.like-count${post_id}`).append('<i class="fa fa-heart fa-heart-blue"></i>');
 			},
 			error: function(response) {
 				console.log('error', response);
@@ -278,7 +284,8 @@ $( document ).ready(function() {
 
 				}
 
-				$(`.like-count${comment_id}`).text(res + ' ' + 'Likes');
+				$(`.like-count${comment_id}`).text(res + ' ');
+				$(`.like-count${comment_id}`).append('<small><i class="fa fa-heart fa-heart-blue"></i></small>');
 			},
 			error: function(response) {
 				console.log('error', response);
@@ -310,7 +317,8 @@ $( document ).ready(function() {
 
                 $(`.com-list${response.post_id}`).find('#clist'+response.comment_id).remove();
 
-                $(`.comment-count-small${response.post_id}`).text(response.num_comments + ' ' + 'Comments');
+                $(`.comment-count-small${response.post_id}`).text(response.num_comments + ' ');
+
             },
 			error: function(response) {
 				console.log('error', response);
@@ -342,7 +350,7 @@ $( document ).ready(function() {
 
                 $(`.com-list${response.post_id}`).find('#clist'+response.comment_id).remove();
 
-                $(`.comment-count-small${response.post_id}`).text(response.num_comments + ' ' + 'Comments');
+                $(`.comment-count-small${response.post_id}`).text(response.num_comments + ' ');
             },
 			error: function(response) {
 				console.log('error', response);

@@ -1,72 +1,31 @@
+<!-- MAIN HTML FOR EACH POST -->
+
 {% load static %}
 {% load custom_tags %}
 
-		<div class="article-metadata">
-		<a class="mr-2 text-dark profile-link" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
-		<small class="text-muted">
-			{% if post.date_posted|timesince|upto == "show_date" %}
-			{{ post.date_posted|date:"F d, Y" }}
-			{% elif post.date_posted|timesince|upto == "Just Now" %}
-			{{ post.date_posted|timesince|upto }}
-			{% else %}
-			{{ post.date_posted|timesince|upto }} ago
-			{% endif %}
-		</small>
-		{% if post.category == None %}
-		<small style="float:right;">Uncategorized</small>
+<div class="article-metadata">
+	<a class="mr-2 text-dark profile-link" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+	<small class="text-muted">
+		{% if post.date_posted|timesince|upto == "show_date" %}
+		{{ post.date_posted|date:"F d, Y" }}
+		{% elif post.date_posted|timesince|upto == "Just Now" %}
+		{{ post.date_posted|timesince|upto }}
 		{% else %}
-		<small style="float:right;"><a class="main-link" href="{% url 'cat-results' post.category %}">#{{ post.category }}</a></small>
+		{{ post.date_posted|timesince|upto }} ago
 		{% endif %}
-		</div>
+	</small>
+	{% if post.category == None %}
+	<small style="float:right;">Uncategorized</small>
+	{% else %}
+	<small style="float:right;"><a class="main-link" href="{% url 'cat-results' post.category %}">#{{ post.category }}</a></small>
+	{% endif %}
+</div>
 		
-		<h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a>
-		</h2>
-		<p class="article-content">{{ post.content|urlizetrunc:26 }}</p>
+	<h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a>
+	</h2>
+	<p class="article-content">{{ post.content|urlizetrunc:26 }}</p>
 
-
-		<!--Carousel Wrapper-->
-		<div id="carousel-1z-{{ post.id }}" class="carousel slide carousel-fade carousel-dark" data-interval="false">
-		  <!--Indicators-->
-		  <ol class="carousel-indicators">
-			{% for postimage in post.postimage_set.all %}
-			<li data-target="#carousel-1z" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.counter0 == 0 %} active {% endif %}"></li>
-			{% endfor %}
-		  </ol>
-		  <!--/.Indicators-->
-		  <!--Slides-->
-		  <div class="carousel-inner" role="listbox">
-			<!--First slide-->
-			{% for postimage in post.postimage_set.all %}
-			<div class="carousel-item {% if forloop.counter0 == 0 %} active {% endif %}">
-			  <img data-enlargeable class="d-block w-100 img-fluid " src="{{ postimage.image.url }}"
-				alt="First slide">
-			</div>
-			{% endfor %}
-			<!--/First slide-->
-		  </div>
-		  <!--/.Slides-->
-		  <!--Controls-->
-		  <a class="carousel-control-prev" href="#carousel-1z-{{ post.id }}" role="button" data-slide="prev">
-			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
-			<span class="sr-only">Previous</span>
-		  </a>
-		  <a class="carousel-control-next" href="#carousel-1z-{{ post.id }}" role="button" data-slide="next">
-			<span class="carousel-control-next-icon" aria-hidden="true"></span>
-			<span class="sr-only">Next</span>
-		  </a>
-		  <!--/.Controls-->
-		</div>
-		<!--/.Carousel Wrapper-->
-
-<!-- 		 if post.image_url 
-		<img class="center-block img-fluid" src={{ post.image_url >
-		 endif  -->
-	<br>
-		{% if post.get_youtube_urls %}
-			{% for url in post.get_youtube_urls %}
-				<iframe width="100%" height="315" src="https://www.youtube.com/embed/{{ url }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-			{% endfor %} 
-		{% endif %}
+	{% include 'blog/posts_sub.html' %}
 
 	<br><br><hr>
 	<div class="btn-group ll-btn">
@@ -86,7 +45,7 @@
 
 			<!-- Button trigger modal -->
 			<button type="button" class="btn btn-outline-dark btn-sm like-count{{ post.id }}" data-toggle="modal" data-target="#postlikesModalLong-{{ post.id }}" style="font-size: 0.8em;">
-			  {{ post.num_likes }} Likes
+			  {{ post.num_likes }} <i class="fa fa-heart fa-heart-blue"></i>
 			</button>
 
 			<!-- Modal -->
@@ -117,7 +76,7 @@
 				</div>
 			  </div>
 			</div>
-		<a class="btn btn-outline-dark btn-sm nc-btn comment-count{{ post.id }}" href="{% url 'post-detail' post.id %}"><small class="comment-count-small{{ post.id }}">{{ post.num_comments }} Comments</small></a>
+		<a class="btn btn-outline-dark btn-sm nc-btn comment-count{{ post.id }}" href="{% url 'post-detail' post.id %}" style="font-size: 0.8em;"><span class="comment-count-small{{ post.id }}">{{ post.num_comments }} </span><i class="fa fa-solid fa-comment"></i></a>
 
 		</form>
 	</div>

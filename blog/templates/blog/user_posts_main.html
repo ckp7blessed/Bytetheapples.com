@@ -1,13 +1,12 @@
-{% extends 'blog/base.html' %}
+<!-- Main html for a user's post list view
+used in user_posts.html, user_posts_bycategory.html, profile.html -->
+
+
 {% load static %}
 {% load crispy_forms_tags %}
 {% load custom_tags %}
 
-<!-- HTML FOR HOME PAGE -->
-
-{% block content %}
-	
-	{% for post in posts %}
+{% for post in posts %}
 	<article class="media content-section shadow">
 		<a class="mr-2" href="{% url 'user-posts' post.author.username %}">
 			<img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}"></a>
@@ -21,12 +20,12 @@
 			{% csrf_token %}
 			<input type="hidden" name="post_id" value="{{ post.id }}">
 			{{ c_form|crispy }}
-			<button type="submit" class="button btn-sm mt-n2 com-btn mx-auto d-block" id="{{ post.pk }}" name="submit_c_form" style="float:right;">
+			<button type="submit" class="button btn-sm mt-n2 com-btn" id="{{ post.pk }}" name="submit_c_form" style="float:right;">
 				Comment 
 			</button>
 		</form>
 		{% else %}
-		<a href="{% url 'login' %}" class="btn btn-sm button mt-n2" style="float:right;">Comment</a>
+		<a href="{% url 'login' %}" class="button btn-sm text-decoration-none mt-n2" style="float:right;">Comment</a>
 		{% endif %}
 		
 		{% if post.comment_list %}
@@ -35,38 +34,27 @@
 
 			{% if post.comment_list|length|gtoe:7 %}
 			<a href="{% url 'latest-comment-post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0" style="font-size: 0.8em;">Sort By Latest Comments</a>
-			<h6 class="text-center">showing top comments</h6>
+			<h5 class="text-center"><small class="font-weight-bold text-center" style="font-size: 0.8em;">--showing top comments--</small></h5>
 			{% endif %}
 
 			<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">
 				{% include 'blog/comments.html' %}
 			</div>
 
-			{% if post.comment_list|length|gtoe:7 %}
-			<br>
-			<a href="{% url 'post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0 mx-auto d-block" style="font-size: 0.8em;">Show more replies</a> 
-			{% endif %}
+				{% if post.comment_list|length|gtoe:7 %}
+				<br>
+				<a href="{% url 'post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0 mx-auto d-block" style="font-size: 0.8em;">Show more replies</a> 
+				{% endif %}
 		</div>
 		{% else %}
 		<br><br>
 		<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">
+			{% include 'blog/comments.html' %}
 		</div>
 		{% endif %}
 
 		</div>
 	</article>
 
-	{% endfor %}
+{% endfor %}
 
-	{% include 'blog/comment_template.html' %}
-
-	{% include 'blog/pagination.html' %}
-
-{% endblock content %}
-
-{% block scripts %} 
-<script src="{% static 'blog/base.js' %}"></script>
-<script src="{% static 'blog/main_listview.js' %}"></script>
-{% endblock scripts %}
-
- 
