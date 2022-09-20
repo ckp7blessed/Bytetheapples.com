@@ -1,6 +1,5 @@
 from django.contrib import admin
 from . models import Post, PostImage, Category, Like, Comment, CommentLike, Notification, ThreadModel
-# Register your models here.
 
 class ImageInline(admin.TabularInline):
 	model = PostImage
