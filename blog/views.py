@@ -29,12 +29,7 @@ import json
 import requests
 
 
-def home(request):
-	context = {
-		'posts': Post.objects.all()
-	}
-	return render(request, 'blog/home.html', context)
-
+# HOME PAGE
 class PostListView(ListView):
 	model = Post
 	template_name = 'blog/home.html'
@@ -59,7 +54,6 @@ class PostListView(ListView):
 				Prefetch(
 					"comment_set",
 					# Specify the queryset to annotate and order by Count("liked")
-					#queryset = Post.objects.annotate(like_count=Count('liked')).order_by('-like_count')
 					queryset=Comment.objects.annotate(
 						like_count=Count("liked")
 					).order_by("-like_count"),
@@ -69,6 +63,7 @@ class PostListView(ListView):
 			)
 		)
 
+# USER PROFILE PAGE
 class UserPostListView(ListView):
 	model = Post
 	template_name = 'blog/user_posts.html'
@@ -125,6 +120,7 @@ class UserPostListView(ListView):
 		context['c_form'] = c_form
 		return context 
 
+# USER PROFILE PAGE SORTED BY CATEGORY
 class UserPostByCatListView(ListView):
 	model = Post
 	template_name = 'blog/user_posts_bycategory.html'
@@ -134,11 +130,10 @@ class UserPostByCatListView(ListView):
 	def get_queryset(self):
 		cat = get_object_or_404(Category, category_name=self.kwargs.get('category'))
 		user = get_object_or_404(User, username=self.kwargs.get('username'))
-		# return user.post_set.all().filter(category=cat).all().order_by('-date_posted')
 		return (
 			super()
 			.get_queryset()
-			# Filter by author/user
+			# Filter by author/user & category
 			.filter(author__username=self.kwargs.get('username')).filter(category=cat).order_by('-date_posted')
 			# Prefetch comment using a Prefetch object gives you more control
 			.prefetch_related(
@@ -155,7 +150,6 @@ class UserPostByCatListView(ListView):
 		)
 
 	def get_context_data(self, *args, **kwargs):
-		# context = super(UserPostListView, self).get_context_data(*args, **kwargs)
 		context = super().get_context_data(*args, **kwargs)
 		c_form = CommentModelForm(self.request.POST or None)
 		user = get_object_or_404(User, username=self.kwargs.get('username'))
@@ -203,7 +197,6 @@ class PostDetailView(DetailView):
 				Prefetch(
 					"comment_set",
 					# Specify the queryset to annotate and order by Count("liked")
-					#queryset = Post.objects.annotate(like_count=Count('liked')).order_by('-like_count')
 					queryset=Comment.objects.filter(parent=None).annotate(
 						like_count=Count("liked")
 					).order_by("-like_count"),
@@ -213,6 +206,36 @@ class PostDetailView(DetailView):
 			)
 		)
 
+#POST DETAIL VIEW SHOWING LATEST COMMENTS
+class LatestCommentsPostDetailView(DetailView):
+	model = Post 
+	template_name = 'blog/latest_comments_post_detail.html'
+
+	def get_queryset(self):
+		return (
+			super()
+			.get_queryset()
+			# Prefetch comment using a Prefetch object gives you more control
+			.prefetch_related(
+				Prefetch(
+					"comment_set",
+					# Specify the queryset to annotate and order by Count("liked")
+					queryset=Comment.objects.filter(parent=None).order_by("-created"),
+					# Prefetch into post.comment_list
+					to_attr="comment_list",
+				)
+			)
+		)
+
+	def get_context_data(self, *args, **kwargs):
+		cats_menu = Category.objects.all()
+		context = super().get_context_data(*args, **kwargs)
+		c_form = CommentModelForm(self.request.POST or None)
+		context['cats_menu'] = cats_menu
+		context['c_form'] = c_form
+		return context
+
+# POST DETAIL VIEW WITH PARENT COMMENT SHOWING CHILDREN REPLIES
 def post_comment_detail_view(request, post_pk, comment_pk, *args, **kwargs):
 	post = get_object_or_404(Post, pk=post_pk)
 	comment = get_object_or_404(Comment, pk=comment_pk)
@@ -227,33 +250,145 @@ def post_comment_detail_view(request, post_pk, comment_pk, *args, **kwargs):
 	}
 	return render(request, 'blog/post_comment_detail.html', context)
 
+#INFINITE SCROLL LOADING COMMENTS SORTED BY NUMBER OF LIKES
+#FOR PostDetailView()
+def load_more_comments_detail(request):
+	offset = int(request.POST['offset'])
+	# offset = {% for comment in post.comment_list|slice:"0:7" %} - comments.html
+	limit = 5 # sending 5 comments via ajax
+	post_id = request.POST.get('post_id')
+	post = Post.objects.get(id=post_id)
+	
+	comments_to_sort = Comment.objects.filter(post=post).all().filter(parent=None)
+	comments = sorted(comments_to_sort, key=lambda comment: comment.num_likes(), reverse=True)
+	comments = comments[offset:offset+limit]
 
-class CommentReplyView(LoginRequiredMixin, View):
-	def post(self, request, post_pk, comment_pk, *args, **kwargs):
-		post = Post.objects.get(pk=post_pk)
-		parent_comment = Comment.objects.get(pk=comment_pk)
+	# to check if the logged in user is in the list of users that liked a reply
+	# logic performed via Jquery
+	if request.user.is_anonymous:
+		profile_id = None
+	else:
 		profile = Profile.objects.get(user=request.user)
-		c_form = CommentModelForm(request.POST)
+		profile_id = profile.id
+	
+	# adding extra fields to AJAX response
+	comments_json = serializers.serialize('json', comments)
+	comments_dict = json.loads(comments_json)
 
-		if c_form.is_valid():
-			instance = c_form.save(commit=False)
-			instance.user = profile
-			instance.username = profile.user.username
-			instance.post = post
-			instance.parent = parent_comment
-			instance.save()
-			notification = Notification.objects.create(notification_type=2, from_user=request.user, 
-				to_user=parent_comment.user.user, comment=parent_comment)
-			print(notification)
-			print(instance, instance.user, instance.body, instance.username)
-		return redirect('post-comment-detail', post_pk=post_pk, comment_pk=comment_pk)	
-		#return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
+	for comment in comments_dict:
+
+		liked_users_profile_list = []
+		liked_users_profile_pic_list = []
+
+		userid = comment['fields']['user']
+		user_profile = Profile.objects.get(id=userid)
+		comment['fields']['username'] = user_profile.user.username
+		comment['fields']['user_pp'] = user_profile.image.url
+
+		c_create = parse_datetime(comment['fields']['created'])
+		dated = date(c_create, "F d, Y")
+		t_since = timesince(c_create)
+
+		up_to = custom_tags.upto(t_since)
+
+		if up_to == "show_date":
+			created = dated
+		elif up_to == "Just Now":
+			created = up_to
+		else:
+			created = f'{up_to} ago'
+
+		comment['fields']['created_custom'] = created
+
+		comment_id = Comment.objects.get(pk=comment['pk'])
+		comment['fields']['reply_count'] = comment_id.children.count()
+
+		for liked_users_id in comment['fields']['liked']:
+			liked_users_profile = Profile.objects.get(id=liked_users_id)
+			liked_users_profile_list.append(liked_users_profile.user.username)
+			liked_users_profile_pic_list.append(liked_users_profile.image.url)
+			comment['fields']['liked_username'] = liked_users_profile_list
+			comment['fields']['liked_user_pp'] = liked_users_profile_pic_list
+
+	comments_json = json.dumps(comments_dict)
+
+	data = {
+		'comment': comments_json,
+		'user': profile_id,
+	}
+
+	return JsonResponse(data, safe=False)
 
 
-#INFINITE SCROLL LOADING REPLIES BY LATEST
+#INFINITE SCROLL LOADING COMMENTS BY LATEST
+#FOR LatestCommentsPostDetailView()
+def load_more_comments_detail_bylatest(request):
+	offset = int(request.POST['offset'])
+	# offset = {% for comment in post.comment_list|slice:"0:7" %} - comments.html
+	limit = 5 # sending 5 comments at a time
+	post_id = request.POST.get('post_id')
+	post = Post.objects.get(id=post_id)
+	
+	comments = Comment.objects.filter(post=post).all().filter(parent=None).order_by('-created')
+	comments = comments[offset:offset+limit]
+
+	# to check if the logged in user is in the list of users that liked a reply
+	# logic performed via Jquery
+	if request.user.is_anonymous:
+		profile_id = None
+	else:
+		profile = Profile.objects.get(user=request.user)
+		profile_id = profile.id
+
+	# adding extra fields to AJAX response
+	comments_json = serializers.serialize('json', comments)
+	comments_dict = json.loads(comments_json)
+
+	for comment in comments_dict:
+		liked_users_profile_list = []
+		liked_users_profile_pic_list = []
+
+		userid = comment['fields']['user']
+		user_profile = Profile.objects.get(id=userid)
+		comment['fields']['username'] = user_profile.user.username
+		comment['fields']['user_pp'] = user_profile.image.url
+
+		c_create = parse_datetime(comment['fields']['created'])
+		dated = date(c_create, "F d, Y")
+		t_since = timesince(c_create)
+		up_to = custom_tags.upto(t_since)
+		if up_to == "show_date":
+			created = dated
+		elif up_to == "Just Now":
+			created = up_to
+		else:
+			created = f'{up_to} ago'
+		comment['fields']['created_custom'] = created
+
+		comment_id = Comment.objects.get(pk=comment['pk'])
+		comment['fields']['reply_count'] = comment_id.children.count()
+
+		for liked_users_id in comment['fields']['liked']:
+
+			liked_users_profile = Profile.objects.get(id=liked_users_id)
+			liked_users_profile_list.append(liked_users_profile.user.username)
+			liked_users_profile_pic_list.append(liked_users_profile.image.url)
+			comment['fields']['liked_username'] = liked_users_profile_list
+			comment['fields']['liked_user_pp'] = liked_users_profile_pic_list
+
+
+	comments_json = json.dumps(comments_dict)
+
+	data = {
+		'comment': comments_json,
+		'user': profile_id,
+	}
+	return JsonResponse(data, safe=False)
+
+#INFINITE SCROLL LOADING REPLIES TO A COMMENT BY LATEST
+#FOR post_comment_detail_view()
 def load_more_replies_detail_bylatest(request):
 	offset = int(request.POST['offset'])
-	print(offset)
 	# offset = {% for comment in post.comment_list|slice:"0:7" %} - comments.html
 	limit = 5 # sending 5 comments at a time
 	post_id = request.POST.get('post_id')
@@ -263,218 +398,16 @@ def load_more_replies_detail_bylatest(request):
 	comment_parent = Comment.objects.get(pk=comment_parent_id)
 	comments = comment_parent.children
 	comments = comments[offset:offset+limit]
-	
-	# comments = Comment.objects.filter(post=post).all().filter(parent=None).order_by('-created')
-	# comments = comments[offset:offset+limit]
-	print(comments)
 
+	# to check if the logged in user is in the list of users that liked a reply
+	# logic performed via Jquery
 	if request.user.is_anonymous:
 		profile_id = None
 	else:
 		profile = Profile.objects.get(user=request.user)
 		profile_id = profile.id
 
-	comments_json = serializers.serialize('json', comments)
-	print('--------comment_json (serialized)-------')
-	print(comments_json)
-	print('/n')
-	comments_dict = json.loads(comments_json)
-	print('--------comments_dict (json.loads)-------')
-	print(comments_dict)
-	print('/n')
-
-	for comment in comments_dict:
-		liked_users_profile_list = []
-		liked_users_profile_pic_list = []
-
-		userid = comment['fields']['user']
-		user_profile = Profile.objects.get(id=userid)
-		comment['fields']['username'] = user_profile.user.username
-		comment['fields']['user_pp'] = user_profile.image.url
-
-		c_create = parse_datetime(comment['fields']['created'])
-		dated = date(c_create, "F d, Y")
-		t_since = timesince(c_create)
-		up_to = custom_tags.upto(t_since)
-		if up_to == "show_date":
-			created = dated
-		elif up_to == "Just Now":
-			created = up_to
-		else:
-			created = f'{up_to} ago'
-		comment['fields']['created_custom'] = created
-
-		# comment_id = Comment.objects.get(pk=comment['pk'])
-		# comment['fields']['reply_count'] = comment_id.children.count()
-
-		for liked_users_id in comment['fields']['liked']:
-
-			liked_users_profile = Profile.objects.get(id=liked_users_id)
-			liked_users_profile_list.append(liked_users_profile.user.username)
-			liked_users_profile_pic_list.append(liked_users_profile.image.url)
-			comment['fields']['liked_username'] = liked_users_profile_list
-			comment['fields']['liked_user_pp'] = liked_users_profile_pic_list
-
-
-	comments_json = json.dumps(comments_dict)
-	print('--------comments_json (json.dumps)-------')
-	print(comments_json)
-	print('/n')
-
-	data = {
-		'comment': comments_json,
-		'user': profile_id,
-	}
-	print('--------------------------!!!!!!!!-------')
-	print(data)
-	return JsonResponse(data, safe=False)
-
-
-# @login_required
-# def comment_post(request):
-# 	profile = Profile.objects.get(user=request.user)
-# 	c_form = CommentModelForm()
-
-# 	if request.method == "POST":
-# 		c_form = CommentModelForm(request.POST)
-# 		if c_form.is_valid():
-# 			instance = c_form.save(commit=False)
-# 			instance.user = profile
-# 			instance.username = profile.user.username
-# 			instance.post = Post.objects.get(id=request.POST.get('post_id'))
-# 			instance.save()
-# 			print(instance, instance.user, instance.body, instance.username)
-
-# 			data = {
-# 				'comment': model_to_dict(instance),
-# 				'username': profile.user.username,
-# 				'image': profile.image.url,
-# 				'user_url_start': "/user/",
-# 				'comment_like_url': "post/comment/like/",
-# 				'delete_url_start': "post/commenttemp/",
-# 				'delete_url_end': "/delete/",
-
-# 			}
-# 			return JsonResponse(data, status=200)
-# 			# return JsonResponse({'comment': model_to_dict(instance)}, instance.username, status=200)
-# 		return redirect('blog-home')
-
-
-
-#INFINITE SCROLL LOADING COMMENTS 
-def load_more_comments_detail(request):
-	offset = int(request.POST['offset'])
-	# offset = {% for comment in post.comment_list|slice:"0:7" %} - comments.html
-	print('\n'*3)
-	print(f'offset{offset}')
-	limit = 5 # sending 5 comments via ajax
-	post_id = request.POST.get('post_id')
-	post = Post.objects.get(id=post_id)
-	
-	comments_to_sort = Comment.objects.filter(post=post).all().filter(parent=None)
-	comments = sorted(comments_to_sort, key=lambda comment: comment.num_likes(), reverse=True )
-
-	# total = Comment.objects.filter(post=post).all().count()
-	# for comment in comments:
-	# 	print(f'comments list - {comment.id}ID and {comment.body} by {comment.user}')
-	# print(f'----------{total} COMMENTS ---------')
-	# print(f'offset range=[{offset}:{offset+limit}]')
-	comments = comments[offset:offset+limit]
-
-	print('--------------------------')
-	print('\n'*2)
-	print(f'OFFSET COMMENTS --- {comments}')
-
-	if request.user.is_anonymous:
-		profile_id = None
-	else:
-		profile = Profile.objects.get(user=request.user)
-		profile_id = profile.id
-	
-	comments_json = serializers.serialize('json', comments)
-	print('------------------------serialize--------------')
-	print(f'comments before serialized.......{comments}')
-	print('\n'*2)
-	print(f'comments_json serialized......{comments_json}')
-
-	comments_dict = json.loads(comments_json)
-	print('------------------------comments dict--------------')
-	print(comments_dict)
-
-	for comment in comments_dict:
-
-		liked_users_profile_list = []
-		liked_users_profile_pic_list = []
-
-		userid = comment['fields']['user']
-		user_profile = Profile.objects.get(id=userid)
-		print('\n'*2)
-		print('userid')
-		print(user_profile.user.username)
-		comment['fields']['username'] = user_profile.user.username
-		print(user_profile.image.url)
-		comment['fields']['user_pp'] = user_profile.image.url
-
-		c_create = parse_datetime(comment['fields']['created'])
-		dated = date(c_create, "F d, Y")
-		print(dated)
-		t_since = timesince(c_create)
-		print(f't_since{t_since}')
-
-		up_to = custom_tags.upto(t_since)
-		print(f'up_to{up_to}')
-
-		if up_to == "show_date":
-			created = dated
-		elif up_to == "Just Now":
-			created = up_to
-		else:
-			created = f'{up_to} ago'
-
-		comment['fields']['created_custom'] = created
-
-		comment_id = Comment.objects.get(pk=comment['pk'])
-		comment['fields']['reply_count'] = comment_id.children.count()
-
-		for liked_users_id in comment['fields']['liked']:
-			liked_users_profile = Profile.objects.get(id=liked_users_id)
-			liked_users_profile_list.append(liked_users_profile.user.username)
-			liked_users_profile_pic_list.append(liked_users_profile.image.url)
-			comment['fields']['liked_username'] = liked_users_profile_list
-			comment['fields']['liked_user_pp'] = liked_users_profile_pic_list
-
-	comments_json = json.dumps(comments_dict)
-	print(comments_json)
-
-	data = {
-		'comment': comments_json,
-		'user': profile_id,
-		#'nomore': nomore
-	}
-	print('--------------------------!!!!!!!!-------')
-	print(data)
-	return JsonResponse(data, safe=False)
-
-
-#INFINITE SCROLL LOADING COMMENTS BY LATEST
-def load_more_comments_detail_bylatest(request):
-	offset = int(request.POST['offset'])
-	print(offset)
-	# offset = {% for comment in post.comment_list|slice:"0:7" %} - comments.html
-	limit = 5 # sending 5 comments at a time
-	post_id = request.POST.get('post_id')
-	post = Post.objects.get(id=post_id)
-	
-	comments = Comment.objects.filter(post=post).all().filter(parent=None).order_by('-created')
-	comments = comments[offset:offset+limit]
-	print(comments)
-
-	if request.user.is_anonymous:
-		profile_id = None
-	else:
-		profile = Profile.objects.get(user=request.user)
-		profile_id = profile.id
-
+	# adding extra fields to AJAX response
 	comments_json = serializers.serialize('json', comments)
 	comments_dict = json.loads(comments_json)
 
@@ -499,9 +432,6 @@ def load_more_comments_detail_bylatest(request):
 			created = f'{up_to} ago'
 		comment['fields']['created_custom'] = created
 
-		comment_id = Comment.objects.get(pk=comment['pk'])
-		comment['fields']['reply_count'] = comment_id.children.count()
-
 		for liked_users_id in comment['fields']['liked']:
 
 			liked_users_profile = Profile.objects.get(id=liked_users_id)
@@ -517,35 +447,54 @@ def load_more_comments_detail_bylatest(request):
 		'comment': comments_json,
 		'user': profile_id,
 	}
+
 	return JsonResponse(data, safe=False)
 
-class LatestCommentsPostDetailView(DetailView):
+# SEARCH POSTS BY KEYWORD
+class SearchResultsView(ListView):
 	model = Post 
-	template_name = 'blog/latest_comments_post_detail.html'
+	template_name = 'blog/search_results.html'
+	paginate_by = 7
 
 	def get_queryset(self):
-		return (
-			super()
-			.get_queryset()
-			# Prefetch comment using a Prefetch object gives you more control
-			.prefetch_related(
-				Prefetch(
-					"comment_set",
-					# Specify the queryset to annotate and order by Count("liked")
-					#queryset = Post.objects.annotate(like_count=Count('liked')).order_by('-like_count')
-					queryset=Comment.objects.filter(parent=None).order_by("-created"),
-					# Prefetch into post.comment_list
-					to_attr="comment_list",
-				)
-			)
-		)
+		query = self.request.GET.get("q")
+		posts = Post.objects.filter(Q(content__icontains=query) | Q(title__icontains=query)).order_by('-date_posted')
+		return posts
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['query'] = self.request.GET.get('q')
+		return context
+
+# SEARCH BY USERNAME
+class UserResultsView(ListView):
+	model = User 
+	template_name = 'blog/user_results.html'
+
+	def get_queryset(self):
+		query = self.request.GET.get("q1")
+		object_list = User.objects.filter(username__icontains=query)
+		return object_list
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['query'] = self.request.GET.get('q1')
+		return context
+
+# SORT POSTS BY CATEGORY
+class CategoryResultsView(ListView):
+	model = Post
+	template_name = 'blog/cat_posts.html'
+	context_object_name = 'posts'
+	paginate_by = 7
+
+	def get_queryset(self):
+		cats = get_object_or_404(Category, category_name=self.kwargs.get('category'))
+		return Post.objects.filter(category=cats).order_by('-date_posted')
 
 	def get_context_data(self, *args, **kwargs):
-		cats_menu = Category.objects.all()
-		context = super().get_context_data(*args, **kwargs)
-		c_form = CommentModelForm(self.request.POST or None)
-		context['cats_menu'] = cats_menu
-		context['c_form'] = c_form
+		context = super(CategoryResultsView, self).get_context_data(*args, **kwargs)
+		context['cats_menu'] = Category.objects.all()
 		return context
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -565,7 +514,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 			if image_formset.is_valid():
 				image_formset.instance = self.object 
-				postform = ImageFormSet(self.request.POST) #can delete?
+				postform = ImageFormSet(self.request.POST)
 				imageform = ImageFormSet(self.request.FILES)
 				for img in self.request.FILES.getlist('postimage_set-0-image'):
 					photo = PostImage.objects.create(post=self.object, image=img)
@@ -602,55 +551,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 		messages.success(self.request, 'Your post has been deleted!')
 		return response
 
-class SearchResultsView(ListView):
-	model = Post 
-	template_name = 'blog/search_results.html'
-	paginate_by = 7
-
-	def get_queryset(self):
-		query = self.request.GET.get("q")
-		posts = Post.objects.filter(Q(content__icontains=query) | Q(title__icontains=query)).order_by('-date_posted')
-		return posts
-
-	# def get_queryset(self):
-	# 	query = self.request.GET.get("q")
-	# 	object_list = Post.objects.filter(Q(content__icontains=query) | Q(title__icontains=query)).order_by('-date_posted')
-	# 	return object_list
-
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)
-		context['query'] = self.request.GET.get('q')
-		return context
-
-class UserResultsView(ListView):
-	model = User 
-	template_name = 'blog/user_results.html'
-
-	def get_queryset(self):
-		query = self.request.GET.get("q1")
-		object_list = User.objects.filter(username__icontains=query)
-		return object_list
-
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)
-		context['query'] = self.request.GET.get('q1')
-		return context
-
-class CategoryResultsView(ListView):
-	model = Post
-	template_name = 'blog/cat_posts.html'
-	context_object_name = 'posts'
-	paginate_by = 7
-
-	def get_queryset(self):
-		cats = get_object_or_404(Category, category_name=self.kwargs.get('category'))
-		return Post.objects.filter(category=cats).order_by('-date_posted')
-
-	def get_context_data(self, *args, **kwargs):
-		context = super(CategoryResultsView, self).get_context_data(*args, **kwargs)
-		context['cats_menu'] = Category.objects.all()
-		return context
-
+# LIKE/UNLIKE A POST
 @login_required
 def like_unlike_post(request):
 	user = request.user
@@ -688,97 +589,10 @@ def like_unlike_post(request):
 		return JsonResponse(data, safe=False, status=200)
 	return redirect('blog-home')
 
-@login_required
-def comment_post(request):
-	profile = Profile.objects.get(user=request.user)
-	post = Post.objects.get(id=request.POST.get('post_id'))
-	c_form = CommentModelForm()
-
-	if request.method == "POST":
-		c_form = CommentModelForm(request.POST)
-		if c_form.is_valid():
-			instance = c_form.save(commit=False)
-			instance.user = profile
-			instance.username = profile.user.username
-			instance.post = post
-			instance.save()
-			Notification.objects.create(notification_type=2, from_user=request.user, 
-				to_user=post.author, post=post)
-			print(instance, instance.user, instance.body, instance.username)
-
-			data = {
-				'comment': model_to_dict(instance),
-				'username': profile.user.username,
-				'image': profile.image.url,
-				'user_url_start': "/user/",
-				'comment_like_url': "post/comment/like/",
-				'delete_url_start': "post/commenttemp/",
-				'delete_url_end': "/delete/",
-
-			}
-			return JsonResponse(data, status=200)
-			# return JsonResponse({'comment': model_to_dict(instance)}, instance.username, status=200)
-		return redirect('blog-home')
-
-def del_comment(request, *args, **kwargs):
-	if request.method == 'POST':
-		id = request.POST.get('comment_id')
-		comment_obj = Comment.objects.get(id=id)
-		comment_id = comment_obj.id
-		post_obj = comment_obj.post
-		post_id = post_obj.id
-		if request.user.id == comment_obj.user.user.id:
-			comment_obj.delete()
-			num_comments = post_obj.num_comments()
-
-			data = {
-				'success': '1',
-				'post_id': post_id,
-				'comment_id': comment_id,
-				'num_comments': num_comments,
-				'delete_url_start': "post/comment/",
-				'delete_url_end': "/delete/",
-			}
-		else:
-			return redirect('login')
-		return JsonResponse(data, safe=False)
-	return redirect('blog-home')
-
-def del_parent_comment(request, pk, *args, **kwargs):
-	if request.method == 'POST':
-		comment_obj = get_object_or_404(Comment, pk=pk)
-		comment_id = comment_obj.pk 
-		post_id = comment_obj.post.pk
-		if request.user.id == comment_obj.user.user.id:
-			comment_obj.delete()
-		return redirect('post-detail', pk=post_id)
-	return redirect('blog-home')
-
-def del_com_temp(request, *args, **kwargs):
-	if request.method == 'POST':
-		id = request.POST.get('comment_id')
-		comment_obj = Comment.objects.get(id=id)
-		comment_id = comment_obj.id
-		post_obj = comment_obj.post
-		post_id = post_obj.id
-		if request.user.id == comment_obj.user.user.id:
-			comment_obj.delete()
-			num_comments = post_obj.num_comments()
-
-			data = {
-				'success': '1',
-				'post_id': post_id,
-				'comment_id': comment_id,
-				'num_comments': num_comments
-			}
-		else:
-			return redirect('login')
-		return JsonResponse(data, safe=False)
-	return redirect('blog-home')
-
+# LIKE/UNLIKE A COMMENT
 @login_required
 def like_unlike_comment(request):
-	user = request.user #can delete?
+	user = request.user
 	if request.method == 'POST':
 		comment_id = request.POST.get('comment_id')
 		comment_obj = Comment.objects.get(id=comment_id)
@@ -805,7 +619,6 @@ def like_unlike_comment(request):
 			comment_obj.save()
 			like.save()
 			post.save()
-			print(post)
 
 		data = {
 			'value': like.value,
@@ -817,7 +630,116 @@ def like_unlike_comment(request):
 		return JsonResponse(data, safe=False)
 	return redirect('blog-home')
 
+# COMMENT ON A POST
+@login_required
+def comment_post(request):
+	profile = Profile.objects.get(user=request.user)
+	post = Post.objects.get(id=request.POST.get('post_id'))
+	c_form = CommentModelForm()
 
+	if request.method == "POST":
+		c_form = CommentModelForm(request.POST)
+		if c_form.is_valid():
+			instance = c_form.save(commit=False)
+			instance.user = profile
+			instance.username = profile.user.username
+			instance.post = post
+			instance.save()
+			Notification.objects.create(notification_type=2, from_user=request.user, 
+				to_user=post.author, post=post)
+
+			data = {
+				'comment': model_to_dict(instance),
+				'username': profile.user.username,
+				'image': profile.image.url,
+				'user_url_start': "/user/",
+				'comment_like_url': "post/comment/like/",
+				'delete_url_start': "post/commenttemp/",
+				'delete_url_end': "/delete/",
+
+			}
+			return JsonResponse(data, status=200)
+		return redirect('blog-home')
+
+# REPLY TO A COMMENT
+class CommentReplyView(LoginRequiredMixin, View):
+	def post(self, request, post_pk, comment_pk, *args, **kwargs):
+		post = Post.objects.get(pk=post_pk)
+		parent_comment = Comment.objects.get(pk=comment_pk)
+		profile = Profile.objects.get(user=request.user)
+		c_form = CommentModelForm(request.POST)
+
+		if c_form.is_valid():
+			instance = c_form.save(commit=False)
+			instance.user = profile
+			instance.username = profile.user.username
+			instance.post = post
+			instance.parent = parent_comment
+			instance.save()
+			notification = Notification.objects.create(notification_type=2, from_user=request.user, 
+				to_user=parent_comment.user.user, comment=parent_comment)
+		return redirect('post-comment-detail', post_pk=post_pk, comment_pk=comment_pk)	
+
+# DELETE A COMMENT
+def del_comment(request, *args, **kwargs):
+	if request.method == 'POST':
+		id = request.POST.get('comment_id')
+		comment_obj = Comment.objects.get(id=id)
+		comment_id = comment_obj.id
+		post_obj = comment_obj.post
+		post_id = post_obj.id
+		if request.user.id == comment_obj.user.user.id:
+			comment_obj.delete()
+			num_comments = post_obj.num_comments()
+
+			data = {
+				'success': '1',
+				'post_id': post_id,
+				'comment_id': comment_id,
+				'num_comments': num_comments,
+				'delete_url_start': "post/comment/",
+				'delete_url_end': "/delete/",
+			}
+		else:
+			return redirect('login')
+		return JsonResponse(data, safe=False)
+	return redirect('blog-home')
+
+# DELETE A PARENT COMMENT
+def del_parent_comment(request, pk, *args, **kwargs):
+	if request.method == 'POST':
+		comment_obj = get_object_or_404(Comment, pk=pk)
+		comment_id = comment_obj.pk 
+		post_id = comment_obj.post.pk
+		if request.user.id == comment_obj.user.user.id:
+			comment_obj.delete()
+		return redirect('post-detail', pk=post_id)
+	return redirect('blog-home')
+
+# DELETE A COMMENT LOADED VIA AJAX
+def del_com_temp(request, *args, **kwargs):
+	if request.method == 'POST':
+		id = request.POST.get('comment_id')
+		comment_obj = Comment.objects.get(id=id)
+		comment_id = comment_obj.id
+		post_obj = comment_obj.post
+		post_id = post_obj.id
+		if request.user.id == comment_obj.user.user.id:
+			comment_obj.delete()
+			num_comments = post_obj.num_comments()
+
+			data = {
+				'success': '1',
+				'post_id': post_id,
+				'comment_id': comment_id,
+				'num_comments': num_comments
+			}
+		else:
+			return redirect('login')
+		return JsonResponse(data, safe=False)
+	return redirect('blog-home')
+
+# NOTIFICATION VIEWS
 class PostNotification(View):
 	def get(self, request, notification_pk, post_pk, *args, **kwargs):
 		notification = Notification.objects.get(pk=notification_pk)
@@ -828,6 +750,7 @@ class PostNotification(View):
 
 		return redirect('post-detail', pk=post_pk)
 
+# NOTIFICATION VIEWS
 class CommentReplyNotification(View):
 	def get(self, request, notification_pk, post_pk, comment_pk, *args, **kwargs):
 		notification = Notification.objects.get(pk=notification_pk)
@@ -839,6 +762,7 @@ class CommentReplyNotification(View):
 
 		return redirect('post-comment-detail', post_pk=post_pk, comment_pk=comment_pk)
 
+# NOTIFICATION VIEWS
 class FollowNotification(View):
 	def get(self, request, notification_pk, profile_pk, *args, **kwargs):
 		notification = Notification.objects.get(pk=notification_pk)
@@ -849,6 +773,7 @@ class FollowNotification(View):
 
 		return redirect('user-posts', username=profile.user.username)
 
+# NOTIFICATION VIEWS
 class ThreadNotification(View):
 	def get(self, request, notification_pk, thread_pk, *args, **kwargs):
 		notification = Notification.objects.get(pk=notification_pk)
@@ -872,6 +797,7 @@ class RemoveNotification(View):
 
 		return JsonResponse(data, safe=False)
 
+# FOR MESSAGES
 class ListThread(LoginRequiredMixin, View):
 	def get(self, request, *args, **kwargs):
 		threads = ThreadModel.objects.filter(Q(user=request.user) | Q(receiver=request.user))
@@ -882,6 +808,7 @@ class ListThread(LoginRequiredMixin, View):
 
 		return	render(request, 'blog/inbox.html', context)
 
+# NEW MESSAGE THREAD
 class CreateThread(LoginRequiredMixin, View):
 	def get(self, request, *args, **kwargs):
 		form = ThreadForm()
@@ -916,6 +843,7 @@ class CreateThread(LoginRequiredMixin, View):
 			messages.error(request, 'That username does not exist')
 			return redirect('create-thread')
 
+# DM A USER THROUGH THEIR PROFILE PAGE
 @login_required
 def profile_to_thread(request, profile_pk, *args, **kwargs):
 	receiver = get_object_or_404(User, pk=profile_pk)
@@ -948,6 +876,7 @@ class ThreadView(LoginRequiredMixin, View):
 		}
 		return render(request, 'blog/thread.html', context)
 
+# NEW MESSAGE
 class CreateMessage(LoginRequiredMixin, View):
 	def post(self, request, pk, *args, **kwargs):
 		form = MessageForm(request.POST, request.FILES)

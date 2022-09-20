@@ -4,6 +4,7 @@
 <!-- HTML FOR COMMENTS -->
 
 {% for comment in post.comment_list|slice:"0:7" %}
+{% if comment.is_parent %}
 <div class="clist" id="clist{{ comment.id }}" >
 	<article class="media comment-section">	
 	<a class="mr-2 comment-user" href="{% url 'user-posts' comment.user %}">	
@@ -92,5 +93,6 @@
 		</div>
 	</article>
 </div>
+{% endif %}
 {% endfor %}
 

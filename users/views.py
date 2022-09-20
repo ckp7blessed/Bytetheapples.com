@@ -13,7 +13,6 @@ from django.db.models import Q, Count, OuterRef, Prefetch
 from django.urls import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 
-# Create your views here.
 
 def register(request):
 	if request.method == "POST":
@@ -27,6 +26,7 @@ def register(request):
 		form = UserRegisterForm()
 	return render(request, 'users/register.html', {'form': form})
 
+# LOGGED IN USER'S PROFILE PAGE
 class UserProfileListView(LoginRequiredMixin, ListView):
 	model = Post
 	template_name = 'users/profile.html'
@@ -81,8 +81,6 @@ class UserProfileListView(LoginRequiredMixin, ListView):
 			)
 		)
 
-
-
 @login_required
 def profile_settings(request):
 	if request.method == "POST":
@@ -113,29 +111,6 @@ class UserDeleteView(LoginRequiredMixin, DeleteView):
 		response = super().delete(request, *args, **kwargs)
 		messages.success(self.request, 'Your account has been deleted!')
 		return response
-
-
-#ORIGINAL
-# @login_required
-# def profile(request):
-# 	if request.method == "POST":
-# 		u_form = UserUpdateForm(request.POST, instance=request.user)
-# 		p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
-# 		if u_form.is_valid() and p_form.is_valid():
-# 			u_form.save()
-# 			p_form.save()
-
-# 			messages.success(request, 'Your profile has been updated!')
-# 			return redirect('profile')
-# 	else:
-# 		u_form = UserUpdateForm(instance=request.user)
-# 		p_form = ProfileUpdateForm(instance=request.user.profile)
-		
-# 	context = {
-# 		'u_form': u_form,
-# 		'p_form': p_form,
-# 	}
-# 	return render(request, 'users/profile.html', context)
 
 class FollowersListView(LoginRequiredMixin, ListView):
 	model = Profile
@@ -188,7 +163,7 @@ class FollowingListView(LoginRequiredMixin, ListView):
 			.get_queryset()
 			.get(user=self.request.user))
 
-#FOR USER.POSTS.HTML (user profile page js not necessary)
+#FOR USER_POSTS.HTML (toggling follower button on user's profile page js not necessary)
 class ToggleFollower(LoginRequiredMixin, View):
 	def post(self, request, pk, *args, **kwargs):
 		profile = Profile.objects.get(pk=pk)
