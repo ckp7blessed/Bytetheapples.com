@@ -34,7 +34,7 @@ used in user_posts.html, user_posts_bycategory.html, profile.html -->
 
 			{% if post.comment_list|length|gtoe:7 %}
 			<a href="{% url 'latest-comment-post-detail' post.id %}" class="btn btn-outline-secondary btn-sm py-0" style="font-size: 0.8em;">Sort By Latest Comments</a>
-			<h5 class="text-center"><small class="font-weight-bold text-center" style="font-size: 0.8em;">--showing top comments--</small></h5>
+			<h6 class="text-center">showing top comments</h6>
 			{% endif %}
 
 			<div class="comment-list com-list{{ post.id }}" id="{{ post.pk }}">

@@ -1,5 +1,5 @@
 <!-- MAIN HTML FOR EACH POST -->
-<!-- For home.html, user_posts.html, user_posts_bycategory.html, profile.html --> 
+<!-- For post_detail.html, latest_comments_post_detail.html, post_comment_detail.html -->
 
 {% load static %}
 {% load custom_tags %}
@@ -24,8 +24,7 @@
 		
 	<h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a>
 	</h2>
-	<p class="article-content">{{ post.content|urlizetrunc:26|truncatechars:1000 }}</p>
-	{% if post.content|length > 1000 %}<a class="article-title" href="{% url 'post-detail' post.id %}"><small style="font-size: 1rem;"><u>continue reading..</u></small></a>{% endif %}
+	<p class="article-content">{{ post.content|urlizetrunc:26 }}</p>
 
 	{% include 'blog/posts_sub.html' %}
 

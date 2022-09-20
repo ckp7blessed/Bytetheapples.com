@@ -5,7 +5,6 @@ from users.models import Profile
 from django.urls import reverse
 import re
 
-# Create your models here.
 
 class Category(models.Model):
 	category_name = models.CharField(max_length=50, default='general coding', verbose_name="Categories")
@@ -18,7 +17,7 @@ class Category(models.Model):
 
 class Post(models.Model):
 	title = models.CharField(max_length=100, help_text="100 characters or less")
-	content = models.TextField()
+	content = models.TextField(max_length=3000, help_text="3k characters or less")
 	category = models.ForeignKey(Category, blank=True, null=True, on_delete=models.SET_NULL)
 	date_posted = models.DateTimeField(default=timezone.now)
 	author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -46,7 +45,6 @@ class Post(models.Model):
 
 	def num_likes(self):
 		return self.liked.all().count()
-	#num_likes.allow_tags = False 
 	num_likes.short_description = 'Total Likes'
 
 	def num_comments(self):
@@ -64,16 +62,6 @@ class PostImage(models.Model):
 			return
 		else:
 			super(PostImage, self).save(*args, **kwargs)
-
-	# @property
-	# def image_url(self):
-	# 	"""
-	# 	Return self.photo.url if self.photo is not None, 
-	# 	'url' exist and has a value, else, return None.
-	# 	"""
-	# 	if self.image:
-	# 	    return getattr(self.image, 'url', None)
-	# 	return None
 
 LIKE_CHOICES = (
 	('Like', 'Like'),
