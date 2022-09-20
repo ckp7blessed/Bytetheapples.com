@@ -3,7 +3,6 @@ from .models import Post, PostImage, Category, Comment, MessageModel
 from django.forms import inlineformset_factory
 from django.forms.widgets import ClearableFileInput
 
-# cat_choice = Category.objects.all()
 
 class ImageForm(forms.ModelForm):
     image = forms.ImageField(label='Add images', required=False,
@@ -13,16 +12,7 @@ class ImageForm(forms.ModelForm):
         model = PostImage
         fields = ['image']
 
-# class CatForm(forms.ModelForm):
-#     category = forms.Select(choices=cat_choice)
-
-#     class Meta:
-#         model = Post
-#         fields = ['category']
-
-
 ImageFormSet = inlineformset_factory(Post, PostImage, form=ImageForm, extra=1, can_delete=False)
-# CatFormSet = inlineformset_factory(Category, Post, form=CatForm)
 
 class CommentModelForm(forms.ModelForm):
     body = forms.CharField(label='', 
