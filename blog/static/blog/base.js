@@ -14,19 +14,22 @@ $( document ).ready(function() {
 		}  
 	});
 
-	  function detectMob() {
+
+	// Detects if user is on a mobile device and alerts
+	function detectMob() {
 	    return ( ( window.innerWidth <= 391 ) && ( window.innerHeight <= 845 ) );
 	  };
 
-	  console.log(detectMob());
 	  var alerted = sessionStorage.getItem('alerted') || '';
 	  if (detectMob()){
 	    if (alerted != 'yes') {
 	     alert("Please use a desktop browser for best experience");
 	     sessionStorage.setItem('alerted','yes');
 	    };
-	  };
+	};
+	detectMob();
 
+	// Enlarges images
 	$('img[data-enlargeable]').addClass('img-enlargeable').click(function() {
 	  var src = $(this).attr('src');
 	  var modal;
@@ -56,11 +59,10 @@ $( document ).ready(function() {
 	  });
 	});
 
-	// COMMENT POST
+	// COMMENT ON A POST
 	$('.com-form').on("submit", function(e) {
 		e.preventDefault();
 	    const post_id = $(this).attr('id');
-	    console.log(post_id)
 		const comcountText = $(`.comment-count${post_id}`).text();
 		const trim = $.trim(comcountText);
 	    const url = $(this).attr('action');
@@ -76,12 +78,8 @@ $( document ).ready(function() {
 			data: serializedData,
 			dataType: 'json',
 	        success: function(response) {
-	            console.log('success')
-	            console.log(response.username)
-	            console.log(response.post_id+"post ID")
 
 				const comClone = $("#clist00").clone(true, true).val(null);
-	            // comClone.appendTo($(`.com-list${post_id}`));
 	            comClone.prependTo($(`.com-list${post_id}`));
 
 	            comClone.attr("id", "clist"+response.comment.id);
@@ -97,11 +95,9 @@ $( document ).ready(function() {
 	            comClone.find(".cl-input").attr("value", response.comment.id);
 	            comClone.find(".com-like").attr("class", "btn btn-like0 btn-sm py-0 com-like");
 
-
 	            comClone.find(".com-like").attr("id", "like-btn" + response.comment.id);
 	            comClone.find(".com-like").text("Like ");
 	            comClone.find(".com-like").append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
-
 
 	            comClone.find(".com-modal").text("0 ");
 	            comClone.find(".com-modal").append('<small><i class="fa fa-heart fa-heart-blue"></i></small>');
@@ -125,16 +121,10 @@ $( document ).ready(function() {
 	            comClone.find(".comdelete-form-temp").attr("action", response.delete_url_start+response.comment.id+response.delete_url_end);
 	            comClone.find(".comdelete-form-temp").attr("id", response.comment.id);
 
-	            console.log(response.delete_url_start+response.comment.id+response.delete_url_end)
-	            console.log(response.comment.id)
-	            console.log('success');
 	            $('.com-form').each(function() { this.reset() });
-
 
 	            res = trimCount + 1;
 	            $(`.comment-count-small${post_id}`).text(res + ' ');
-	            // $(`.comment-count-small${post_id}`).append('<small><i class="fa fa-solid fa-comment"></i></small>');
-	            console.log(res);
 
 				if (display===false) {
 					$(`#comment-box-${post_id}`).show("slow");
@@ -169,7 +159,6 @@ $( document ).ready(function() {
 				'post_id':post_id,
 			},
 			success: function(response) {
-				console.log('response.user_id'+response.user_id)
 				// LIST OF USERS WHO LIKED THE POST
 				var userlikeHTML =  
 								'<div id="pl' +response.user_id + '">' +
@@ -197,9 +186,6 @@ $( document ).ready(function() {
 
 					$(`.liked-list${post_id}`).find('#pl'+response.user_id).remove();
 
-					console.log(response.user_id)
-					console.log('removed')
-
 				} else {
 					$(`.like-btn${post_id}`).text('Liked ');
 					res = trimCount + 1;
@@ -208,9 +194,6 @@ $( document ).ready(function() {
 
 					$(`.liked-list${post_id}`).append(userlikeHTML);
 				}
-				console.log(response)
-				console.log(response.username)
-				console.log(response.image)
 
 				$(`.like-count${post_id}`).text(res +' ');
 				$(`.like-count${post_id}`).append('<i class="fa fa-heart fa-heart-blue"></i>');
@@ -225,19 +208,12 @@ $( document ).ready(function() {
 	$('.comlike-form').submit(function(e){
 		e.preventDefault();
 		const comment_id = $(this).attr('id');
-		console.log(comment_id)
 		const likeText = $(`#like-btn${comment_id}`).text();
-		console.log(likeText)
 		const trim = $.trim(likeText);
-		// const url = $(this).attr('action')
-		console.log(trim)
-		// console.log(url)
 
 		let res;
 		const likes = $(`.like-count${comment_id}`).text();
 		const trimCount = parseInt(likes);
-		console.log(likes)
-		console.log(trimCount)
 		
 		$.ajax({
 			type: 'POST',
@@ -264,7 +240,6 @@ $( document ).ready(function() {
 								'</li>' +
 								'</ul>' +
 								'</div>';
-				console.log(response)
 				if(trim == "Liked") {
 					$(`#like-btn${comment_id}`).text('Like ');
 					res = trimCount - 1;
@@ -297,12 +272,9 @@ $( document ).ready(function() {
     $('.comdelete-form-temp').on("submit", function(e) {
     	e.preventDefault();
         const comment_id = $(this).attr('id');
-        console.log('TEMP - delete success function - comment id '+comment_id)
 
         const url = $(this).attr('action');
-        console.log(url)
         const serializedData = $(this).serialize();	
-        console.log(serializedData)
 
         $.ajax({
         	type: 'POST',
@@ -311,12 +283,9 @@ $( document ).ready(function() {
 				'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
 				'comment_id':comment_id,
 			},
-			// dataType: 'text',
             success: function(response) {
                 $("#commentdeleteModal-"+response.comment_id).find('.close').click();
-
                 $(`.com-list${response.post_id}`).find('#clist'+response.comment_id).remove();
-
                 $(`.comment-count-small${response.post_id}`).text(response.num_comments + ' ');
 
             },
@@ -330,12 +299,8 @@ $( document ).ready(function() {
     $('.comdelete-form').on("submit", function(e) {
     	e.preventDefault();
         const comment_id = $(this).attr('id');
-        console.log('delete success function - comment id '+comment_id)
-
         const url = $(this).attr('action');
-        console.log(url)
         const serializedData = $(this).serialize();
-        console.log(serializedData)
 
         $.ajax({
         	type: 'POST',
@@ -347,9 +312,7 @@ $( document ).ready(function() {
 			// dataType: 'text',
             success: function(response) {
                 $("#commentdeleteModal-"+response.comment_id).find('.close').click();
-
                 $(`.com-list${response.post_id}`).find('#clist'+response.comment_id).remove();
-
                 $(`.comment-count-small${response.post_id}`).text(response.num_comments + ' ');
             },
 			error: function(response) {

@@ -6,12 +6,9 @@ $( document ).ready(function() {
     // DELETE COMMENTS
     $('.comdelete-form').on("submit", function(e) {
         const comment_id = $(this).attr('id');
-        console.log('delete success function - comment id '+comment_id)
-
 		let res;
 		const likes = $('.parent-com-count').text();
 		const trimCount = parseInt(likes);
-
 		res = trimCount - 1;
 
 		$('.parent-com-count').text(res + ' ');
@@ -136,14 +133,12 @@ $( document ).ready(function() {
 				    var name = arr[i];
 				    if (name == value) {
 				      // status = 'Exist';
-				      console.log('EXIST');
 						comClone.find($(`#like-btn${data.pk}`)).text("Liked ");
 						comClone.find($(`#like-btn${data.pk}`).removeClass('btn-like0').addClass('btn-liked1'));
 						comClone.find($(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>'));
 				      break;
 				    }
 				    else {
-				    	console.log('NONExist');
 						comClone.find($(`#like-btn${data.pk}`)).text("Like ");
 						// comClone.find($(`#like-btn${data.pk}`).removeClass('btn-liked1').addClass('btn-like0 '));
 						comClone.find($(`#like-btn${data.pk}`).attr('class', "btn btn-like0 btn-sm py-0 com-like"));
@@ -153,9 +148,6 @@ $( document ).ready(function() {
 				  // return status;
 				}
 				checkValue(response.user, data.fields.liked);
-				console.log(response.user);
-				console.log(data.fields.liked);
-				console.log('---NEW--');
 
 				if (data.fields.liked.length == 0) {
 					comClone.find($(`#like-btn${data.pk}`).attr('class', "btn btn-like0 btn-sm py-0 com-like"));

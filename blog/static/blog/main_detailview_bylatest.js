@@ -126,14 +126,12 @@ $( document ).ready(function() {
 				    var name = arr[i];
 				    if(name == value) {
 				      status = 'Exist';
-				      console.log('EXIST')
 						comClone.find(".com-like").text("Liked ");
 						$(`#like-btn${data.pk}`).removeClass('btn-like0').addClass('btn-liked1');
 						$(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
 				      break;
 				    }
 				    else {
-				    	console.log('NONExist')
 						comClone.find(".com-like").text("Like ");
 						$(`#like-btn${data.pk}`).removeClass('btn-liked1').addClass('btn-like0');
 						$(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
@@ -142,9 +140,6 @@ $( document ).ready(function() {
 				  return status;
 				}
 				checkValue(response.user, data.fields.liked);
-				console.log(response.user)
-				console.log(data.fields.liked)
-				console.log('---NEW--')
 
 				});
 

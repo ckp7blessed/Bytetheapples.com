@@ -6,7 +6,6 @@ $( document ).ready(function() {
 
 	$('.dropdown-item-close').click(function() {
 		const notification_pk = $(this).attr('id');
-		console.log(notification_pk);
 		const url = '/notification/delete/'+notification_pk+'/';
 
 		$.ajax({
@@ -17,8 +16,6 @@ $( document ).ready(function() {
 				'notification_pk':notification_pk,
 			},
 			success: function(response) {
-				console.log('success');
-				console.log(response.notification_count)
 				$(`#noti-${notification_pk}`).remove();
 				$('#noti-count').text(response.notification_count);
 			}
