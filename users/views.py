@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render_to_response, render, redirect
 from . forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,6 +12,7 @@ from users.models import Profile
 from django.db.models import Q, Count, OuterRef, Prefetch
 from django.urls import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.template import RequestContext
 
 
 def register(request):
@@ -189,3 +190,24 @@ def toggle_follower_js(request, *args, **kwargs):
     else:
         profile.followers.remove(request.user)
         return HttpResponse("Follow")
+
+def handler400(request, exception):
+    context = RequestContext(request)
+    err_code = 400
+    response = render_to_response('users/400.html', {"code":err_code}, context)
+    response.status_code = 400
+    return response
+
+def handler404(request, exception):
+    context = RequestContext(request)
+    err_code = 404
+    response = render_to_response('users/404.html', {"code":err_code}, context)
+    response.status_code = 404
+    return response
+
+def handler500(request):
+    context = RequestContext(request)
+    err_code = 500
+    response = render_to_response('users/500.html', {"code":err_code}, context)
+    response.status_code = 500
+    return response

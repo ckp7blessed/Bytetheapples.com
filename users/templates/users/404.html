@@ -1,0 +1,16 @@
+{% extends 'blog/base_secondary.html' %}
+
+{% block content %}
+
+<h2 class="text-center">404 response</h2>
+<h4>Please check the url</h4><br>
+<h5>
+The HTTP 404 error message is a standard response code, to indicate that the browser was able to communicate with a given server, but the server could not find what was requested. The error may also be used when a server does not wish to disclose whether it has the requested information.
+
+The website hosting server will typically generate a "404 Not Found" web page when a user attempts to follow a broken or dead link; hence the 404 error is one of the most recognizable errors encountered on the World Wide Web. 
+<a href="https://en.wikipedia.org/wiki/HTTP_404" target="_blank" rel="noopener noreferrer">- Wikipedia</a>
+</h5><br>
+
+<button class="button" onclick="history.back()">Go Back</button>
+
+{% endblock %}
