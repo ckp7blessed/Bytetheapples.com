@@ -16,7 +16,7 @@
 			<form action="{% url 'like-comment-view' %}" method="POST" class="comlike-form" id='00'>
 				{% csrf_token %}
 				<input type="hidden" name="comment_id" value="00" class="cl-input"> 
-					<button type="submit" class="btn btn-sm py-0 com-like" id="like-btn00" style="font-size: 0.8em;">Like </button>
+					<button type="submit" class="btn btn-sm py-0 com-like" id="like-btn00" style="font-size: 0.8em;">Like <span class="like-icon"><i class="fa fa-heart"></i></span></button>
 
 				<!-- Button trigger modal - Shows likes list of users -->
 				<button type="button" class="btn btn-outline-dark btn-sm py-0 com-modal like-count00" id="clc00" data-toggle="modal" style="font-size: 0.8em;" data-target="#commentlikesModalLong-00"><span>0 </span><small><i class="fa fa-heart fa-heart-blue"></i></small></button>

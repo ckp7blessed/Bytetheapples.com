@@ -2,6 +2,7 @@
 
 $( document ).ready(function() {
 
+	document.querySelector('.comment-parent').scrollIntoView({ behavior: 'smooth' });
 
     // DELETE COMMENTS
     $('.comdelete-form').on("submit", function(e) {
@@ -72,7 +73,7 @@ $( document ).ready(function() {
                 comClone.find(".comlike-form").attr("id", data.pk);
                 comClone.find(".cl-input").attr("value", data.pk);
                 comClone.find(".com-like").attr("class", "btn btn-sm py-0 com-like");
-                comClone.find(".com-like").append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
+                // comClone.find(".com-like").append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
 
                 comClone.find(".com-like").attr("id", "like-btn" + data.pk);
 

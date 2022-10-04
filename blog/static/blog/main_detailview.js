@@ -8,9 +8,12 @@ $( document ).ready(function() {
 		const comcount = $('.clist').length; 
 		const post_id = $('.content-section').attr('id');
 
+		if (comcount < 7){}
+			else{
+
 		// if($(this).scrollTop() +1 >= $(document).height() - $(window).height())
 		// if($(this).scrollTop() + 100 >= $(document).height() - $(window).height()) {
-		if (($(window).scrollTop() + 150 + $(window).innerHeight()) >= $(document).height()-100){
+		if (($(window).scrollTop() + 100 + $(window).innerHeight()) >= $(document).height()-100){
 			if (working == false) {
 				working = true;
 			
@@ -34,11 +37,37 @@ $( document ).ready(function() {
                 var delete_url_end = '/delete/';       
 				var json_data = $.parseJSON(response.comment);
 
+				// For checkNewCom() function below
+				// Grabs the length of comments with class '.clist-temp' (which are new comments just posted)
+		        var clistArr = $('.clist-temp');
+		        	var cidArr = [];
+		        // Grabs the 'id' of each '.clist-temp' (which is the comment.pk). 
+		        	clistArr.each( function(i) {
+					var newCom = (parseInt($(this).attr('id').match(/[a-z]+|\d+/ig).slice(1)));
+				    cidArr.push(newCom);
+		        		});
+
 				$.each(json_data,function(index,data) {
 
 				const comClone = $("#clist00").clone(true, true).val(null);
                 comClone.appendTo($(`.com-list${post_id}`));
                 comClone.attr("id", "clist" + data.pk);
+
+                // Checks if there are any new just posted comments that are the same with the response comments
+                // if they are the same, than remove them from the comment list
+                checkNewCom(data.pk, cidArr);
+				function checkNewCom(value,arr) {
+				  var status = 'Not exist';
+				 
+				  for(var i=0; i<arr.length; i++) {
+				    var name = arr[i];
+				    if(name == value) {
+				      status = 'Exist';
+						comClone.remove();
+				      return;
+				    }
+				    else {
+
                 comClone.removeAttr("style");
 
                 comClone.attr("class", "clist");
@@ -56,8 +85,7 @@ $( document ).ready(function() {
                 comClone.find(".comlike-form").attr("id", data.pk);
                 comClone.find(".cl-input").attr("value", data.pk);
                 comClone.find(".com-like").attr("class", "btn btn-like0 btn-sm py-0 com-like");
-                comClone.find(".com-like").append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
-
+                // comClone.find(".com-like").append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
                 comClone.find(".com-like").attr("id", "like-btn" + data.pk);
 
                 comClone.find(".com-modal").text(data.fields.liked.length+ " ");
@@ -136,12 +164,18 @@ $( document ).ready(function() {
 				    else {
 						comClone.find(".com-like").text("Like ");
 						$(`#like-btn${data.pk}`).removeClass('btn-liked1').addClass('btn-like0');
-						$(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
+						// $(`#like-btn${data.pk}`).append('<span class="like-icon"><i class="fa fa-heart"></i></span>');
 				    }
 				  }
 				  return status;
 				}
 				checkValue(response.user, data.fields.liked);
+
+				    };
+				  };
+				  return status;
+				};
+
 
 				});
 
@@ -150,6 +184,6 @@ $( document ).ready(function() {
 
 			}
 		}
+	};
 	});
-
 });
