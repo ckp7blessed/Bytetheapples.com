@@ -192,22 +192,13 @@ def toggle_follower_js(request, *args, **kwargs):
         return HttpResponse("Follow")
 
 def handler400(request, exception):
-    context = RequestContext(request)
-    err_code = 400
-    response = render_to_response('users/400.html', {"code":err_code}, context)
-    response.status_code = 400
-    return response
+        data = {}
+        return render(request,'users/400.html', data)
 
 def handler404(request, exception):
-    context = RequestContext(request)
-    err_code = 404
-    response = render_to_response('users/404.html', {"code":err_code}, context)
-    response.status_code = 404
-    return response
+        data = {}
+        return render(request,'users/404.html', data)
 
-def handler500(request):
-    context = RequestContext(request)
-    err_code = 500
-    response = render_to_response('users/500.html', {"code":err_code}, context)
-    response.status_code = 500
-    return response
+def handler600(request, exception):
+        data = {}
+        return render(request,'users/500.html', data)
