@@ -23,7 +23,7 @@ $( document ).ready(function() {
 	  var alerted = sessionStorage.getItem('alerted') || '';
 	  if (detectMob()){
 	    if (alerted != 'yes') {
-	     alert("Please use a desktop browser for best experience");
+	     alert("Detected a mobile device. Please use a desktop browser or use in portrait mode for best experience");
 	     sessionStorage.setItem('alerted','yes');
 	    };
 	};

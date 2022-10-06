@@ -1,4 +1,28 @@
-{% extends 'blog/base.html' %}
+{% extends 'blog/base_secondary.html' %}
+{% load static %}
+
 {% block content %}
-	<h1>About</h1>
+
+	<h1><center><a href="{% url 'blog-home' %}" style="color: black;">ByteTheApple.com</a></center></h1>
+
+<br>
+	<p style="font-size: 1.2rem;">
+	The bite in the apple symbolizes the forbidden fruit from the Garden Of Eden. When Eve took a bite out of the apple, she gained knowledge of good and evil. During the past century, human advancement on technology has evolved to a point our ancestors could not have fathomed. This technology can be used either for the development or destruction of mankind. It is ultimately in the hands of the individual whether one chooses to do good or bad with this power. </p>
+
+<p style="font-size: 1.2rem;">ByteTheApple disseminates information for engineers, who are the developers of this power, by offering a fully functional, full stack social media platform.</p>
+
+<p style="font-size: 1.2rem;"><em>
+"Technology is nothing. What's important is that you have a faith in people, <br>that they're basically good and smart, and if you give them tools, <br>they'll do wonderful things with them." <br>- Steve Jobs
+</em></p>
+
+{% if request.user.is_authenticated %}
+<h4 style="float:right"><a href="{% url 'blog-home' %}">Start Exploring</a></h4>
+{% else %}
+<h4 style="float:right"><a href="{% url 'login' %}">Get Started</a></h4>
+{% endif %}
+
+	<center><img class="rounded" src="/media/sm_logos/about-1.png" style="height:300px; width:300px;"></center>
+
+{% block news_content %}
+{% endblock %}
 {% endblock content %}
