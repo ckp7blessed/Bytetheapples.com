@@ -18,6 +18,7 @@ class Profile(models.Model):
 	youtube_url = models.CharField(max_length=75, blank=True, null=True)
 	show_email = models.BooleanField(default=True, verbose_name="Show email in profile")
 	followers = models.ManyToManyField(User, blank=True, related_name="followers")
+	register_ip = models.CharField(max_length=25, default='00.000.000.000', blank=True, null=True)
 
 	def __str__(self):
 		return f"{self.user.username}"

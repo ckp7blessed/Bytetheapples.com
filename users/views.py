@@ -14,6 +14,16 @@ from django.urls import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import RequestContext
 
+def get_ip(request):
+	try:
+		x_forward = request.META.get("HTTP_X_FORWARDED_FOR")
+		if x_forward:
+			ip = x_forward.split(",")[0]
+		else:
+			ip = request.META.get("REMOTE_ADDR")
+	except:
+		ip = ""
+	return ip
 
 def register(request):
 	if request.method == "POST":
@@ -22,6 +32,9 @@ def register(request):
 			form.save()
 			username = form.cleaned_data.get('username')
 			messages.success(request, f'Account created for {username}! You are now able to login.')
+			profile = Profile.objects.get(user__username=username)
+			profile.register_ip = get_ip(request)
+			profile.save()
 			return redirect('login')
 	else:
 		form = UserRegisterForm()
