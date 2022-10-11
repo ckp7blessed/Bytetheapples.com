@@ -1,3 +1,5 @@
+from django.contrib.messages import constants as messages
+
 """
 Django settings for CBlog_project project.
 
@@ -139,6 +141,10 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 LOGIN_REDIRECT_URL = 'blog-home'
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'blog-home'
+
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'

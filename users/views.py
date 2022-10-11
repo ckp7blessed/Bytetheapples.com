@@ -1,4 +1,4 @@
-from django.shortcuts import render_to_response, render, redirect
+from django.shortcuts import render, redirect
 from . forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -28,11 +28,16 @@ def get_ip(request):
 def register(request):
 	if request.method == "POST":
 		form = UserRegisterForm(request.POST)
-		if form.is_valid(): 
-			form.save()
-			username = form.cleaned_data.get('username')
-			messages.success(request, f'Account created for {username}! You are now able to login.')
-			profile = Profile.objects.get(user__username=username)
+		email = request.POST['email']
+		if User.objects.filter(email=email).exists(): 
+			messages.error(request, 'The email provided already has an account associated with it')
+		elif form.is_valid():	
+			user = form.save(commit=False)
+			user.username = user.username.lower()
+			user.save()
+			# username = form.cleaned_data.get('username')
+			messages.success(request, f'Account created for {user.username}! You are now able to login.')
+			profile = Profile.objects.get(user__username=user.username)
 			profile.register_ip = get_ip(request)
 			profile.save()
 			return redirect('login')
