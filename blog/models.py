@@ -22,6 +22,7 @@ class Post(models.Model):
 	date_posted = models.DateTimeField(default=timezone.now)
 	author = models.ForeignKey(User, on_delete=models.CASCADE)
 	liked = models.ManyToManyField(Profile, blank=True, related_name='likes')
+	ip_address = models.CharField(max_length=25, default='00.000.000.000', blank=True, null=True)
 
 	def __str__(self):
 		return self.title
@@ -74,6 +75,7 @@ class Like(models.Model):
 	value = models.CharField(choices=LIKE_CHOICES, max_length=8)
 	updated = models.DateTimeField(auto_now=True)
 	created = models.DateTimeField(auto_now_add=True)
+	ip_address = models.CharField(max_length=25, default='00.000.000.000', blank=True, null=True)
 
 	def __str__(self):
 		return f"{self.user}-{self.post}-{self.value}"
@@ -86,6 +88,7 @@ class Comment(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	liked = models.ManyToManyField(Profile, blank=True, related_name='com_likes')
 	parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='+')
+	ip_address = models.CharField(max_length=25, default='00.000.000.000', blank=True, null=True)
 
 	def __str__(self):
 		return f"Comment:{self.user}-{self.post}-{self.id}"
@@ -119,6 +122,7 @@ class CommentLike(models.Model):
 	value = models.CharField(choices=LIKE_CHOICES, max_length=8)
 	updated = models.DateTimeField(auto_now=True)
 	created = models.DateTimeField(auto_now_add=True)
+	ip_address = models.CharField(max_length=25, default='00.000.000.000', blank=True, null=True)
 
 	def __str__(self):
 		return f" | CommentLike({self.user}-{self.comment}-{self.value})"

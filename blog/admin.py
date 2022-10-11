@@ -28,6 +28,7 @@ class PostAdmin(admin.ModelAdmin):
 					('liked',
 					'num_likes'),
 					'num_comments',
+					'ip_address',
 				]
 			}
 		)
@@ -38,6 +39,9 @@ class PostAdmin(admin.ModelAdmin):
 	list_display = ('id', 'title', 'content', 'category', 'date_posted', 'author', 'num_likes', 'num_comments')
 	search_fields = ('author__username', 'date_posted', 'title')
 	list_per_page = 50
+
+class LikeAdmin(admin.ModelAdmin):
+	readonly_fields = ('updated', 'created')
 
 class CommentAdmin(admin.ModelAdmin):
 	fieldsets = [
@@ -54,7 +58,8 @@ class CommentAdmin(admin.ModelAdmin):
 					'created',
 					'id',
 					'liked',
-					'num_likes'
+					'num_likes',
+					'ip_address'
 				]
 			}
 		)
@@ -62,13 +67,13 @@ class CommentAdmin(admin.ModelAdmin):
 	readonly_fields = ['created', 'post_id', 'post_author', 'id', 'num_likes', 'is_parent', 'num_children',]
 
 	inlines = [CommentLikeInline] #this doesnt work, use 'liked' field instead
-	list_display = ('post', 'post_id', 'post_author', 'is_parent', 'num_children', 'body', 'user', 'created', 'num_likes')
+	list_display = ('body', 'id', 'is_parent', 'num_children', 'num_likes', 'user', 'created', 'post', 'post_id', 'post_author',)
 	search_fields = ['id', 'post', 'post_id', 'post_author']
 	list_per_page = 50
 
 admin.site.register(Post, PostAdmin)
 admin.site.register(Category)
-admin.site.register(Like)
+admin.site.register(Like, LikeAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(CommentLike)
 admin.site.register(Notification)

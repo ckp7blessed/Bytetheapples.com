@@ -28,6 +28,17 @@ from django.utils.dateparse import parse_datetime
 import json
 import requests
 
+# GET USER IP ADDRESS
+def get_ip(request):
+	try:
+		x_forward = request.META.get("HTTP_X_FORWARDED_FOR")
+		if x_forward:
+			ip = x_forward.split(",")[0]
+		else:
+			ip = request.META.get("REMOTE_ADDR")
+	except:
+		ip = ""
+	return ip
 
 # HOME PAGE
 class PostListView(ListView):
@@ -511,6 +522,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 		image_formset = ImageFormSet(self.request.POST, self.request.FILES) 
 		with transaction.atomic():
 			self.object = form.save()
+			self.object.ip_address = get_ip(self.request)
 
 			if image_formset.is_valid():
 				image_formset.instance = self.object 
@@ -577,6 +589,7 @@ def like_unlike_post(request):
 			like.value='Like'
 
 			post_obj.save()
+			like.ip_address = get_ip(request)
 			like.save()
 
 		data = {
@@ -617,6 +630,7 @@ def like_unlike_comment(request):
 			like.value='Like'
 
 			comment_obj.save()
+			like.ip_address = get_ip(request)
 			like.save()
 			post.save()
 
@@ -644,6 +658,7 @@ def comment_post(request):
 			instance.user = profile
 			instance.username = profile.user.username
 			instance.post = post
+			instance.ip_address = get_ip(request)
 			instance.save()
 			Notification.objects.create(notification_type=2, from_user=request.user, 
 				to_user=post.author, post=post)
@@ -675,6 +690,7 @@ class CommentReplyView(LoginRequiredMixin, View):
 			instance.username = profile.user.username
 			instance.post = post
 			instance.parent = parent_comment
+			instance.ip_address = get_ip(request)
 			instance.save()
 			notification = Notification.objects.create(notification_type=2, from_user=request.user, 
 				to_user=parent_comment.user.user, comment=parent_comment)
