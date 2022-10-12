@@ -8,6 +8,9 @@ class ImageInline(admin.TabularInline):
 class CommentInline(admin.TabularInline):
 	model = Comment
 	extra = 0
+	exclude = ['body' ,'liked', 'parent']	
+	readonly_fields = ['user', 'id', 'num_likes', 'num_children', 'is_parent', 'ip_address']
+	list_per_page = 5
 
 class CommentLikeInline(admin.TabularInline):
 	model = CommentLike
