@@ -105,6 +105,9 @@
 				  <div class="dropdown-menu">
 				    <a class="btn btn-sm btn-light side-link mx-auto" href="{% url 'profile' %}">Profile <i class="fa fa-solid fa-user"></i></a>
 				    <a class="btn btn-sm btn-light side-link" href="{% url 'profile_settings' %}">Settings <i class="fa fa-solid fa-gear"></i></a>
+				    {% if user.is_staff %}
+				    <a class="btn btn-sm btn-light side-link" href="{{ '/admin/' }}">Admin <i class="fa fa-solid fa-gear"></i></a>
+				    {% endif %}
 				    <a class="btn btn-sm btn-light side-link" style="float:right;" href="{% url 'logout' %}">Logout <i class="fa fa-solid fa-arrow-right"></i></a>
 				  </div>
 				</div><br><br>
