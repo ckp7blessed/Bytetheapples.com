@@ -888,15 +888,15 @@ hr.reply {
 /*Resizing based on screen size*/
 @media (max-width: 768px) {
   .search {
-    font-size:11px;
+    font-size:10px;
     padding:4px 6px;
   }
 }
 
 @media (min-width: 768px) {
   .search {
-    font-size:12px;
-    padding:6px 12px;
+    font-size:10px;
+    padding:4px 6px;
   }
 }
 

@@ -2,8 +2,8 @@
 
 <!-- HTML FOR SIDEBAR NOTIFICATIONS -->
 
-<div class="btn-group dropleft">
-	<button type="button" class="btn btn-light side-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-solid fa-bell"></i> Notifications
+<div class="btn-group dropleft" id="notiDropdown">
+	<button type="button" class="btn btn-light side-link dropdown-toggle notidrop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-solid fa-bell"></i> Notifications
 		{% if notifications.count %}
 	<span class="badge bg-primary notification-badge">
 		<span class="font-weight-bold" style="color:white;" id="noti-count">{{ notifications.count }}</span>

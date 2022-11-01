@@ -29,6 +29,19 @@ $( document ).ready(function() {
 	};
 	detectMob();
 
+	// Notification sidebar dropdown hack. BS4 dropdown box clipped 
+	// when used within overflow:auto (scrollable container)
+	$('.notidrop').click(function() {
+		$('#sidebars').removeClass("sticky-top sidebar-scrollable");
+		$([document.documentElement, document.body]).animate({
+        scrollTop: $("#sidebars").offset().top
+    }, 500);
+	});
+
+	$('#notiDropdown').on('hide.bs.dropdown', function () {
+  	$('#sidebars').addClass("sticky-top sidebar-scrollable");
+	});
+
 	// Enlarges images
 	$('img[data-enlargeable]').addClass('img-enlargeable').click(function() {
 	  var src = $(this).attr('src');
