@@ -5,12 +5,13 @@ import os
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'kh1rty#33s4aw37+(c0a)6+$bb^)_qhcm&8&$lzyuu(8m9y01d'
+# SECRET_KEY = 'kh1rty#33s4aw37+(c0a)6+$bb^)_qhcm&8&$lzyuu(8m9y01d'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*', 'bytetheapple.herokuapp.com']
 
 
 # AWS S3 
