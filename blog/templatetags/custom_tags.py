@@ -2,6 +2,7 @@ from django import template
 from django.template.defaultfilters import stringfilter
 from blog.models import Notification
 import requests
+import os
 
 register = template.Library()
 
@@ -54,8 +55,10 @@ def show_notifications(context):
 
 @register.inclusion_tag('blog/news_feed.html', takes_context=True)
 def news_feed(context):
+    MS_ACCESS_KEY = os.environ.get('MEDIA_STACK_ACCESS_KEY')
+
     r = requests.get(
-        'http://api.mediastack.com/v1/news?access_key=ACCESS_KEY&countries=us&languages=en&limit=3&categories=technology')
+        f'http://api.mediastack.com/v1/news?access_key={MS_ACCESS_KEY}&countries=us&languages=en&limit=3&categories=technology')
     res = r.json()
     data = res['data']
     title = []

@@ -17,8 +17,8 @@ ADD - 'DEFAULT_AUTO_FIELD'
 REMOVE - 'BASE_DIR = os.path' (Django 2.1.7 )
 ADD - 'BASE_DIR = Path(__file__).resolve().parent.parent' (Django 3.2.15)
 """
-
 import os
+
 from pathlib import Path
 from django.contrib.messages import constants as messages
 
@@ -143,6 +143,9 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
