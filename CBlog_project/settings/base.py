@@ -18,6 +18,7 @@ REMOVE - 'BASE_DIR = os.path' (Django 2.1.7 )
 ADD - 'BASE_DIR = Path(__file__).resolve().parent.parent' (Django 3.2.15)
 """
 import os
+import django_heroku
 
 from pathlib import Path
 from django.contrib.messages import constants as messages
@@ -188,3 +189,5 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+
+django_heroku.settings(locals())
