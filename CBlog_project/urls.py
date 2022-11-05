@@ -10,6 +10,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('blog.urls')),
     path('privacy-policy/', user_views.privacy_policy, name='privacy_policy'),
+    path('termsandconditions/', user_views.tnc, name='tnc'),
     path('accounts/', include('allauth.urls')),
     path('register/', user_views.register, name='register'),
     path('profile/', user_views.UserProfileListView.as_view(), name='profile'),

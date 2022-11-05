@@ -212,6 +212,9 @@ def toggle_follower_js(request, *args, **kwargs):
 def privacy_policy(request):
 	return render(request, 'users/privacy_policy.html', {'title': 'Privacy Policy'})
 
+def tnc(request):
+	return render(request, 'users/tnc.html', {'title': 'TNC'})
+
 def handler400(request, exception):
         data = {}
         return render(request,'users/400.html', data)
