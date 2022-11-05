@@ -209,6 +209,9 @@ def toggle_follower_js(request, *args, **kwargs):
         profile.followers.remove(request.user)
         return HttpResponse("Follow")
 
+def privacy_policy(request):
+	return render(request, 'users/privacy_policy.html', {'title': 'Privacy Policy'})
+
 def handler400(request, exception):
         data = {}
         return render(request,'users/400.html', data)
