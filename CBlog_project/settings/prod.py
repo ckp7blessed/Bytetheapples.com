@@ -12,7 +12,7 @@ DEBUG = False
 # DEBUG = (os.environ.get('DEBUG_VALUE') == 'TRUE')
 # DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ['.bytetheapples.com', 'bytetheapple.herokuapp.com']
+ALLOWED_HOSTS = ['*', '.bytetheapples.com', 'bytetheapple.herokuapp.com']
 
 
 # AWS S3 
