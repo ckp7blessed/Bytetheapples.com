@@ -34,8 +34,9 @@
 
 				{% if provider.name == 'Google' %}
 				  <a title="{{provider.name}}" class="socialaccount_provider {{provider.id}}" 
-				     href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"><img src="/media/signin_buttons/btn_google_signin_dark_normal_web.png"></a>
+				     href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"><img src="{% static 'images/btn_google_signin_dark_normal_web.png'%}"></a>
 				{% endif %}
+				<!-- /media/signin_buttons/btn_google_signin_dark_normal_web.png -->
 
 				  <a title="{{provider.name}}" class="socialaccount_provider {{provider.id}}" 
 				     href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"></a>
