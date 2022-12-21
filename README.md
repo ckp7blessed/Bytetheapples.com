@@ -10,5 +10,4 @@ ByteTheApple disseminates information for engineers, who are the developers of t
 <br /><br />
 "Technology is nothing. What's important is that you have a faith in people,<br />
 that they're basically good and smart, and if you give them tools,<br />
-they'll do wonderful things with them."<br />
-- Steve Jobs
+they'll do wonderful things with them." - Steve Jobs<br />
