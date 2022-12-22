@@ -45,7 +45,7 @@ Recruiters, please contact me to get access to a sample admin account to view th
 - Custom admin panel
 
 // Security 
-- Latest Django v3.2
+- Upgraded to latest Django v3.2
 - Cloudflare DDOS protection, bot mitigation, and custom firewalls
 
 <br /><br />
