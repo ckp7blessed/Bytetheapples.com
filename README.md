@@ -54,6 +54,7 @@ Recruiters, please contact me to get access to a sample admin account to view th
 - Clean and well documented code
 - Efficient queries with ORM to swiftly return responses from POSTGRESQL database
 - Optimized Model objects, View functions, & HTML templates for greater performance
+- Python 3.11.0, Django 3.2.15
 - Future update will be built on Django Rest Framework & React JS
 
 <br /><br />
