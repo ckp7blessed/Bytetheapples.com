@@ -26,12 +26,14 @@ Recruiters, please contact me to get access to a sample admin account to view th
 - Like/Unlike posts (also shows list of users that liked)
 - Comment on posts
 - Search keywords for post title or content
+- Logs user's ip address
 
 // Comments 
 - Standard CRUD functionality
 - Like/Unlike comments  (also shows list of users that liked)
 - Sort comments based on likes or newest comments
 - Able to reply to a parent comment
+- Logs user's ip address
 - Infinite scroll on comments
 
 // News
